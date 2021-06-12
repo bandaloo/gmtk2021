@@ -1,3 +1,4 @@
+import { VELOCITY_EPSILON } from "./consts";
 import { Enemy } from "./Enemy";
 import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 import Vector2 = Phaser.Math.Vector2;
@@ -45,7 +46,7 @@ export class Bat extends Enemy {
   }
 
   public update(): void {
-    if (Math.abs(this.sprite.body.velocity.x) >= 0.01) {
+    if (Math.abs(this.sprite.body.velocity.x) >= VELOCITY_EPSILON) {
       this.sprite.setFlipX(this.sprite.body.velocity.x >= 0);
     }
     if (this.swooping) {
