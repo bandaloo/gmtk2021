@@ -1,5 +1,6 @@
 import "phaser";
 import { Bat } from "./Bat";
+import { Enemy } from "./Enemy";
 
 class Player {
   body: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
@@ -28,9 +29,35 @@ export default class Demo extends Phaser.Scene {
 
   create(): void {
     this.add.shader("RGB Shift Field", 0, 0, 800, 600).setOrigin(0);
-
     this.player = new Player();
     this.player.body = this.physics.add.sprite(200, 0, "circle");
+
+    // set the name of a sprite:
+    this.player.body.name = "Player";
+
+    // get all children in the scene:
+    const childList = this.physics.scene.children;
+
+    childList.getChildren().forEach((element) => {
+      console.log("scene children are:");
+      console.log(element);
+    });
+
+    // get a particular child by name:
+    const player = childList.getByName("Player");
+    player.addToUpdateList();
+    player.update = () => {
+      console.log("large yeetus");
+    };
+
+    // add a player to a group and call update:
+    const playerGroup = this.physics.add.group();
+    playerGroup.add(player);
+    playerGroup.runChildUpdate = true;
+
+    playerGroup.add(new Enemy(this, "yeet"));
+
+    console.log("player is " + JSON.stringify(player));
 
     const platforms = this.physics.add.staticGroup();
     platforms
@@ -73,7 +100,7 @@ export default class Demo extends Phaser.Scene {
       // repeat: -1,
     });
 
-    this.physics.add.collider(this.player.body, platforms);
+    this.physics.add.collider(playerGroup, platforms);
   }
 
   pointerDown = false;
