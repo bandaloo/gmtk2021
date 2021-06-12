@@ -1,3 +1,4 @@
+import { Player } from "./Player";
 import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 
 /**
@@ -7,7 +8,9 @@ export abstract class Enemy {
   protected currentHealth: number;
   protected maxHealth: number;
 
-  protected constructor(public sprite: SpriteWithDynamicBody) {}
+  protected constructor(public sprite: SpriteWithDynamicBody) {
+    sprite.setData("outerObject", this);
+  }
 
   /**
    * Logic to execute every game step.
@@ -32,5 +35,10 @@ export abstract class Enemy {
 
   public isDead(): boolean {
     return this.currentHealth === 0;
+  }
+
+  public collideWithPlayer(player: Player): void {
+    console.log("Collided with player!");
+    console.log(player);
   }
 }

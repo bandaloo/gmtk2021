@@ -67,7 +67,25 @@ export default class Demo extends Phaser.Scene {
     );
 
     this.physics.add.collider(this.player.sprite, platforms);
-    this.physics.add.collider(bat.sprite, platforms);
+    for (const enemy of this.enemies) {
+      this.physics.add.collider(
+        enemy.sprite,
+        this.player.sprite,
+        (obj1, obj2) => {
+          const outerEnemy = obj1.getData("outerObject");
+          const outerPlayer = obj2.getData("outerObject");
+          if (
+            outerEnemy !== undefined &&
+            outerPlayer !== undefined &&
+            outerEnemy instanceof Enemy &&
+            outerPlayer instanceof Player
+          ) {
+            outerEnemy.collideWithPlayer(outerPlayer);
+          }
+        }
+      );
+      this.physics.add.collider(enemy.sprite, platforms);
+    }
 
     this.input.on(
       "pointerdown",
@@ -110,7 +128,7 @@ const config = {
     default: "arcade",
     arcade: {
       debug: true,
-      gravity: { y: 800 },
+      gravity: { y: 200 },
     },
   },
 };
