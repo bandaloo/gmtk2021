@@ -18,9 +18,11 @@ export default class Demo extends Phaser.Scene {
 
   preload(): void {
     this.load.image("rectangle", "assets/rectangle.png");
+    this.load.image("tile_1", "assets/tile_1.png");
+    this.load.image("tile_2", "assets/tile_2.png");
+    this.load.image("background", "assets/background.png");
     this.load.image("heart_empty", "assets/heart_empty.png");
     this.load.image("heart_full", "assets/heart_full.png");
-    this.load.glsl("stars", "assets/starfields.glsl.js");
     this.load.image("oldcircle", "assets/blank circle.png");
     this.load.spritesheet("circle", "assets/circle tileset.png", {
       frameWidth: 100,
@@ -49,12 +51,7 @@ export default class Demo extends Phaser.Scene {
   }
 
   create(): void {
-    this.add
-      .shader("RGB Shift Field", 0, 0, GAME_WIDTH, GAME_HEIGHT)
-      .setOrigin(0);
-    this.add
-      .shader("RGB Shift Field", 0, 0, GAME_WIDTH, GAME_HEIGHT)
-      .setOrigin(0);
+    this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, "background");
 
     const bat = new Bat(this.physics.add.sprite(500, 500, "bat_flying"));
     this.enemies.push(bat);

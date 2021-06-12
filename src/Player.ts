@@ -6,13 +6,15 @@ import KeyboardPlugin = Phaser.Input.Keyboard.KeyboardPlugin;
 export class Player {
   private maxHealth = 3;
   private currentHealth = this.maxHealth;
+  /** the maximum number of hearts you can have even with upgrades */
+  private maxMaxHealth = 10;
   private heartDisplay: HeartDisplay;
 
   public constructor(
     public sprite: SpriteWithDynamicBody,
     public kbp: KeyboardPlugin
   ) {
-    this.heartDisplay = new HeartDisplay(this.sprite.scene);
+    this.heartDisplay = new HeartDisplay(this.sprite.scene, this.maxMaxHealth);
     this.heartDisplay.redisplay(this.currentHealth, this.maxHealth);
     this.sprite.name = "player";
     this.sprite.setData("outerObject", this);
