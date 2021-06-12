@@ -5,6 +5,7 @@ import { GAME_HEIGHT, GAME_WIDTH, TILE_SIZE } from "./consts";
 import { addObjects, padRoom, randomizeRoom, splitRoom } from "./gen";
 import { rooms } from "./rooms";
 import { Player } from "./Player";
+import { createCannon } from "./Cannon";
 
 export default class Demo extends Phaser.Scene {
   private player: Player;
@@ -40,6 +41,10 @@ export default class Demo extends Phaser.Scene {
       frameWidth: TILE_SIZE,
       frameHeight: TILE_SIZE,
     });
+    this.load.spritesheet("cannon_walk", "assets/cannon_walk.png", {
+      frameWidth: TILE_SIZE,
+      frameHeight: TILE_SIZE,
+    });
   }
 
   create(): void {
@@ -49,7 +54,9 @@ export default class Demo extends Phaser.Scene {
       .setOrigin(0);
 
     const bat = createBat(this, 500, 500);
+    const cannon = createCannon(this, 250, 500);
     this.enemies.push(bat);
+    this.enemies.push(cannon);
 
     this.player = new Player(this.physics.add.sprite(200, 0, "circle"));
 
