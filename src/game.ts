@@ -1,6 +1,9 @@
 import "phaser";
 import { createBat } from "./Bat";
 import { Enemy } from "./Enemy";
+import { GAME_HEIGHT, GAME_WIDTH } from "./consts";
+import { addObjects, padRoom, randomizeRoom, splitRoom } from "./gen";
+import { rooms } from "./rooms";
 
 class Player {
   body: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
@@ -29,23 +32,25 @@ export default class Demo extends Phaser.Scene {
   create(): void {
     this.enemies.push(createBat(this, 500, 500));
     this.add.shader("RGB Shift Field", 0, 0, 1920, 1080).setOrigin(0);
+    this.add
+      .shader("RGB Shift Field", 0, 0, GAME_WIDTH, GAME_HEIGHT)
+      .setOrigin(0);
 
     this.player = new Player();
     this.player.body = this.physics.add.sprite(200, 0, "circle");
 
     const platforms = this.physics.add.staticGroup();
-    platforms
-      .create(
-        +this.game.config.width / 2,
-        +this.game.config.height,
-        "rectangle"
-      )
-      .setScale(10, 1)
-      .refreshBody();
-    platforms
-      .create(+this.game.config.width / 2, 0, "rectangle")
-      .setScale(10, 1)
-      .refreshBody();
+
+    addObjects(
+      padRoom(
+        randomizeRoom(
+          splitRoom(rooms[Math.floor((rooms.length - 1) * Math.random())]),
+          0.5,
+          0.5
+        )
+      ),
+      platforms
+    );
 
     this.player.body.setBounce(0);
     this.player.body.setCollideWorldBounds(true);
@@ -136,8 +141,8 @@ export default class Demo extends Phaser.Scene {
 const config = {
   type: Phaser.AUTO,
   backgroundColor: "#125555",
-  width: 1920,
-  height: 1080,
+  width: GAME_WIDTH,
+  height: GAME_HEIGHT,
   scene: Demo,
   physics: {
     default: "arcade",
