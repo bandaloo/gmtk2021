@@ -1,4 +1,5 @@
 import "phaser";
+import { Bat } from "./Bat";
 
 class Player {
   body: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
@@ -21,6 +22,8 @@ export default class Demo extends Phaser.Scene {
       frameWidth: 100,
       frameHeight: 100,
     });
+    const bat = new Bat(this);
+    console.table(bat);
   }
 
   create(): void {
