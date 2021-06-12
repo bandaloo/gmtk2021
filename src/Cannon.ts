@@ -1,17 +1,21 @@
-import { Scene } from "phaser";
+import { GameObjects, Scene } from "phaser";
 import { PLAYER_PROPERTY_NAME } from "./consts";
 import { Enemy } from "./Enemy";
 import { Player } from "./Player";
 import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
-//import Vector2 = Phaser.Math.Vector2;
 import GameObjectWithBody = Phaser.Types.Physics.Arcade.GameObjectWithBody;
 
+const MIN_PROXIMITY = 500;
+const MAX_SPEED = 140;
 export class Cannon extends Enemy {
-  /** -1 for left, 1 for right */
+  /** -1 for left, 1 for right, 0 to stop */
   private direction: -1 | 1 = 1;
 
+  private distanceToPlayer = 0;
   private timeBetweenShots = 120;
+  private justRotate = false;
   private shotTimer = this.timeBetweenShots;
+  private playerRef: GameObjects.GameObject;
 
   constructor(sprite: SpriteWithDynamicBody) {
     super(sprite);
@@ -24,12 +28,22 @@ export class Cannon extends Enemy {
   public update(): void {
     this.sprite.setFlipX(this.sprite.body.velocity.x >= 0);
     // movement logic goes here
-    if (this.sprite.body.touching.right) {
+    this.updateDistanceToPlayer();
+    console.log("direction: " + this.direction);
+    console.log(this.distanceToPlayer + " distance to player");
+    if (this.distanceToPlayer >= MIN_PROXIMITY) {
+      // if cannon is touching a wall AND too far from the player, just stop
+      console.log("moving backward");
       this.direction = -1;
-    } else if (this.sprite.body.touching.left) {
+      this.justRotate = false;
+    } else if (this.distanceToPlayer <= -MIN_PROXIMITY) {
+      console.log("moving foward");
       this.direction = 1;
+      this.justRotate = false;
     } else {
-      this.rotateToPlayer();
+      console.log("stopped");
+      this.direction = this.distanceToPlayer >= 0 ? 1 : -1;
+      this.justRotate = true;
     }
 
     this.shotTimer--;
@@ -44,36 +58,38 @@ export class Cannon extends Enemy {
     console.log("shooting");
   }
 
-  public rotateToPlayer(): void {
-    const player = this.sprite.scene.children.getFirst(
-      "name",
-      PLAYER_PROPERTY_NAME
-    );
-    if (player instanceof Player) {
-      const dx = this.sprite.body.position.x - player.body.position.x;
-      if (dx <= 0) {
-        this.direction = 1;
-      } else {
-        this.direction = -1;
-      }
+  public updateDistanceToPlayer(): void {
+    if (this.playerRef === undefined) {
+      this.playerRef = this.sprite.scene.children.getFirst(
+        "name",
+        PLAYER_PROPERTY_NAME
+      );
+    }
+    if (this.playerRef !== undefined) {
+      this.distanceToPlayer =
+        this.sprite.body.position.x - this.playerRef.body.position.x;
     }
   }
 
   public onCollide(other: GameObjectWithBody): void {
     const player = other.getData("outerObject");
     if (player !== undefined && player instanceof Player) {
-      console.log("Collided with player!");
-      console.log(player);
-    } else if (other.name === "platform") {
-      this.direction *= -1;
+      console.log("hit player");
     }
   }
 
   private move() {
-    this.sprite.body.setVelocity(
-      400 * this.direction,
-      this.sprite.body.velocity.y
-    );
+    if (!this.justRotate) {
+      this.sprite.body.setVelocity(
+        MAX_SPEED * this.direction,
+        this.sprite.body.velocity.y
+      );
+    } else {
+      this.sprite.body.setVelocity(
+        0.0001 * this.direction,
+        this.sprite.body.velocity.y
+      );
+    }
   }
 }
 
@@ -81,7 +97,7 @@ export const createCannon = (scene: Scene, x: number, y: number): Cannon => {
   const swdb = scene.physics.add.sprite(x, y, "circle");
   swdb.setSize(120, 120);
   swdb.body.setSize(120, 120);
-  swdb.body.setBounce(0.1, 0.1);
+  swdb.body.setBounce(0, 0);
   swdb.body.setCollideWorldBounds(true);
   swdb.body.setDrag(10, 10);
   swdb.body.setMaxVelocity(350, Infinity);
