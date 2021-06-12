@@ -1,5 +1,5 @@
 import "phaser";
-import { createBat } from "./Bat";
+import { Bat } from "./Bat";
 import { Enemy } from "./Enemy";
 import { GAME_HEIGHT, GAME_WIDTH, TILE_SIZE } from "./consts";
 import { addObjects, padRoom, randomizeRoom, splitRoom } from "./gen";
@@ -29,6 +29,10 @@ export default class Demo extends Phaser.Scene {
       frameWidth: TILE_SIZE,
       frameHeight: TILE_SIZE,
     });
+    this.load.spritesheet("bat_swooping", "assets/bat_swooping.png", {
+      frameWidth: TILE_SIZE,
+      frameHeight: TILE_SIZE,
+    });
     this.load.spritesheet("blob_jump", "assets/blob_jump.png", {
       frameWidth: TILE_SIZE,
       frameHeight: TILE_SIZE,
@@ -53,8 +57,8 @@ export default class Demo extends Phaser.Scene {
       .shader("RGB Shift Field", 0, 0, GAME_WIDTH, GAME_HEIGHT)
       .setOrigin(0);
 
-    const bat = createBat(this, 500, 500);
-    const cannon = createCannon(this, 250, 500);
+    const bat = new Bat(this.physics.add.sprite(500, 500, "bat_flying"));
+    const cannon = createCannon(this, 200, 500);
     this.enemies.push(bat);
     this.enemies.push(cannon);
 
