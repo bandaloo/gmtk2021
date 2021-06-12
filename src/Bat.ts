@@ -11,4 +11,8 @@ export class Bat extends Enemy {
   constructor(scene: Scene) {
     super(scene, "Bat");
   }
+
+  public update(): void {
+    super.update();
+  }
 }

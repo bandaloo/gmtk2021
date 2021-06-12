@@ -14,12 +14,13 @@ export abstract class Enemy extends GameObject {
    */
   protected constructor(scene: Scene, type: string) {
     super(scene, type);
+    this.scene.physics.add.sprite(10, 10, "enemy");
   }
 
   private maxHealth = 3;
   private currentHealth = 3;
 
-  private defaultOnUpdate(): void {
+  public update(): void {
     // check for out of bounds values
     if (this.currentHealth > this.maxHealth)
       this.currentHealth = this.maxHealth;
