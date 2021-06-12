@@ -53,7 +53,7 @@ export class Bat extends Enemy {
       this.sprite.body.setAcceleration(this.sprite.body.acceleration.x, 2200);
     }
 
-    // see if we should swoop
+    // see if we should flap
     if (!this.swooping && this.flapTimer <= 0) {
       this.flap();
       this.flapTimer = this.timeBetweenFlaps;

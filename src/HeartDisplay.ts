@@ -1,22 +1,31 @@
 import { Scene } from "phaser";
 import { TILE_SIZE } from "./consts";
-import StaticGroup = Phaser.Physics.Arcade.StaticGroup;
 
 export class HeartDisplay {
-  private hearts: StaticGroup;
+  private hearts: Phaser.GameObjects.Image[];
 
-  constructor(private scene: Scene) {
-    this.hearts = this.scene.physics.add.staticGroup();
+  constructor(private scene: Scene, private maxMaxHealth: number) {
+    this.hearts = new Array(this.maxMaxHealth);
+    for (let i = 0; i < this.maxMaxHealth; ++i) {
+      this.hearts[i] = this.scene.add.image(
+        (i + 0.5) * TILE_SIZE,
+        TILE_SIZE / 2,
+        "heart_empty"
+      );
+    }
   }
 
   public redisplay(currentHealth: number, maxHealth: number): void {
-    this.hearts.clear(true, true);
-    for (let i = 1; i <= maxHealth; ++i) {
-      if (i <= currentHealth) {
-        this.hearts.create(i * TILE_SIZE, TILE_SIZE / 2, "heart_full");
-      } else {
-        this.hearts.create(i * TILE_SIZE, TILE_SIZE / 2, "heart_empty");
+    console.log(`${currentHealth}/${maxHealth}`);
+    this.hearts.forEach((heart, i) => {
+      heart.setVisible(i < maxHealth);
+      if (i < maxHealth) {
+        if (i < currentHealth) {
+          heart.setTexture("heart_full");
+        } else {
+          heart.setTexture("heart_empty");
+        }
       }
-    }
+    });
   }
 }
