@@ -46,14 +46,14 @@ X X X . 1 . . . . 1 . X X X
 . . . . . . . . . . . . . .
 X X X . . . . . . . . X X X
 . . X . . X X X X . . X . .
-. . X . O . ! ! . O . X . .
+. . X . 0 . ! ! . 0 . X . .
 `,
 
   `
 ! . . . . . . . . . . . . !
 X X . X . X X X X . X . X X
 . . ? X . ? . . ? . X ? . .
-. X X X . X X X X . X X . .
+. X X X . X X X X . X X X .
 . . . X . ? . . ? . X . . .
 X X . X . X X X X . X . X X
 ! . . . . . . . . . . . . !

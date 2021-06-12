@@ -51,7 +51,7 @@ export function addObjects(
 ): void {
   for (let i = 0; i < TILE_COLS; i++) {
     for (let j = 0; j < TILE_ROWS; j++) {
-      const tile = room[i][j];
+      const tile = room[j][i];
       if (tile === "X") {
         platforms.create(
           (i + 0.5) * TILE_SIZE,
