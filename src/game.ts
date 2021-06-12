@@ -1,5 +1,5 @@
 import "phaser";
-import { createBat } from "./Bat";
+import { Bat } from "./Bat";
 import { Enemy } from "./Enemy";
 import { GAME_HEIGHT, GAME_WIDTH, TILE_SIZE } from "./consts";
 import { addObjects, padRoom, randomizeRoom, splitRoom } from "./gen";
@@ -48,7 +48,7 @@ export default class Demo extends Phaser.Scene {
       .shader("RGB Shift Field", 0, 0, GAME_WIDTH, GAME_HEIGHT)
       .setOrigin(0);
 
-    const bat = createBat(this, 500, 500);
+    const bat = new Bat(this.physics.add.sprite(500, 500, "bat_flying"));
     this.enemies.push(bat);
 
     this.player = new Player(this.physics.add.sprite(200, 0, "circle"));
@@ -128,7 +128,7 @@ const config = {
     default: "arcade",
     arcade: {
       debug: true,
-      gravity: { y: 200 },
+      gravity: { y: 800 },
     },
   },
 };

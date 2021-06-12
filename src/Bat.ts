@@ -1,4 +1,3 @@
-import { Scene } from "phaser";
 import { Enemy } from "./Enemy";
 import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 import Vector2 = Phaser.Math.Vector2;
@@ -14,6 +13,22 @@ export class Bat extends Enemy {
     this.currentHealth = 1;
     this.maxHealth = 1;
     this.sprite.body.setAcceleration(0, 0);
+    this.sprite.setSize(120, 120);
+    this.sprite.body.setSize(120, 120);
+    this.sprite.body.setBounce(0.5, 0.5);
+    this.sprite.body.setCollideWorldBounds(true);
+    this.sprite.body.setDrag(150, 150);
+    this.sprite.body.setMaxVelocity(300, 200);
+    this.sprite.body.setAllowGravity(false);
+    this.sprite.anims.create({
+      key: "bat_flying",
+      frames: this.sprite.anims.generateFrameNumbers("bat_flying", {
+        start: 0,
+        end: 1,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
     this.sprite.anims.play("bat_flying", true);
   }
 
@@ -43,22 +58,3 @@ export class Bat extends Enemy {
     });
   }
 }
-
-export const createBat = (scene: Scene, x: number, y: number): Bat => {
-  const swdb = scene.physics.add.sprite(x, y, "bat_flying");
-  swdb.setSize(120, 120);
-  swdb.body.setSize(120, 120);
-  swdb.body.setBounce(0.5, 0.5);
-  swdb.body.setCollideWorldBounds(true);
-  swdb.body.setDrag(150, 150);
-  swdb.body.setMaxVelocity(300, 200);
-  swdb.body.setAllowGravity(false);
-  swdb.anims.create({
-    key: "bat_flying",
-    frames: swdb.anims.generateFrameNumbers("bat_flying", { start: 0, end: 1 }),
-    frameRate: 10,
-    repeat: -1,
-  });
-  const bat = new Bat(swdb);
-  return bat;
-};
