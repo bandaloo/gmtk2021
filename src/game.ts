@@ -67,7 +67,19 @@ export default class Demo extends Phaser.Scene {
     );
 
     this.physics.add.collider(this.player.sprite, platforms);
-    this.physics.add.collider(bat.sprite, platforms);
+    this.enemies.forEach((e) => {
+      this.physics.add.collider(e.sprite, this.player.sprite, (obj1, obj2) => {
+        console.log("hit");
+        console.log(obj1);
+        console.log(obj2);
+        if (obj1.getData("outerObject") instanceof Enemy) {
+          obj1.getData("outerObject").onCollide(obj2);
+        }
+      });
+    });
+    this.enemies.forEach((e) => {
+      this.physics.add.collider(e.sprite, platforms);
+    });
 
     this.input.on(
       "pointerdown",

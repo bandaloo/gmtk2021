@@ -1,4 +1,5 @@
 import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
+import GameObjectWithBody = Phaser.Types.Physics.Arcade.GameObjectWithBody;
 
 /**
  * The base enemy class contains logic common to all enemy types
@@ -7,7 +8,9 @@ export abstract class Enemy {
   protected currentHealth: number;
   protected maxHealth: number;
 
-  protected constructor(public sprite: SpriteWithDynamicBody) {}
+  protected constructor(public sprite: SpriteWithDynamicBody) {
+    sprite.setData("outerObject", this);
+  }
 
   /**
    * Logic to execute every game step.
@@ -17,6 +20,8 @@ export abstract class Enemy {
       this.sprite.destroy(true);
     }
   }
+
+  abstract onCollide(other: GameObjectWithBody): void;
 
   /**
    * This enemy takes the given amount of damage. Taking more than the current
