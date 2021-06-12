@@ -3,6 +3,9 @@ import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody
 import Cursors = Phaser.Types.Input.Keyboard.CursorKeys;
 
 export class Player {
+  private maxHealth = 3;
+  private currentHealth = this.maxHealth;
+
   public constructor(public sprite: SpriteWithDynamicBody) {
     this.sprite.name = "player";
     this.sprite.setData("outerObject", this);
@@ -52,6 +55,13 @@ export class Player {
       if (this.sprite.body.touching.down) {
         this.sprite.body.setVelocityY(-500);
       }
+    }
+  }
+
+  public takeDamage(): void {
+    this.currentHealth--;
+    if (this.currentHealth <= 0) {
+      // TODO lose the game
     }
   }
 }
