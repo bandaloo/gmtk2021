@@ -2,6 +2,7 @@ import { HeartDisplay } from "./HeartDisplay";
 import { ENTITY_SIZE, VELOCITY_EPSILON } from "./consts";
 import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 import KeyboardPlugin = Phaser.Input.Keyboard.KeyboardPlugin;
+import { Grapple } from "./grapple";
 
 export class Player {
   private maxHealth = 3;
@@ -24,6 +25,7 @@ export class Player {
     this.sprite.body.setCollideWorldBounds(true);
     this.sprite.body.setDrag(1200, 0);
     this.sprite.body.setMaxVelocity(300, 10000);
+    this.sprite.setData("direction", "forward");
 
     this.sprite.body.offset.add({ x: 0, y: 30 });
     this.sprite.anims.create({
@@ -57,6 +59,19 @@ export class Player {
         this.sprite.body.setVelocityY(this.sprite.body.velocity.y / 2);
       }
     });
+
+    this.kbp.on("keyup-SHIFT", () => {
+      if (!this.sprite.getData("grappleOut")) {
+        new Grapple(
+          this.sprite.scene.physics.add.sprite(
+            this.sprite.body.position.x,
+            this.sprite.body.position.y,
+            "grapple"
+          ),
+          this.sprite.getData("angle")
+        );
+      }
+    });
   }
 
   public update(): void {
@@ -71,11 +86,29 @@ export class Player {
 
     if (cursors.right.isDown) {
       this.sprite.body.setAccelerationX(1800);
+      this.sprite.setData("direction", "right");
     } else if (cursors.left.isDown) {
       this.sprite.body.setAccelerationX(-1800);
+      this.sprite.setData("direction", "left");
     } else {
       this.sprite.body.setAccelerationX(0);
     }
+
+    // This is a dumb way to get player angle. Too bad!
+    if (this.sprite.getData("direction") == "right")
+      this.sprite.setData("angle", 0);
+    if (this.sprite.getData("direction") == "left")
+      this.sprite.setData("angle", 180);
+
+    if (this.sprite.getData("direction") == "right" && cursors.up.isDown)
+      this.sprite.setData("angle", -45);
+    if (this.sprite.getData("direction") == "left" && cursors.down.isDown)
+      this.sprite.setData("angle", 135);
+
+    if (this.sprite.getData("direction") == "right" && cursors.down.isDown)
+      this.sprite.setData("angle", 45);
+    if (this.sprite.getData("direction") == "left" && cursors.up.isDown)
+      this.sprite.setData("angle", -135);
 
     // TODO this doesn't seem to work
     if (

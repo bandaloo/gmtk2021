@@ -23,6 +23,8 @@ export default class Demo extends Phaser.Scene {
     this.load.image("background", "assets/background.png");
     this.load.image("heart_empty", "assets/heart_empty.png");
     this.load.image("heart_full", "assets/heart_full.png");
+    this.load.glsl("stars", "assets/starfields.glsl.js");
+    this.load.image("grapple", "assets/grapple.png");
     this.load.image("oldcircle", "assets/blank circle.png");
     this.load.spritesheet("circle", "assets/circle tileset.png", {
       frameWidth: 100,
