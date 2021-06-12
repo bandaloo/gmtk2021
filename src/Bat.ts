@@ -3,6 +3,7 @@ import { Scene } from "phaser";
 
 /**
  * A simple flying enemy.
+ * Test comment
  */
 export class Bat extends Enemy {
   /**
