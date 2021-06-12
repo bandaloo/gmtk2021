@@ -28,15 +28,20 @@ export default class Demo extends Phaser.Scene {
       frameWidth: 100,
       frameHeight: 100,
     });
+    this.load.spritesheet("bat_flying", "assets/bat_flying.png", {
+      frameWidth: 320,
+      frameHeight: 320,
+    });
   }
 
   create(): void {
-    const bat = createBat(this, 500, 500);
-    this.enemies.push(bat);
     this.add.shader("RGB Shift Field", 0, 0, 1920, 1080).setOrigin(0);
     this.add
       .shader("RGB Shift Field", 0, 0, GAME_WIDTH, GAME_HEIGHT)
       .setOrigin(0);
+
+    const bat = createBat(this, 500, 500);
+    this.enemies.push(bat);
 
     this.player = new Player();
     this.player.body = this.physics.add.sprite(200, 0, "circle");
