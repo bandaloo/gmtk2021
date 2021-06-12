@@ -23,6 +23,13 @@ export class Bat extends Enemy {
       this.flap();
       this.flapTimer = this.timeBetweenFlaps;
     }
+    if (this.sprite.body.touching.right) {
+      this.direction = -1;
+      console.log("RIGHT");
+    } else if (this.sprite.body.touching.left) {
+      this.direction = 1;
+      console.log("LEFT");
+    }
 
     this.flapTimer--;
   }
@@ -34,38 +41,21 @@ export class Bat extends Enemy {
     );
     this.sprite.body.setAcceleration(acc.x, acc.y);
     this.sprite.scene.time.delayedCall(500, () => {
-      this.sprite.body.setAcceleration(0, 1);
+      this.sprite.body.setAcceleration(0, 3);
     });
-  }
-
-  public onCollide(): void {
-    console.log("Collided!");
-    if (this.sprite.body.touching.right) {
-      this.direction = -1;
-    } else if (this.sprite.body.touching.left) {
-      this.direction = 1;
-    }
   }
 }
 
 export const createBat = (scene: Scene, x: number, y: number): Bat => {
   const swdb = scene.physics.add.sprite(x, y, "circle");
-  swdb.body.setSize(300, 300);
+  swdb.setSize(120, 120);
+  swdb.body.setSize(120, 120);
   swdb.body.setBounce(0.5, 0.5);
   swdb.body.setCollideWorldBounds(true);
-  swdb.body.setDrag(100, 40);
+  swdb.body.setDrag(150, 150);
   swdb.body.setMaxVelocity(300, 200);
   swdb.body.setAllowGravity(false);
-  const bat = new Bat(swdb);
   swdb.addToUpdateList();
-  swdb.update = () => {
-    console.log("asdf");
-    bat.update();
-  };
-  swdb.body.onCollide = true;
-  swdb.on("collide", () => {
-    console.log("beef");
-    bat.onCollide();
-  });
+  const bat = new Bat(swdb);
   return bat;
 };

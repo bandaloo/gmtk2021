@@ -7,7 +7,7 @@ export abstract class Enemy {
   protected currentHealth: number;
   protected maxHealth: number;
 
-  protected constructor(protected sprite: SpriteWithDynamicBody) {}
+  protected constructor(public sprite: SpriteWithDynamicBody) {}
 
   /**
    * Logic to execute every game step.
