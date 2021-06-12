@@ -1,5 +1,5 @@
 import "phaser";
-//import { randomizeRoom, splitRoom } from "./gen";
+//import { padRoom, randomizeRoom, splitRoom } from "./gen";
 //import { rooms } from "./rooms";
 
 class Player {
@@ -27,7 +27,7 @@ export default class Demo extends Phaser.Scene {
 
   create(): void {
     //console.log(splitRoom(rooms[0]));
-    //console.log(randomizeRoom(splitRoom(rooms[0]), 0.5, 0.5));
+    //console.log(padRoom(randomizeRoom(splitRoom(rooms[0]), 0.5, 0.5)));
 
     this.add.shader("RGB Shift Field", 0, 0, 800, 600).setOrigin(0);
 
@@ -35,19 +35,23 @@ export default class Demo extends Phaser.Scene {
     this.player.body = this.physics.add.sprite(200, 0, "circle");
 
     const platforms = this.physics.add.staticGroup();
-    platforms
-      .create(
-        +this.game.config.width / 2,
-        +this.game.config.height,
-        "rectangle"
-      )
-      .setScale(10, 1)
-      .refreshBody();
 
+    /*
+    platforms.create(
+      +this.game.config.width / 2,
+      +this.game.config.height,
+      "rectangle"
+    );
+    */
+    //.setScale(10, 1)
+    //.refreshBody();
+
+    /*
     platforms
       .create(+this.game.config.width / 2, 0, "rectangle")
       .setScale(10, 1)
       .refreshBody();
+    */
 
     this.player.body.setBounce(0);
     this.player.body.setCollideWorldBounds(true);
@@ -137,8 +141,8 @@ export default class Demo extends Phaser.Scene {
 const config = {
   type: Phaser.AUTO,
   backgroundColor: "#125555",
-  width: 800,
-  height: 600,
+  width: 1920,
+  height: 1080,
   scene: Demo,
   physics: {
     default: "arcade",
