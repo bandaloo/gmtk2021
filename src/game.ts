@@ -1,7 +1,7 @@
 import "phaser";
 import { createBat } from "./Bat";
 import { Enemy } from "./Enemy";
-import { GAME_HEIGHT, GAME_WIDTH } from "./consts";
+import { GAME_HEIGHT, GAME_WIDTH, TILE_SIZE } from "./consts";
 import { addObjects, padRoom, randomizeRoom, splitRoom } from "./gen";
 import { rooms } from "./rooms";
 
@@ -28,15 +28,20 @@ export default class Demo extends Phaser.Scene {
       frameWidth: 100,
       frameHeight: 100,
     });
+    this.load.spritesheet("bat_flying", "assets/bat_flying.png", {
+      frameWidth: TILE_SIZE,
+      frameHeight: TILE_SIZE,
+    });
   }
 
   create(): void {
-    const bat = createBat(this, 500, 500);
-    this.enemies.push(bat);
     this.add.shader("RGB Shift Field", 0, 0, 1920, 1080).setOrigin(0);
     this.add
       .shader("RGB Shift Field", 0, 0, GAME_WIDTH, GAME_HEIGHT)
       .setOrigin(0);
+
+    const bat = createBat(this, 500, 500);
+    this.enemies.push(bat);
 
     this.player = new Player();
     this.player.body = this.physics.add.sprite(200, 0, "circle");

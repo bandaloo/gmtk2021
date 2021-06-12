@@ -14,10 +14,11 @@ export class Bat extends Enemy {
     this.currentHealth = 1;
     this.maxHealth = 1;
     this.sprite.body.setAcceleration(0, 0);
+    this.sprite.anims.play("bat_flying", true);
   }
 
   public update(): void {
-    console.log("update");
+    this.sprite.setFlipX(this.sprite.body.velocity.x >= 0);
     // movement logic goes here
     if (this.flapTimer <= 0) {
       this.flap();
@@ -25,17 +26,14 @@ export class Bat extends Enemy {
     }
     if (this.sprite.body.touching.right) {
       this.direction = -1;
-      console.log("RIGHT");
     } else if (this.sprite.body.touching.left) {
       this.direction = 1;
-      console.log("LEFT");
     }
 
     this.flapTimer--;
   }
 
   private flap() {
-    console.log("flap");
     const acc = this.sprite.body.acceleration.add(
       new Vector2(400 * this.direction, -400)
     );
@@ -47,7 +45,7 @@ export class Bat extends Enemy {
 }
 
 export const createBat = (scene: Scene, x: number, y: number): Bat => {
-  const swdb = scene.physics.add.sprite(x, y, "circle");
+  const swdb = scene.physics.add.sprite(x, y, "bat_flying");
   swdb.setSize(120, 120);
   swdb.body.setSize(120, 120);
   swdb.body.setBounce(0.5, 0.5);
@@ -56,6 +54,13 @@ export const createBat = (scene: Scene, x: number, y: number): Bat => {
   swdb.body.setMaxVelocity(300, 200);
   swdb.body.setAllowGravity(false);
   swdb.addToUpdateList();
+  swdb.setVisible(true);
+  swdb.anims.create({
+    key: "bat_flying",
+    frames: swdb.anims.generateFrameNumbers("bat_flying", { start: 0, end: 1 }),
+    frameRate: 10,
+    repeat: -1,
+  });
   const bat = new Bat(swdb);
   return bat;
 };
