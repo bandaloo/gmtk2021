@@ -7,12 +7,14 @@ export abstract class Enemy {
   protected currentHealth: number;
   protected maxHealth: number;
 
+  protected constructor(protected sprite: SpriteWithDynamicBody) {}
+
   /**
    * Logic to execute every game step.
    */
-  update(sprite: SpriteWithDynamicBody): void {
+  update(): void {
     if (this.isDead()) {
-      sprite.destroy(true);
+      this.sprite.destroy(true);
     }
   }
 

@@ -1,5 +1,6 @@
 import "phaser";
-import { addBat } from "./Bat";
+import { createBat } from "./Bat";
+import { Enemy } from "./Enemy";
 
 class Player {
   body: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
@@ -7,8 +8,9 @@ class Player {
 }
 
 export default class Demo extends Phaser.Scene {
-  player: Player;
-  cursors: Phaser.Types.Input.Keyboard.CursorKeys;
+  private player: Player;
+  private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
+  private enemies: Enemy[] = [];
 
   constructor() {
     super("demo");
@@ -25,7 +27,7 @@ export default class Demo extends Phaser.Scene {
   }
 
   create(): void {
-    addBat(this, 500, 500);
+    this.enemies.push(createBat(this, 500, 500));
     this.add.shader("RGB Shift Field", 0, 0, 1920, 1080).setOrigin(0);
 
     this.player = new Player();
@@ -78,6 +80,7 @@ export default class Demo extends Phaser.Scene {
   pointerDown = false;
 
   update(): void {
+    this.enemies.forEach((e) => e.update());
     this.input.on(
       "pointerdown",
       (pointer: Phaser.Input.Pointer) => {
