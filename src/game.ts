@@ -71,25 +71,19 @@ export default class Demo extends Phaser.Scene {
     );
 
     this.physics.add.collider(this.player.sprite, platforms);
-    for (const enemy of this.enemies) {
-      this.physics.add.collider(
-        enemy.sprite,
-        this.player.sprite,
-        (obj1, obj2) => {
-          const outerEnemy = obj1.getData("outerObject");
-          const outerPlayer = obj2.getData("outerObject");
-          if (
-            outerEnemy !== undefined &&
-            outerPlayer !== undefined &&
-            outerEnemy instanceof Enemy &&
-            outerPlayer instanceof Player
-          ) {
-            outerEnemy.collideWithPlayer(outerPlayer);
-          }
+    this.enemies.forEach((e) => {
+      this.physics.add.collider(e.sprite, this.player.sprite, (obj1, obj2) => {
+        console.log("hit");
+        console.log(obj1);
+        console.log(obj2);
+        if (obj1.getData("outerObject") instanceof Enemy) {
+          obj1.getData("outerObject").onCollide(obj2);
         }
-      );
-      this.physics.add.collider(enemy.sprite, platforms);
-    }
+      });
+    });
+    this.enemies.forEach((e) => {
+      this.physics.add.collider(e.sprite, platforms);
+    });
 
     this.input.on(
       "pointerdown",

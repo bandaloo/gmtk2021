@@ -1,6 +1,8 @@
 import { Enemy } from "./Enemy";
+import { Player } from "./Player";
 import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 import Vector2 = Phaser.Math.Vector2;
+import GameObjectWithBody = Phaser.Types.Physics.Arcade.GameObjectWithBody;
 
 export class Bat extends Enemy {
   private timeBetweenFlaps = 120;
@@ -88,6 +90,15 @@ export class Bat extends Enemy {
 
     this.flapTimer--;
     this.swoopTimer--;
+  }
+
+  public onCollide(other: GameObjectWithBody): void {
+    console.log("hit");
+    const player = other.getData("outerObject");
+    if (player !== undefined && player instanceof Player) {
+      console.log("Collided with player!");
+      console.log(player);
+    }
   }
 
   private flap() {

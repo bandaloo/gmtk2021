@@ -1,5 +1,5 @@
-import { Player } from "./Player";
 import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
+import GameObjectWithBody = Phaser.Types.Physics.Arcade.GameObjectWithBody;
 
 /**
  * The base enemy class contains logic common to all enemy types
@@ -21,6 +21,8 @@ export abstract class Enemy {
     }
   }
 
+  abstract onCollide(other: GameObjectWithBody): void;
+
   /**
    * This enemy takes the given amount of damage. Taking more than the current
    * amount of health will reduce current health to zero. Taking negative damage
@@ -35,10 +37,5 @@ export abstract class Enemy {
 
   public isDead(): boolean {
     return this.currentHealth === 0;
-  }
-
-  public collideWithPlayer(player: Player): void {
-    console.log("Collided with player!");
-    console.log(player);
   }
 }
