@@ -4,6 +4,7 @@ import Cursors = Phaser.Types.Input.Keyboard.CursorKeys;
 
 export class Player {
   public constructor(public sprite: SpriteWithDynamicBody) {
+    this.sprite.name = "player";
     this.sprite.setData("outerObject", this);
     this.sprite.body.setBounce(0, 0);
     this.sprite.body.setSize(TILE_SIZE, TILE_SIZE);

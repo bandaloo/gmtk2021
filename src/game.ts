@@ -28,6 +28,10 @@ export default class Demo extends Phaser.Scene {
       frameWidth: TILE_SIZE,
       frameHeight: TILE_SIZE,
     });
+    this.load.spritesheet("bat_swooping", "assets/bat_swooping.png", {
+      frameWidth: TILE_SIZE,
+      frameHeight: TILE_SIZE,
+    });
     this.load.spritesheet("blob_jump", "assets/blob_jump.png", {
       frameWidth: TILE_SIZE,
       frameHeight: TILE_SIZE,
