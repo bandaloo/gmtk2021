@@ -25,7 +25,6 @@ export abstract class Enemy {
   public onCollide(other: GameObjectWithBody): void {
     const wrapper = other.getData("outerObject");
     if (wrapper !== undefined && wrapper instanceof Player) {
-      console.log("Ouch!");
       wrapper.takeDamage();
       const v = this.sprite.body.velocity;
       other.body.velocity.set(v.x, v.y);

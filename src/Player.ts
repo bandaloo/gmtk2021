@@ -1,12 +1,17 @@
 import { TILE_SIZE } from "./consts";
+import { HeartDisplay } from "./HeartDisplay";
 import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 import Cursors = Phaser.Types.Input.Keyboard.CursorKeys;
 
 export class Player {
   private maxHealth = 3;
   private currentHealth = this.maxHealth;
+  private heartDisplay: HeartDisplay;
 
   public constructor(public sprite: SpriteWithDynamicBody) {
+    this.heartDisplay = new HeartDisplay(this.sprite.scene);
+    this.heartDisplay.redisplay(this.currentHealth, this.maxHealth);
+
     this.sprite.name = "player";
     this.sprite.setData("outerObject", this);
     this.sprite.body.setBounce(0, 0);
@@ -15,6 +20,7 @@ export class Player {
     this.sprite.body.setCollideWorldBounds(true);
     this.sprite.body.setDrag(1200, 0);
     this.sprite.body.setMaxVelocity(300, 10000);
+
     this.sprite.anims.create({
       key: "player_move",
       frames: this.sprite.anims.generateFrameNumbers("blob_move", {
@@ -60,6 +66,7 @@ export class Player {
 
   public takeDamage(): void {
     this.currentHealth--;
+    this.heartDisplay.redisplay(this.currentHealth, this.maxHealth);
     if (this.currentHealth <= 0) {
       // TODO lose the game
     }
