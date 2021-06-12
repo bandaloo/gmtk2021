@@ -1,7 +1,7 @@
 import "phaser";
 import { createBat } from "./Bat";
 import { Enemy } from "./Enemy";
-import { GAME_HEIGHT, GAME_WIDTH, TILE_SIZE } from "./consts";
+import { GAME_HEIGHT, GAME_WIDTH, SPRITE_SIZE } from "./consts";
 import { addObjects, padRoom, randomizeRoom, splitRoom } from "./gen";
 import { rooms } from "./rooms";
 
@@ -29,8 +29,8 @@ export default class Demo extends Phaser.Scene {
       frameHeight: 100,
     });
     this.load.spritesheet("bat_flying", "assets/bat_flying.png", {
-      frameWidth: TILE_SIZE,
-      frameHeight: TILE_SIZE,
+      frameWidth: SPRITE_SIZE,
+      frameHeight: SPRITE_SIZE,
     });
   }
 

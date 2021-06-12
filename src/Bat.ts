@@ -1,4 +1,5 @@
 import { Scene } from "phaser";
+import { ENTITY_SIZE, VELOCITY_EPSILON } from "./consts";
 import { Enemy } from "./Enemy";
 import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 import Vector2 = Phaser.Math.Vector2;
@@ -18,7 +19,9 @@ export class Bat extends Enemy {
   }
 
   public update(): void {
-    this.sprite.setFlipX(this.sprite.body.velocity.x >= 0);
+    if (Math.abs(this.sprite.body.velocity.x) > VELOCITY_EPSILON) {
+      this.sprite.setFlipX(this.sprite.body.velocity.x >= 0);
+    }
     // movement logic goes here
     if (this.flapTimer <= 0) {
       this.flap();
@@ -46,8 +49,8 @@ export class Bat extends Enemy {
 
 export const createBat = (scene: Scene, x: number, y: number): Bat => {
   const swdb = scene.physics.add.sprite(x, y, "bat_flying");
-  swdb.setSize(120, 120);
-  swdb.body.setSize(120, 120);
+  swdb.setSize(ENTITY_SIZE, ENTITY_SIZE);
+  swdb.body.setSize(ENTITY_SIZE, ENTITY_SIZE);
   swdb.body.setBounce(0.5, 0.5);
   swdb.body.setCollideWorldBounds(true);
   swdb.body.setDrag(150, 150);
