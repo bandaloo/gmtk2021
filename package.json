@@ -1,7 +1,7 @@
 {
-  "name": "phaser3-typescript-project-template",
-  "version": "1.0.2",
-  "description": "A Phaser 3 Project Template using Rollup and TypeScript",
+  "name": "gmtk2021",
+  "version": "0.0.1",
+  "description": "A cool game made with Phaser 3 for GMTK game jam 2021.",
   "main": "src/game.ts",
   "scripts": {
     "dev": "rollup --config rollup.config.dev.js",
@@ -13,21 +13,30 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/photonstorm/phaser3-typescript-project-template.git"
+    "url": "git+https://github.com/bandaloo/gmtk2021.git"
   },
-  "author": "Richard Davey <rich@photonstorm.com> (http://www.photonstorm.com)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/photonstorm/phaser3-typescript-project-template/issues"
+    "url": "https://github.com/bandaloo/gmtk2021/issues"
   },
-  "homepage": "https://github.com/photonstorm/phaser3-typescript-project-template#readme",
+  "homepage": "https://github.com/bandaloo/gmtk2021#readme",
   "lint-staged": {
     "src/**/*.ts": [
       "eslint --fix --max-warnings=0"
     ]
   },
+  "contributors": [
+    {
+      "name": "Joseph Petitti",
+      "url": "https://josephpetitti.com",
+      "email": "jppetitti@wpi.edu"
+    }
+  ],
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^19.0.0",
+    "@rollup/plugin-node-resolve": "^13.0.0",
     "@rollup/plugin-replace": "^2.3.4",
+    "@rollup/plugin-typescript": "^8.2.1",
     "@typescript-eslint/eslint-plugin": "^4.26.1",
     "@typescript-eslint/parser": "^4.26.1",
     "eslint": "^7.28.0",
@@ -36,12 +45,9 @@
     "husky": "6.0.0",
     "lint-staged": "11.0.0",
     "phaser": "^3.50.0",
-    "rollup": "^2.35.1",
-    "rollup-plugin-commonjs": "^10.1.0",
-    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup": "^2.51.2",
     "rollup-plugin-serve": "^1.1.0",
-    "rollup-plugin-typescript2": "^0.29.0",
-    "rollup-plugin-uglify": "^6.0.4",
+    "rollup-plugin-typescript2": "^0.30.0",
     "typescript": "^4.1.3"
   }
 }
