@@ -1,37 +1,34 @@
-import Sprite = Phaser.Physics.Arcade.Sprite;
-import DynamicBody = Phaser.Physics.Arcade.Body;
-import { Scene } from "phaser";
+import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 
 /**
- * The base class all enemies extend.
- *
- * Possible states:
- *   - "dead": the enemy is dead.
+ * The base enemy class contains logic common to all enemy types
  */
-export abstract class Enemy extends Sprite {
-  private maxHealth = 3;
-  private currentHealth = 3;
-  public body: DynamicBody;
+export abstract class Enemy {
+  protected currentHealth: number;
+  protected maxHealth: number;
 
   /**
-   * @param scene the scene to which this enemy belongs
-   * @param type a textual representation of this enemy, e.g. "bat"
+   * Logic to execute every game step.
    */
-  protected constructor(scene: Scene, x: number, y: number, type: string) {
-    super(scene, x, y, type);
-  }
-
-  public update(): void {
-    // check for out of bounds values
-    if (this.currentHealth > this.maxHealth)
-      this.currentHealth = this.maxHealth;
-    // check for death
-    if (this.currentHealth < 0) {
-      this.state = "dead";
+  update(sprite: SpriteWithDynamicBody): void {
+    if (this.isDead()) {
+      sprite.destroy(true);
     }
   }
 
+  /**
+   * This enemy takes the given amount of damage. Taking more than the current
+   * amount of health will reduce current health to zero. Taking negative damage
+   * has no effect. Any fractional amount of damage taken is floored.
+   * @param amount the amount of damage to take.
+   */
+  public takeDamage(amount: number): void {
+    amount = Math.floor(amount);
+    if (amount <= 1) return;
+    this.currentHealth = Math.max(this.currentHealth - amount, 0);
+  }
+
   public isDead(): boolean {
-    return this.state === "dead";
+    return this.currentHealth === 0;
   }
 }
