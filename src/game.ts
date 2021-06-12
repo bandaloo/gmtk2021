@@ -1,4 +1,6 @@
 import "phaser";
+//import { randomizeRoom, splitRoom } from "./gen";
+//import { rooms } from "./rooms";
 
 class Player {
   body: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
@@ -24,6 +26,9 @@ export default class Demo extends Phaser.Scene {
   }
 
   create(): void {
+    //console.log(splitRoom(rooms[0]));
+    //console.log(randomizeRoom(splitRoom(rooms[0]), 0.5, 0.5));
+
     this.add.shader("RGB Shift Field", 0, 0, 800, 600).setOrigin(0);
 
     this.player = new Player();
@@ -38,6 +43,7 @@ export default class Demo extends Phaser.Scene {
       )
       .setScale(10, 1)
       .refreshBody();
+
     platforms
       .create(+this.game.config.width / 2, 0, "rectangle")
       .setScale(10, 1)
