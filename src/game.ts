@@ -1,7 +1,7 @@
 import "phaser";
 import { Bat } from "./Bat";
 import { Enemy } from "./Enemy";
-import { GAME_HEIGHT, GAME_WIDTH, TILE_SIZE } from "./consts";
+import { GAME_HEIGHT, GAME_WIDTH, SPRITE_SIZE } from "./consts";
 import { addObjects, padRoom, randomizeRoom, splitRoom } from "./gen";
 import { rooms } from "./rooms";
 import { Player } from "./Player";
@@ -25,29 +25,31 @@ export default class Demo extends Phaser.Scene {
       frameHeight: 100,
     });
     this.load.spritesheet("bat_flying", "assets/bat_flying.png", {
-      frameWidth: TILE_SIZE,
-      frameHeight: TILE_SIZE,
+      frameWidth: SPRITE_SIZE,
+      frameHeight: SPRITE_SIZE,
     });
     this.load.spritesheet("bat_swooping", "assets/bat_swooping.png", {
-      frameWidth: TILE_SIZE,
-      frameHeight: TILE_SIZE,
+      frameWidth: SPRITE_SIZE,
+      frameHeight: SPRITE_SIZE,
     });
     this.load.spritesheet("blob_jump", "assets/blob_jump.png", {
-      frameWidth: TILE_SIZE,
-      frameHeight: TILE_SIZE,
+      frameWidth: SPRITE_SIZE,
+      frameHeight: SPRITE_SIZE,
     });
     this.load.spritesheet("blob_move", "assets/blob_move.png", {
-      frameWidth: TILE_SIZE,
-      frameHeight: TILE_SIZE,
+      frameWidth: SPRITE_SIZE,
+      frameHeight: SPRITE_SIZE,
     });
     this.load.spritesheet("blob_still", "assets/blob_still.png", {
-      frameWidth: TILE_SIZE,
-      frameHeight: TILE_SIZE,
+      frameWidth: SPRITE_SIZE,
+      frameHeight: SPRITE_SIZE,
     });
   }
 
   create(): void {
-    this.add.shader("RGB Shift Field", 0, 0, 1920, 1080).setOrigin(0);
+    this.add
+      .shader("RGB Shift Field", 0, 0, GAME_WIDTH, GAME_HEIGHT)
+      .setOrigin(0);
     this.add
       .shader("RGB Shift Field", 0, 0, GAME_WIDTH, GAME_HEIGHT)
       .setOrigin(0);
@@ -55,7 +57,10 @@ export default class Demo extends Phaser.Scene {
     const bat = new Bat(this.physics.add.sprite(500, 500, "bat_flying"));
     this.enemies.push(bat);
 
-    this.player = new Player(this.physics.add.sprite(200, 0, "circle"));
+    this.player = new Player(
+      this.physics.add.sprite(200, 200, "blob_move"),
+      this.input.keyboard
+    );
 
     const platforms = this.physics.add.staticGroup();
 
@@ -111,7 +116,7 @@ export default class Demo extends Phaser.Scene {
   }
 
   update(): void {
-    this.player.update(this.cursors);
+    this.player.update();
     this.enemies.forEach((e) => e.update());
   }
 }
