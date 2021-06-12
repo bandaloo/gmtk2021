@@ -48,6 +48,14 @@ export default class Demo extends Phaser.Scene {
       frameWidth: SPRITE_SIZE,
       frameHeight: SPRITE_SIZE,
     });
+    this.load.spritesheet("blob_dropping", "assets/blob_dropping.png", {
+      frameWidth: SPRITE_SIZE,
+      frameHeight: SPRITE_SIZE,
+    });
+    this.load.spritesheet("blob_egg", "assets/blob_egg.png", {
+      frameWidth: SPRITE_SIZE,
+      frameHeight: SPRITE_SIZE,
+    });
   }
 
   create(): void {

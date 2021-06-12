@@ -57,6 +57,26 @@ export class Player {
       repeat: -1,
     });
 
+    this.sprite.anims.create({
+      key: "player_egg",
+      frames: this.sprite.anims.generateFrameNumbers("blob_egg", {
+        start: 0,
+        end: 1,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+
+    this.sprite.anims.create({
+      key: "player_dropping",
+      frames: this.sprite.anims.generateFrameNumbers("blob_dropping", {
+        start: 0,
+        end: 1,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+
     this.kbp.on("keydown-SPACE", () => {
       if (this.sprite.body.touching.down) {
         this.sprite.body.setVelocityY(-900);
@@ -72,10 +92,15 @@ export class Player {
 
   public update(): void {
     if (!this.sprite.body.touching.down) {
-      if (Math.abs(this.sprite.body.velocity.y) > 300) {
-        this.sprite.anims.play("player_rising", true);
-      } else {
+      const fallingSpeed = this.sprite.body.velocity.y;
+      if (fallingSpeed > 400) {
+        this.sprite.anims.play("player_dropping", true);
+      } else if (fallingSpeed > 200) {
+        this.sprite.anims.play("player_egg", true);
+      } else if (fallingSpeed > -200) {
         this.sprite.anims.play("player_falling", true);
+      } else {
+        this.sprite.anims.play("player_rising", true);
       }
     } else if (Math.abs(this.sprite.body.velocity.x) > VELOCITY_EPSILON) {
       this.sprite.anims.play("player_move", true);
