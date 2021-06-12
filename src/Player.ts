@@ -1,12 +1,21 @@
+import { HeartDisplay } from "./HeartDisplay";
 import { ENTITY_SIZE, VELOCITY_EPSILON } from "./consts";
 import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 import KeyboardPlugin = Phaser.Input.Keyboard.KeyboardPlugin;
 
 export class Player {
+  private maxHealth = 3;
+  private currentHealth = this.maxHealth;
+  /** the maximum number of hearts you can have even with upgrades */
+  private maxMaxHealth = 10;
+  private heartDisplay: HeartDisplay;
+
   public constructor(
     public sprite: SpriteWithDynamicBody,
     public kbp: KeyboardPlugin
   ) {
+    this.heartDisplay = new HeartDisplay(this.sprite.scene, this.maxMaxHealth);
+    this.heartDisplay.redisplay(this.currentHealth, this.maxHealth);
     this.sprite.name = "player";
     this.sprite.setData("outerObject", this);
     this.sprite.body.setBounce(0, 0);
@@ -15,6 +24,7 @@ export class Player {
     this.sprite.body.setCollideWorldBounds(true);
     this.sprite.body.setDrag(1200, 0);
     this.sprite.body.setMaxVelocity(300, 10000);
+
     this.sprite.body.offset.add({ x: 0, y: 30 });
 
     this.sprite.anims.create({
@@ -127,6 +137,14 @@ export class Player {
       this.sprite.body.setVelocityX(0);
       this.sprite.body.setAccelerationX(0);
       return;
+    }
+  }
+
+  public takeDamage(): void {
+    this.currentHealth--;
+    this.heartDisplay.redisplay(this.currentHealth, this.maxHealth);
+    if (this.currentHealth <= 0) {
+      // TODO lose the game
     }
   }
 }

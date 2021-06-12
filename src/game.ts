@@ -18,7 +18,11 @@ export default class Demo extends Phaser.Scene {
 
   preload(): void {
     this.load.image("rectangle", "assets/rectangle.png");
-    this.load.glsl("stars", "assets/starfields.glsl.js");
+    this.load.image("tile_1", "assets/tile_1.png");
+    this.load.image("tile_2", "assets/tile_2.png");
+    this.load.image("background", "assets/background.png");
+    this.load.image("heart_empty", "assets/heart_empty.png");
+    this.load.image("heart_full", "assets/heart_full.png");
     this.load.image("oldcircle", "assets/blank circle.png");
     this.load.spritesheet("circle", "assets/circle tileset.png", {
       frameWidth: 100,
@@ -59,20 +63,10 @@ export default class Demo extends Phaser.Scene {
   }
 
   create(): void {
-    this.add
-      .shader("RGB Shift Field", 0, 0, GAME_WIDTH, GAME_HEIGHT)
-      .setOrigin(0);
-    this.add
-      .shader("RGB Shift Field", 0, 0, GAME_WIDTH, GAME_HEIGHT)
-      .setOrigin(0);
+    this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, "background");
 
     const bat = new Bat(this.physics.add.sprite(500, 500, "bat_flying"));
     this.enemies.push(bat);
-
-    this.player = new Player(
-      this.physics.add.sprite(200, 200, "blob_move"),
-      this.input.keyboard
-    );
 
     const platforms = this.physics.add.staticGroup();
 
@@ -87,12 +81,14 @@ export default class Demo extends Phaser.Scene {
       platforms
     );
 
+    this.player = new Player(
+      this.physics.add.sprite(200, 200, "blob_move"),
+      this.input.keyboard
+    );
+
     this.physics.add.collider(this.player.sprite, platforms);
     this.enemies.forEach((e) => {
       this.physics.add.collider(e.sprite, this.player.sprite, (obj1, obj2) => {
-        console.log("hit");
-        console.log(obj1);
-        console.log(obj2);
         if (obj1.getData("outerObject") instanceof Enemy) {
           obj1.getData("outerObject").onCollide(obj2);
         }

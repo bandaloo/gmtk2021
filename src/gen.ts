@@ -56,7 +56,7 @@ export function addObjects(
         platforms.create(
           (i + 0.5) * TILE_SIZE,
           (j + 0.5) * TILE_SIZE,
-          "rectangle"
+          "tile_" + Phaser.Math.Between(1, 2)
         );
       }
     }
