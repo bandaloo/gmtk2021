@@ -1,7 +1,7 @@
 import "phaser";
 import { Bat } from "./Bat";
 import { Enemy } from "./Enemy";
-import { GAME_HEIGHT, GAME_WIDTH, SPRITE_SIZE, TILE_SIZE } from "./consts";
+import { GAME_HEIGHT, GAME_WIDTH, SPRITE_SIZE } from "./consts";
 import { addObjects, padRoom, randomizeRoom, splitRoom } from "./gen";
 import { rooms } from "./rooms";
 import { Player } from "./Player";
@@ -29,8 +29,8 @@ export default class Demo extends Phaser.Scene {
       frameHeight: SPRITE_SIZE,
     });
     this.load.spritesheet("bat_swooping", "assets/bat_swooping.png", {
-      frameWidth: TILE_SIZE,
-      frameHeight: TILE_SIZE,
+      frameWidth: SPRITE_SIZE,
+      frameHeight: SPRITE_SIZE,
     });
     this.load.spritesheet("blob_jump", "assets/blob_jump.png", {
       frameWidth: SPRITE_SIZE,
@@ -58,7 +58,7 @@ export default class Demo extends Phaser.Scene {
     this.enemies.push(bat);
 
     this.player = new Player(
-      this.physics.add.sprite(200, 200, "circle"),
+      this.physics.add.sprite(200, 200, "blob_move"),
       this.input.keyboard
     );
 

@@ -15,6 +15,7 @@ export class Player {
     this.sprite.body.setCollideWorldBounds(true);
     this.sprite.body.setDrag(1200, 0);
     this.sprite.body.setMaxVelocity(300, 10000);
+    this.sprite.body.offset.add({ x: 0, y: 30 });
     this.sprite.anims.create({
       key: "player_move",
       frames: this.sprite.anims.generateFrameNumbers("blob_move", {
