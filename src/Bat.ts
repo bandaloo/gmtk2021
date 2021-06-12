@@ -1,9 +1,7 @@
 import { VELOCITY_EPSILON } from "./consts";
 import { Enemy } from "./Enemy";
-import { Player } from "./Player";
 import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 import Vector2 = Phaser.Math.Vector2;
-import GameObjectWithBody = Phaser.Types.Physics.Arcade.GameObjectWithBody;
 
 export class Bat extends Enemy {
   private timeBetweenFlaps = 120;
@@ -52,7 +50,6 @@ export class Bat extends Enemy {
       this.sprite.setFlipX(this.sprite.body.velocity.x >= 0);
     }
     if (this.swooping) {
-      console.log("swooping");
       this.sprite.body.setAcceleration(this.sprite.body.acceleration.x, 2200);
     }
 
@@ -67,7 +64,6 @@ export class Bat extends Enemy {
       const dx = this.sprite.body.position.x - player.body.position.x;
       if (Math.abs(dx) < 200) {
         // swoop
-        console.log("swoop");
         this.sprite.anims.play("bat_swooping", true);
         this.sprite.body.setVelocity(0, 0);
         this.sprite.body.setAcceleration(dx / 20, 2200);
@@ -81,8 +77,7 @@ export class Bat extends Enemy {
     } else if (this.sprite.body.touching.left) {
       this.direction = 1;
     }
-    if (this.sprite.body.touching.down) {
-      console.log("Hit bottom");
+    if (this.sprite.body.touching.down && this.swooping) {
       this.swooping = false;
       this.sprite.anims.play("bat_flying", true);
       this.swoopTimer = this.timeBetweenSwoops;
@@ -91,15 +86,6 @@ export class Bat extends Enemy {
 
     this.flapTimer--;
     this.swoopTimer--;
-  }
-
-  public onCollide(other: GameObjectWithBody): void {
-    console.log("hit");
-    const player = other.getData("outerObject");
-    if (player !== undefined && player instanceof Player) {
-      console.log("Collided with player!");
-      console.log(player);
-    }
   }
 
   private flap() {
