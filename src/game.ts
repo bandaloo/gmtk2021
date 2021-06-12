@@ -1,34 +1,130 @@
 import "phaser";
 
+class Player {
+  body: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
+  isGrounded: boolean;
+}
+
 export default class Demo extends Phaser.Scene {
+  player: Player;
+  cursors: Phaser.Types.Input.Keyboard.CursorKeys;
+
   constructor() {
     super("demo");
   }
 
   preload(): void {
-    this.load.image("logo", "assets/phaser3-logo.png");
-    this.load.image("libs", "assets/libs.png");
-    this.load.glsl("bundle", "assets/plasma-bundle.glsl.js");
+    this.load.image("rectangle", "assets/rectangle.png");
     this.load.glsl("stars", "assets/starfields.glsl.js");
+    this.load.image("oldcircle", "assets/blank circle.png");
+    this.load.spritesheet("circle", "assets/circle tileset.png", {
+      frameWidth: 100,
+      frameHeight: 100,
+    });
   }
 
   create(): void {
     this.add.shader("RGB Shift Field", 0, 0, 800, 600).setOrigin(0);
 
-    this.add.shader("Plasma", 0, 412, 800, 172).setOrigin(0);
+    this.player = new Player();
+    this.player.body = this.physics.add.sprite(200, 0, "circle");
 
-    this.add.image(400, 300, "libs");
+    const platforms = this.physics.add.staticGroup();
+    platforms
+      .create(
+        +this.game.config.width / 2,
+        +this.game.config.height,
+        "rectangle"
+      )
+      .setScale(10, 1)
+      .refreshBody();
+    platforms
+      .create(+this.game.config.width / 2, 0, "rectangle")
+      .setScale(10, 1)
+      .refreshBody();
 
-    const logo = this.add.image(400, 70, "logo");
+    this.player.body.setBounce(0);
+    this.player.body.setCollideWorldBounds(true);
+    this.player.body.setDrag(1200, 0);
+    this.player.body.setMaxVelocity(300, 10000);
 
-    this.tweens.add({
-      targets: logo,
-      y: 350,
-      duration: 1500,
-      ease: "Sine.inOut",
-      yoyo: true,
-      repeat: -1,
+    this.anims.create({
+      key: "left",
+      // frames: this.anims.generateFrameNumbers("circle", { start: 1, end: 1 }),
+      frames: [{ key: "circle", frame: 0 }],
+      frameRate: 10,
+      // repeat: -1,
     });
+
+    this.anims.create({
+      key: "turn",
+      frames: [{ key: "circle", frame: 1 }],
+      frameRate: 20,
+    });
+
+    this.anims.create({
+      key: "right",
+      // frames: this.anims.generateFrameNumbers("circle", { start: 5, end: 8 }),
+      frames: [{ key: "circle", frame: 2 }],
+      frameRate: 10,
+      // repeat: -1,
+    });
+
+    this.physics.add.collider(this.player.body, platforms);
+  }
+
+  pointerDown = false;
+
+  update(): void {
+    this.input.on(
+      "pointerdown",
+      (pointer: Phaser.Input.Pointer) => {
+        if (!this.pointerDown) {
+          console.log(pointer.worldX);
+          console.log(pointer.worldY);
+          this.pointerDown = true;
+        }
+      },
+      this
+    );
+
+    this.input.on(
+      "pointerup",
+      () => {
+        if (this.pointerDown) {
+          this.pointerDown = false;
+        }
+      },
+      this
+    );
+
+    this.cursors = this.input.keyboard.createCursorKeys();
+
+    this.player.isGrounded = this.player.body.body.touching.down;
+
+    this.cursors.left.onDown = () => {
+      this.cursors.left.isDown = true;
+      this.player.body.setAccelerationX(-1800);
+      this.player.body.anims.play("left", true);
+    };
+    this.cursors.right.onDown = () => {
+      this.cursors.right.isDown = true;
+      this.player.body.setAccelerationX(1800);
+      this.player.body.anims.play("right", true);
+    };
+
+    this.cursors.space.setEmitOnRepeat(false);
+    this.cursors.space.onDown = () => {
+      this.cursors.up.isDown = true;
+      if (this.player.isGrounded) {
+        this.player.body.setVelocityY(-500);
+      }
+    };
+
+    if (!(this.cursors.right.isDown || this.cursors.left.isDown)) {
+      this.player.body.setAccelerationX(0);
+      this.player.body.anims.play("turn");
+    }
   }
 }
 
@@ -38,6 +134,13 @@ const config = {
   width: 800,
   height: 600,
   scene: Demo,
+  physics: {
+    default: "arcade",
+    arcade: {
+      debug: true,
+      gravity: { y: 800 },
+    },
+  },
 };
 
 new Phaser.Game(config);
