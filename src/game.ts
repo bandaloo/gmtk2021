@@ -125,10 +125,18 @@ export default class Demo extends Phaser.Scene {
     };
 
     this.cursors.space.setEmitOnRepeat(false);
+
     this.cursors.space.onDown = () => {
       this.cursors.up.isDown = true;
       if (this.player.isGrounded) {
-        this.player.body.setVelocityY(-500);
+        this.player.body.setVelocityY(-800);
+      }
+    };
+
+    this.cursors.space.onUp = () => {
+      this.cursors.up.isUp = true;
+      if (this.player.body.body.velocity.y < 0) {
+        this.player.body.setVelocityY(this.player.body.body.velocity.y / 2);
       }
     };
   }
@@ -141,6 +149,16 @@ export default class Demo extends Phaser.Scene {
     if (!(this.cursors.right.isDown || this.cursors.left.isDown)) {
       this.player.body.setAccelerationX(0);
       this.player.body.anims.play("turn");
+    }
+
+    // prevents wall hanging problem
+    if (
+      (this.player.body.body.touching.left &&
+        this.player.body.body.acceleration.x < 0) ||
+      (this.player.body.body.touching.right &&
+        this.player.body.body.acceleration.x > 0)
+    ) {
+      this.player.body.setAccelerationX(0);
     }
   }
 }
