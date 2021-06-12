@@ -1,15 +1,12 @@
 import "phaser";
 
-// class GameObject {
-//   body: { update: () => void };
-// }
-
 class Player {
   body: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
   size: number;
   isGrounded: boolean;
   direction: "left" | "right";
   tilt: "up" | "forward" | "down";
+  angle: integer;
   grappleOut: boolean;
   grapplePull: boolean;
   getPos = () => this.body.body.position;
@@ -21,6 +18,7 @@ export default class Demo extends Phaser.Scene {
   arrow: Phaser.GameObjects.Sprite;
   grapplePoint: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
   platforms: Phaser.Physics.Arcade.StaticGroup;
+
   constructor() {
     super("demo");
   }
@@ -161,11 +159,6 @@ export default class Demo extends Phaser.Scene {
   }
 
   emitGrapple(): Phaser.Types.Physics.Arcade.SpriteWithDynamicBody {
-    console.log("grapple");
-    console.log(this.arrow.angle);
-
-    this.arrow.angle = this.arrow.angle + 90;
-
     const grapplePoint = this.physics.add.sprite(
       this.player.getPos().x + this.player.size / 2,
       this.player.getPos().y + this.player.size / 2,
@@ -174,8 +167,8 @@ export default class Demo extends Phaser.Scene {
     grapplePoint.body.setAllowGravity(false);
 
     grapplePoint.setVelocity(
-      1000 * Math.sin(this.arrow.angle / (Math.PI / 180)),
-      1000 * Math.cos(this.arrow.angle / (Math.PI / 180))
+      1000 * Math.cos(this.arrow.rotation),
+      1000 * Math.sin(this.arrow.rotation)
     );
     grapplePoint.setAngle(this.arrow.angle);
 
@@ -192,40 +185,12 @@ export default class Demo extends Phaser.Scene {
 
     this.setupControls();
 
-    this.setupMouse();
-
     // Add physics collisions
     this.physics.add.collider(this.player.body, this.platforms);
 
     // Place arrow
     this.arrow = this.add.sprite(500, 500, "arrow");
   }
-
-  setupMouse(): void {
-    this.input.on(
-      "pointerdown",
-      (pointer: Phaser.Input.Pointer) => {
-        if (!this.pointerDown) {
-          console.log(pointer.worldX);
-          console.log(pointer.worldY);
-          this.pointerDown = true;
-        }
-      },
-      this
-    );
-
-    this.input.on(
-      "pointerup",
-      () => {
-        if (this.pointerDown) {
-          this.pointerDown = false;
-        }
-      },
-      this
-    );
-  }
-
-  pointerDown = false;
 
   update(): void {
     // Player Logic
@@ -248,21 +213,36 @@ export default class Demo extends Phaser.Scene {
 
     this.arrow.visible = true;
 
+    // Determine player angle
+    if (this.player.direction == "right" && this.player.tilt == "forward")
+      this.player.angle = 0;
+    if (this.player.direction == "left" && this.player.tilt == "forward")
+      this.player.angle = 180;
+
+    if (this.player.direction == "right" && this.player.tilt == "up")
+      this.player.angle = -45;
+    if (this.player.direction == "left" && this.player.tilt == "up")
+      this.player.angle = -135;
+
+    if (this.player.direction == "right" && this.player.tilt == "down")
+      this.player.angle = 45;
+    if (this.player.direction == "left" && this.player.tilt == "down")
+      this.player.angle = 135;
+
+    // Determine arrow pos
+    this.arrow.angle = this.player.angle;
+
     if (this.player.direction == "left") {
-      this.arrow.angle = 180;
       arrowPos.x -= this.player.size / 2;
     } else if (this.player.direction == "right") {
-      this.arrow.angle = 0;
       arrowPos.x += this.player.size / 2;
     } else {
       this.arrow.visible = false;
     }
 
     if (this.player.tilt == "up") {
-      this.arrow.angle += this.player.direction == "left" ? 45 : -45;
       arrowPos.y -= this.player.size / 4;
     } else if (this.player.tilt == "down") {
-      this.arrow.angle += this.player.direction == "left" ? -45 : 45;
       arrowPos.y += this.player.size / 4;
     }
 
@@ -270,14 +250,11 @@ export default class Demo extends Phaser.Scene {
 
     // Grapple Pull
     if (this.player.grapplePull) {
-      console.log(this.grapplePoint.body.position);
-      // const dir = this.player.getPos().subtract(this.player.grapplePoint);
       const dir = {
         x: this.grapplePoint.body.position.x - this.player.getPos().x,
         y: this.grapplePoint.body.position.y - this.player.getPos().y,
       };
 
-      console.log(dir);
       this.player.body.setVelocityX(dir.x * 10);
       this.player.body.setVelocityY(dir.y * 10);
     }
