@@ -14,6 +14,7 @@ export default class Demo extends Phaser.Scene {
   private player: Player;
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   private enemies: Enemy[] = [];
+  private pointerDown = false;
 
   constructor() {
     super("demo");
@@ -30,7 +31,8 @@ export default class Demo extends Phaser.Scene {
   }
 
   create(): void {
-    this.enemies.push(createBat(this, 500, 500));
+    const bat = createBat(this, 500, 500);
+    this.enemies.push(bat);
     this.add.shader("RGB Shift Field", 0, 0, 1920, 1080).setOrigin(0);
     this.add
       .shader("RGB Shift Field", 0, 0, GAME_WIDTH, GAME_HEIGHT)
@@ -80,12 +82,8 @@ export default class Demo extends Phaser.Scene {
     });
 
     this.physics.add.collider(this.player.body, platforms);
-  }
+    this.physics.add.collider(bat.sprite, platforms);
 
-  pointerDown = false;
-
-  update(): void {
-    this.enemies.forEach((e) => e.update());
     this.input.on(
       "pointerdown",
       (pointer: Phaser.Input.Pointer) => {
@@ -110,8 +108,6 @@ export default class Demo extends Phaser.Scene {
 
     this.cursors = this.input.keyboard.createCursorKeys();
 
-    this.player.isGrounded = this.player.body.body.touching.down;
-
     this.cursors.left.onDown = () => {
       this.cursors.left.isDown = true;
       this.player.body.setAccelerationX(-1800);
@@ -130,6 +126,12 @@ export default class Demo extends Phaser.Scene {
         this.player.body.setVelocityY(-500);
       }
     };
+  }
+
+  update(): void {
+    this.enemies.forEach((e) => e.update());
+
+    this.player.isGrounded = this.player.body.body.touching.down;
 
     if (!(this.cursors.right.isDown || this.cursors.left.isDown)) {
       this.player.body.setAccelerationX(0);
