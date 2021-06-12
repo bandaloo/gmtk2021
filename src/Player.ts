@@ -7,6 +7,8 @@ export class Player {
     public sprite: SpriteWithDynamicBody,
     public kbp: KeyboardPlugin
   ) {
+    this.sprite.name = "player";
+    this.sprite.setData("outerObject", this);
     this.sprite.body.setBounce(0, 0);
     this.sprite.body.setSize(ENTITY_SIZE, ENTITY_SIZE);
     this.sprite.setSize(ENTITY_SIZE, ENTITY_SIZE);

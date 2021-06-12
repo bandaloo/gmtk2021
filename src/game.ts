@@ -1,7 +1,7 @@
 import "phaser";
-import { createBat } from "./Bat";
+import { Bat } from "./Bat";
 import { Enemy } from "./Enemy";
-import { GAME_HEIGHT, GAME_WIDTH, SPRITE_SIZE } from "./consts";
+import { GAME_HEIGHT, GAME_WIDTH, SPRITE_SIZE, TILE_SIZE } from "./consts";
 import { addObjects, padRoom, randomizeRoom, splitRoom } from "./gen";
 import { rooms } from "./rooms";
 import { Player } from "./Player";
@@ -28,6 +28,10 @@ export default class Demo extends Phaser.Scene {
       frameWidth: SPRITE_SIZE,
       frameHeight: SPRITE_SIZE,
     });
+    this.load.spritesheet("bat_swooping", "assets/bat_swooping.png", {
+      frameWidth: TILE_SIZE,
+      frameHeight: TILE_SIZE,
+    });
     this.load.spritesheet("blob_jump", "assets/blob_jump.png", {
       frameWidth: SPRITE_SIZE,
       frameHeight: SPRITE_SIZE,
@@ -50,7 +54,7 @@ export default class Demo extends Phaser.Scene {
       .shader("RGB Shift Field", 0, 0, GAME_WIDTH, GAME_HEIGHT)
       .setOrigin(0);
 
-    const bat = createBat(this, 500, 500);
+    const bat = new Bat(this.physics.add.sprite(500, 500, "bat_flying"));
     this.enemies.push(bat);
 
     this.player = new Player(
@@ -72,7 +76,19 @@ export default class Demo extends Phaser.Scene {
     );
 
     this.physics.add.collider(this.player.sprite, platforms);
-    this.physics.add.collider(bat.sprite, platforms);
+    this.enemies.forEach((e) => {
+      this.physics.add.collider(e.sprite, this.player.sprite, (obj1, obj2) => {
+        console.log("hit");
+        console.log(obj1);
+        console.log(obj2);
+        if (obj1.getData("outerObject") instanceof Enemy) {
+          obj1.getData("outerObject").onCollide(obj2);
+        }
+      });
+    });
+    this.enemies.forEach((e) => {
+      this.physics.add.collider(e.sprite, platforms);
+    });
 
     this.input.on(
       "pointerdown",
