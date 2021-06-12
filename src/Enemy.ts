@@ -1,4 +1,5 @@
-import GameObject = Phaser.GameObjects.GameObject;
+import Sprite = Phaser.Physics.Arcade.Sprite;
+import DynamicBody = Phaser.Physics.Arcade.Body;
 import { Scene } from "phaser";
 
 /**
@@ -7,18 +8,18 @@ import { Scene } from "phaser";
  * Possible states:
  *   - "dead": the enemy is dead.
  */
-export abstract class Enemy extends GameObject {
+export abstract class Enemy extends Sprite {
+  private maxHealth = 3;
+  private currentHealth = 3;
+  public body: DynamicBody;
+
   /**
    * @param scene the scene to which this enemy belongs
    * @param type a textual representation of this enemy, e.g. "bat"
    */
-  protected constructor(scene: Scene, type: string) {
-    super(scene, type);
-    this.scene.physics.add.sprite(10, 10, "enemy");
+  protected constructor(scene: Scene, x: number, y: number, type: string) {
+    super(scene, x, y, type);
   }
-
-  private maxHealth = 3;
-  private currentHealth = 3;
 
   public update(): void {
     // check for out of bounds values

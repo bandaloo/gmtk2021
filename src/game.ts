@@ -1,5 +1,5 @@
 import "phaser";
-import { Bat } from "./Bat";
+import { addBat } from "./Bat";
 
 class Player {
   body: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
@@ -22,12 +22,11 @@ export default class Demo extends Phaser.Scene {
       frameWidth: 100,
       frameHeight: 100,
     });
-    const bat = new Bat(this);
-    console.table(bat);
   }
 
   create(): void {
-    this.add.shader("RGB Shift Field", 0, 0, 800, 600).setOrigin(0);
+    addBat(this, 500, 500);
+    this.add.shader("RGB Shift Field", 0, 0, 1920, 1080).setOrigin(0);
 
     this.player = new Player();
     this.player.body = this.physics.add.sprite(200, 0, "circle");
@@ -134,8 +133,8 @@ export default class Demo extends Phaser.Scene {
 const config = {
   type: Phaser.AUTO,
   backgroundColor: "#125555",
-  width: 800,
-  height: 600,
+  width: 1920,
+  height: 1080,
   scene: Demo,
   physics: {
     default: "arcade",

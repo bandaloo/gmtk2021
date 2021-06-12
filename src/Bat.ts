@@ -1,18 +1,12 @@
-import { Enemy } from "./Enemy";
 import { Scene } from "phaser";
+import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 
-/**
- * A simple flying enemy.
- */
-export class Bat extends Enemy {
-  /**
-   * @param scene the scene to which this Bat belongs.
-   */
-  constructor(scene: Scene) {
-    super(scene, "Bat");
-  }
-
-  public update(): void {
-    super.update();
-  }
-}
+export const addBat = (
+  scene: Scene,
+  x: number,
+  y: number
+): SpriteWithDynamicBody => {
+  const bat = scene.physics.add.sprite(x, y, "Bat");
+  bat.body.setSize(40, 40);
+  return bat;
+};
