@@ -53,8 +53,6 @@ export const createBat = (scene: Scene, x: number, y: number): Bat => {
   swdb.body.setDrag(150, 150);
   swdb.body.setMaxVelocity(300, 200);
   swdb.body.setAllowGravity(false);
-  swdb.addToUpdateList();
-  swdb.setVisible(true);
   swdb.anims.create({
     key: "bat_flying",
     frames: swdb.anims.generateFrameNumbers("bat_flying", { start: 0, end: 1 }),
