@@ -1,6 +1,8 @@
 import "phaser";
 import { Bat } from "./Bat";
+import { Cannon } from "./Cannon";
 import { TILE_COLS, TILE_ROWS, TILE_SIZE } from "./consts";
+import { Exit } from "./Exit";
 import Demo from "./game";
 import { Player } from "./Player";
 
@@ -95,29 +97,40 @@ export function addObjects(
         p.setName("fruit");
         pickups.add(p);
       } else if (!isNaN(parseInt(tile))) {
-        //const int = parseInt(tile);
-        const bat = new Bat(
+        const x = (i + 0.5) * TILE_SIZE;
+        const y = (j + 0.5) * TILE_SIZE;
+        const int = parseInt(tile);
+        if (int === 1) {
+          const bat = new Bat(scene.physics.add.sprite(x, y, "bat_flying"));
+          scene.enemies.push(bat);
+        } else if (int === 0) {
+          const cannon = new Cannon(
+            scene.physics.add.sprite(200, 500, "cannon_walk"),
+            scene.projectileRenderInit(scene)
+          );
+          scene.enemies.push(cannon);
+        } else {
+          throw new Error("enemy number out of bounds");
+        }
+      } else if (tile === "s") {
+        scene.player = new Player(
           scene.physics.add.sprite(
+            (i + 0.5) * TILE_SIZE - TILE_SIZE * 0.1, // Slightly offset so you don't fall through the ground
+            (j + 0.5) * TILE_SIZE - TILE_SIZE * 0.1,
+            "blob_move"
+          ),
+          scene.input.keyboard,
+          scene.playerGroup,
+          scene.grappleGroup
+        );
+      } else if (tile === "e") {
+        new Exit(
+          scene.physics.add.staticSprite(
             (i + 0.5) * TILE_SIZE,
             (j + 0.5) * TILE_SIZE,
-            "bat_flying"
+            "portal"
           )
         );
-        scene.enemies.push(bat);
-        console.log("adding bat to world");
-      } else if (tile === "s") {
-        if (tile === "s") {
-          scene.player = new Player(
-            scene.physics.add.sprite(
-              (i + 0.5) * TILE_SIZE - TILE_SIZE * 0.1, // Slightly offset so you don't fall through the ground
-              (j + 0.5) * TILE_SIZE - TILE_SIZE * 0.1,
-              "blob_move"
-            ),
-            scene.input.keyboard,
-            scene.playerGroup,
-            scene.grappleGroup
-          );
-        }
       }
     }
   }

@@ -12,14 +12,29 @@ import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody
 export default class Demo extends Phaser.Scene {
   public player: Player;
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
-  public enemies: Enemy[] = [];
-  private projectiles: Projectile[] = [];
+  public enemies: Enemy[];
+  private projectiles: Projectile[];
   private platforms: StaticGroup;
   private pointerDown = false;
+  private pickups;
   public grappleGroup;
   public playerGroup;
+  public shouldReset;
+
+  // Incraments each restart
+  private levelNumber = 0;
+
   constructor() {
-    super("demo");
+    super("RandomLevel");
+  }
+
+  init(data: unknown): void {
+    console.log("init scene");
+    console.log(data);
+    this.levelNumber += 1;
+    this.enemies = [];
+    this.projectiles = [];
+    this.pickups = [];
   }
 
   preload(): void {
@@ -36,11 +51,15 @@ export default class Demo extends Phaser.Scene {
     this.load.image("grapple_hand", "assets/Grapple_Hand.png");
     this.load.image("grapple_grabbing", "assets/Grapple_Grabbing.png");
     this.load.image("oldcircle", "assets/blank circle.png");
-    this.load.image("bullet", "assets/blank circle.png");
+    this.load.image("bullet", "assets/Bullet.png");
     this.load.image("fruit", "assets/fruit.png");
     this.load.spritesheet("circle", "assets/circle tileset.png", {
       frameWidth: 100,
       frameHeight: 100,
+    });
+    this.load.spritesheet("portal", "assets/portal.png", {
+      frameWidth: 320,
+      frameHeight: 320,
     });
     this.load.spritesheet("bat_flying", "assets/bat_flying.png", {
       frameWidth: SPRITE_SIZE,
@@ -78,6 +97,10 @@ export default class Demo extends Phaser.Scene {
       frameWidth: TILE_SIZE,
       frameHeight: TILE_SIZE,
     });
+    this.load.spritesheet("cannon_shoot", "assets/cannon_shoot.png", {
+      frameWidth: TILE_SIZE,
+      frameHeight: TILE_SIZE,
+    });
   }
 
   /**
@@ -104,28 +127,34 @@ export default class Demo extends Phaser.Scene {
     };
   }
 
-  create(): void {
-    this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, "background");
-
-    this.platforms = this.physics.add.staticGroup();
-    const pickups = this.physics.add.staticGroup();
-
-    // Create groups before level gen
-    this.grappleGroup = this.physics.add.group();
-    this.playerGroup = this.physics.add.group();
-
+  private generateWorld() {
     addObjects(
       padRoom(
         randomizeRoom(
-          splitRoom(rooms[Math.floor((rooms.length - 1) * Math.random())]),
+          splitRoom(rooms[Math.floor(rooms.length * Math.random())]),
           0.5,
           0.5
         )
       ),
       this.platforms,
-      pickups,
+      this.pickups,
       this
     );
+  }
+
+  create(): void {
+    this.shouldReset = false;
+    this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, "background");
+    console.warn("CREATING GAME #" + this.levelNumber);
+
+    // Create groups before level gen
+    this.platforms = this.physics.add.staticGroup();
+    this.pickups = this.physics.add.staticGroup();
+    this.grappleGroup = this.physics.add.group();
+    this.playerGroup = this.physics.add.group();
+
+    this.generateWorld();
+
     const grappleCollideCallback = (
       obj1: SpriteWithDynamicBody,
       obj2: SpriteWithDynamicBody
@@ -160,7 +189,7 @@ export default class Demo extends Phaser.Scene {
 
     this.physics.add.collider(this.playerGroup, this.platforms);
 
-    this.physics.add.overlap(this.playerGroup, pickups, (obj1, obj2) => {
+    this.physics.add.overlap(this.playerGroup, this.pickups, (obj1, obj2) => {
       const player = obj1.getData("outerObject");
       if (player instanceof Player) {
         if (obj2.name === "fruit") {
@@ -208,8 +237,9 @@ export default class Demo extends Phaser.Scene {
   update(): void {
     this.player.update();
     this.projectiles.forEach((p) => p.update());
-    // clear dead projectiles
     this.enemies.forEach((e) => e.update());
+
+    // clear dead projectiles
     this.projectiles = this.projectiles.filter((p) => !p.isDead());
     // remove dead enemies from the world
     this.enemies = this.enemies.filter((enemy) => {
@@ -219,6 +249,10 @@ export default class Demo extends Phaser.Scene {
       }
       return true;
     });
+
+    if (this.shouldReset) {
+      this.scene.restart({});
+    }
   }
 }
 
