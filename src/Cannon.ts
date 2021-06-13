@@ -131,4 +131,12 @@ export class Cannon extends Enemy {
       }
     }
   }
+
+  eaten(): void {
+    console.log("eaten by player");
+  }
+
+  grappled(): void {
+    console.log("grappled by player");
+  }
 }

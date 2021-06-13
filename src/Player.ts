@@ -36,7 +36,7 @@ export class Player {
   public constructor(
     public sprite: SpriteWithDynamicBody,
     public kbp: KeyboardPlugin,
-    public platforms: Phaser.Physics.Arcade.StaticGroup
+    public grappleGroup: Phaser.Physics.Arcade.Group
   ) {
     this.heartDisplay = new HeartDisplay(this.sprite.scene, this.maxMaxHealth);
     this.heartDisplay.redisplay(this.currentHealth, this.maxHealth);
@@ -128,7 +128,7 @@ export class Player {
       }
     });
 
-    this.kbp.on("keyup-SHIFT", () => {
+    this.kbp.on("keydown-SHIFT", () => {
       if (!this.grapple) {
         this.grapple = new Grapple(
           this.sprite.scene.physics.add.sprite(
@@ -138,7 +138,7 @@ export class Player {
           ),
           this.shootAngle,
           this,
-          this.platforms
+          grappleGroup
         );
       }
     });

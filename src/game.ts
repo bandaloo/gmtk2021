@@ -8,6 +8,8 @@ import { addObjects, padRoom, randomizeRoom, splitRoom } from "./gen";
 import { rooms } from "./rooms";
 import { Player } from "./Player";
 import { Cannon } from "./Cannon";
+import { Grapple } from "./Grapple";
+import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 
 export default class Demo extends Phaser.Scene {
   private player: Player;
@@ -33,6 +35,7 @@ export default class Demo extends Phaser.Scene {
     this.load.image("grapple_arm", "assets/grapple_arm.png");
     this.load.image("grapple_base", "assets/Grapple_Base.png");
     this.load.image("grapple_hand", "assets/Grapple_Hand.png");
+    this.load.image("grapple_grabbing", "assets/Grapple_Grabbing.png");
     this.load.image("oldcircle", "assets/blank circle.png");
     this.load.image("bullet", "assets/blank circle.png");
     this.load.image("fruit", "assets/fruit.png");
@@ -129,11 +132,40 @@ export default class Demo extends Phaser.Scene {
       this
     );
 
+    const grappleGroup = this.physics.add.group();
     this.player = new Player(
       this.physics.add.sprite(200, 200, "blob_move"),
       this.input.keyboard,
-      this.platforms
+      grappleGroup
     );
+
+    const grappleCollideCallback = (
+      obj1: SpriteWithDynamicBody,
+      obj2: SpriteWithDynamicBody
+    ) => {
+      const object = obj1.getData("outerObject");
+      const object2 = obj2.getData("outerObject");
+      if (object instanceof Grapple) {
+        object.collide(object2);
+      } else if (object2 instanceof Grapple) {
+        object2.collide(object);
+      }
+    };
+
+    // Add grapple collision sensors
+    this.physics.add.overlap(
+      grappleGroup,
+      this.platforms,
+      grappleCollideCallback
+    );
+    this.physics.add.overlap(
+      grappleGroup,
+      this.player.sprite,
+      grappleCollideCallback
+    );
+    this.enemies.forEach((e) => {
+      this.physics.add.overlap(grappleGroup, e.sprite, grappleCollideCallback);
+    });
 
     this.physics.add.collider(this.player.sprite, this.platforms);
 

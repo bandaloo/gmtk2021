@@ -98,6 +98,14 @@ export class Bat extends Enemy {
     this.swoopTimer--;
   }
 
+  eaten(): void {
+    console.log("eaten by player");
+  }
+
+  grappled(): void {
+    console.log("grappled by player");
+  }
+
   private flap() {
     const acc = this.sprite.body.acceleration.add(
       new Vector2(400 * this.direction, -300)
