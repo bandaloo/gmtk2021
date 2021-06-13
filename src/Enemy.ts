@@ -8,18 +8,21 @@ import { Player } from "./Player";
 export abstract class Enemy {
   protected currentHealth: number;
   protected maxHealth: number;
+  abstract playerStuff: {
+    /**
+     * When the player absorbs a this enemy this action will replace the player's
+     * primary attack action.
+     */
+    action: (player: Player) => void;
+    /**
+     * The number of times the player can use the action before this enemy is
+     * used up and falls off.
+     */
+    charges: number;
+  };
 
   protected constructor(public sprite: SpriteWithDynamicBody) {
     sprite.setData("outerObject", this);
-  }
-
-  /**
-   * Logic to execute every game step.
-   */
-  update(): void {
-    if (this.isDead()) {
-      this.sprite.destroy(true);
-    }
   }
 
   public onCollide(other: GameObjectWithBody): void {
@@ -31,6 +34,8 @@ export abstract class Enemy {
       this.sprite.body.velocity.set(-v.x, -v.y);
     }
   }
+
+  abstract update(): void;
 
   /**
    * This enemy takes the given amount of damage. Taking more than the current
@@ -45,6 +50,6 @@ export abstract class Enemy {
   }
 
   public isDead(): boolean {
-    return this.currentHealth === 0;
+    return this.currentHealth <= 0;
   }
 }
