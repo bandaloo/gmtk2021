@@ -6,9 +6,9 @@ import Vector2 = Phaser.Math.Vector2;
 
 export class Bat extends Enemy {
   private timeBetweenFlaps = 120;
-  private flapTimer = this.timeBetweenFlaps;
+  private flapTimer = Phaser.Math.Between(30, this.timeBetweenFlaps);
   private timeBetweenSwoops = 500;
-  private swoopTimer = this.timeBetweenSwoops;
+  private swoopTimer = Phaser.Math.Between(30, this.timeBetweenSwoops);
   /** -1 for left, 1 for right */
   private direction: -1 | 1 = 1;
   private swooping = false;
