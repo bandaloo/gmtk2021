@@ -14,45 +14,99 @@ export default class HowToScene extends Phaser.Scene {
   }
 
   preload(): void {
-    this.load.image("howToScreen", "assets/how_to_play_base.png");
+    this.load.image("howTo1", "assets/how_to_play_1.png");
+    this.load.image("howTo2", "assets/how_to_play_2.png");
   }
 
   create(): void {
-    const image = this.add.image(
+    const instructions = this.add.image(
       GAME_WIDTH / 2,
       GAME_HEIGHT / 2,
-      "howToScreen"
+      "howTo1"
     );
 
-    console.log("image is: ");
-    console.log(image);
+    instructions.setScale(0.9, 0.9);
 
-    const back_text = this.add.text(0, 0, "< BACK", {
+    const menu_text = this.add.text(0, 0, "< MENU", {
       fontSize: BACK_FONT_SIZE + "px",
       color: "#FFFFFF",
       fontStyle: "bold",
     });
-    back_text.setOrigin(0, 0);
-    back_text.x = 0;
-    back_text.y = 0;
+    menu_text.setOrigin(0, 0);
+    menu_text.x = 0;
+    menu_text.y = 0;
 
-    back_text.on("pointerover", function (pointer) {
+    menu_text.on("pointerover", function (pointer) {
       if (pointer instanceof Pointer) {
-        back_text.setColor("#88b5b1");
+        menu_text.setColor("#88b5b1");
       }
     });
 
-    back_text.on("pointerout", function (pointer) {
+    menu_text.on("pointerout", function (pointer) {
       if (pointer instanceof Pointer) {
-        back_text.setColor("#FFFFFF");
+        menu_text.setColor("#FFFFFF");
       }
     });
 
-    back_text.setInteractive().on("pointerdown", (pointer) => {
+    menu_text.setInteractive().on("pointerdown", (pointer) => {
       if (pointer instanceof Pointer) {
         console.log("pointer:");
         console.log(pointer);
         this.scene.start("startScreen");
+      }
+    });
+
+    const previous_arrow = this.add.text(0, 0, "< PREV", {
+      fontSize: BACK_FONT_SIZE + "px",
+      color: "#FFFFFF",
+      fontStyle: "bold",
+    });
+    previous_arrow.setOrigin(0, 0);
+    previous_arrow.x = 0;
+    previous_arrow.y = GAME_HEIGHT - 50;
+
+    previous_arrow.on("pointerover", function (pointer) {
+      if (pointer instanceof Pointer) {
+        previous_arrow.setColor("#88b5b1");
+      }
+    });
+
+    previous_arrow.on("pointerout", function (pointer) {
+      if (pointer instanceof Pointer) {
+        previous_arrow.setColor("#FFFFFF");
+      }
+    });
+
+    previous_arrow.setInteractive().on("pointerdown", (pointer) => {
+      if (pointer instanceof Pointer) {
+        instructions.setTexture("howTo1");
+      }
+    });
+
+    const next_arrow = this.add.text(0, 0, "NEXT >", {
+      fontSize: BACK_FONT_SIZE + "px",
+      color: "#FFFFFF",
+      fontStyle: "bold",
+    });
+    next_arrow.setOrigin(1, 0);
+    next_arrow.x = GAME_WIDTH;
+    next_arrow.y = GAME_HEIGHT - 50;
+
+    next_arrow.on("pointerover", function (pointer) {
+      if (pointer instanceof Pointer) {
+        next_arrow.setColor("#88b5b1");
+      }
+    });
+
+    next_arrow.on("pointerout", function (pointer) {
+      if (pointer instanceof Pointer) {
+        next_arrow.setColor("#FFFFFF");
+      }
+    });
+
+    next_arrow.setInteractive().on("pointerdown", (pointer) => {
+      if (pointer instanceof Pointer) {
+        instructions.setTexture("howTo2");
       }
     });
   }
