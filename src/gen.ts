@@ -2,6 +2,7 @@ import "phaser";
 import { Bat } from "./Bat";
 import { TILE_COLS, TILE_ROWS, TILE_SIZE } from "./consts";
 import Demo from "./game";
+import { Player } from "./Player";
 
 const MAX_ENEMY = 2;
 
@@ -30,6 +31,9 @@ export function randomizeRoom(
       if (!isNaN(parseInt(tile))) {
         if (Math.random() < enemyChance) return tile;
         return ".";
+      }
+      if (tile === "s" || tile === "e") {
+        return tile;
       }
       throw new Error("unidentified tile! " + tile);
     })
@@ -101,6 +105,19 @@ export function addObjects(
         );
         scene.enemies.push(bat);
         console.log("adding bat to world");
+      } else if (tile === "s") {
+        if (tile === "s") {
+          scene.player = new Player(
+            scene.physics.add.sprite(
+              (i + 0.5) * TILE_SIZE - TILE_SIZE * 0.1, // Slightly offset so you don't fall through the ground
+              (j + 0.5) * TILE_SIZE - TILE_SIZE * 0.1,
+              "blob_move"
+            ),
+            scene.input.keyboard,
+            scene.playerGroup,
+            scene.grappleGroup
+          );
+        }
       }
     }
   }

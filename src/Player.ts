@@ -36,6 +36,7 @@ export class Player {
   public constructor(
     public sprite: SpriteWithDynamicBody,
     public kbp: KeyboardPlugin,
+    public playerGroup: Phaser.Physics.Arcade.Group,
     public grappleGroup: Phaser.Physics.Arcade.Group
   ) {
     this.heartDisplay = new HeartDisplay(this.sprite.scene, this.maxMaxHealth);
@@ -49,6 +50,7 @@ export class Player {
     this.sprite.body.setDrag(PLAYER_DRAG, 0);
     this.direction = "forward";
     this.grapplePull = false;
+    playerGroup.add(sprite);
 
     this.sprite.body.offset.add({ x: 0, y: 30 });
 

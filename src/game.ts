@@ -1,24 +1,23 @@
 import "phaser";
 import StaticGroup = Phaser.Physics.Arcade.StaticGroup;
-import { Bat } from "./Bat";
 import { Projectile } from "./Projectile";
 import { Enemy } from "./Enemy";
 import { GAME_HEIGHT, GAME_WIDTH, SPRITE_SIZE, TILE_SIZE } from "./consts";
 import { addObjects, padRoom, randomizeRoom, splitRoom } from "./gen";
 import { rooms } from "./rooms";
 import { Player } from "./Player";
-import { Cannon } from "./Cannon";
 import { Grapple } from "./Grapple";
 import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 
 export default class Demo extends Phaser.Scene {
-  private player: Player;
+  public player: Player;
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   public enemies: Enemy[] = [];
   private projectiles: Projectile[] = [];
   private platforms: StaticGroup;
   private pointerDown = false;
-
+  public grappleGroup;
+  public playerGroup;
   constructor() {
     super("demo");
   }
@@ -95,7 +94,7 @@ export default class Demo extends Phaser.Scene {
 
       scene.physics.add.collider(
         projectile.sprite,
-        scene.player.sprite,
+        scene.playerGroup,
         (obj1, obj2) => {
           if (obj1.getData("outerObject") instanceof Projectile) {
             obj1.getData("outerObject").onCollide(obj2);
@@ -108,16 +107,12 @@ export default class Demo extends Phaser.Scene {
   create(): void {
     this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, "background");
 
-    const bat = new Bat(this.physics.add.sprite(500, 500, "bat_flying"));
-    const cannon = new Cannon(
-      this.physics.add.sprite(200, 500, "cannon_walk"),
-      this.projectileRenderInit(this)
-    );
-    this.enemies.push(bat);
-    this.enemies.push(cannon);
-
     this.platforms = this.physics.add.staticGroup();
     const pickups = this.physics.add.staticGroup();
+
+    // Create groups before level gen
+    this.grappleGroup = this.physics.add.group();
+    this.playerGroup = this.physics.add.group();
 
     addObjects(
       padRoom(
@@ -131,14 +126,6 @@ export default class Demo extends Phaser.Scene {
       pickups,
       this
     );
-
-    const grappleGroup = this.physics.add.group();
-    this.player = new Player(
-      this.physics.add.sprite(200, 200, "blob_move"),
-      this.input.keyboard,
-      grappleGroup
-    );
-
     const grappleCollideCallback = (
       obj1: SpriteWithDynamicBody,
       obj2: SpriteWithDynamicBody
@@ -154,22 +141,26 @@ export default class Demo extends Phaser.Scene {
 
     // Add grapple collision sensors
     this.physics.add.overlap(
-      grappleGroup,
+      this.grappleGroup,
       this.platforms,
       grappleCollideCallback
     );
     this.physics.add.overlap(
-      grappleGroup,
-      this.player.sprite,
+      this.grappleGroup,
+      this.playerGroup,
       grappleCollideCallback
     );
     this.enemies.forEach((e) => {
-      this.physics.add.overlap(grappleGroup, e.sprite, grappleCollideCallback);
+      this.physics.add.overlap(
+        this.grappleGroup,
+        e.sprite,
+        grappleCollideCallback
+      );
     });
 
-    this.physics.add.collider(this.player.sprite, this.platforms);
+    this.physics.add.collider(this.playerGroup, this.platforms);
 
-    this.physics.add.overlap(this.player.sprite, pickups, (obj1, obj2) => {
+    this.physics.add.overlap(this.playerGroup, pickups, (obj1, obj2) => {
       const player = obj1.getData("outerObject");
       if (player instanceof Player) {
         if (obj2.name === "fruit") {
@@ -180,7 +171,7 @@ export default class Demo extends Phaser.Scene {
     });
 
     this.enemies.forEach((e) => {
-      this.physics.add.overlap(e.sprite, this.player.sprite, (obj1, obj2) => {
+      this.physics.add.overlap(e.sprite, this.playerGroup, (obj1, obj2) => {
         const enemy = obj1.getData("outerObject");
         if (enemy instanceof Enemy) {
           enemy.onOverlap(obj2);
