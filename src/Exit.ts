@@ -25,7 +25,7 @@ export class Exit {
     this.sprite.scene.physics.add.overlap(
       (this.sprite.scene as RandomLevel).playerGroup,
       this.sprite,
-      () => ((this.sprite.scene as RandomLevel).shouldReset = true)
+      () => ((this.sprite.scene as RandomLevel).levelUp = true)
     );
   }
 

@@ -1,5 +1,6 @@
 import "phaser";
 import StaticGroup = Phaser.Physics.Arcade.StaticGroup;
+import Pointer = Phaser.Input.Pointer;
 import { Projectile } from "./Projectile";
 import { Enemy } from "./Enemy";
 import {
@@ -7,7 +8,9 @@ import {
   GAME_WIDTH,
   PLAYER_DRAG,
   SPRITE_SIZE,
+  SUBTITLE_FONT_SIZE,
   TILE_SIZE,
+  TITLE_FONT_SIZE,
 } from "./consts";
 import { addObjects, padRoom, randomizeRoom, splitRoom } from "./gen";
 import { rooms } from "./rooms";
@@ -16,6 +19,7 @@ import { Grapple } from "./Grapple";
 import StartScreenScene from "./StartScreenScene";
 import HowToScene from "./HowToScreenScene";
 import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
+import Text = Phaser.GameObjects.Text;
 
 export default class RandomLevel extends Phaser.Scene {
   public player: Player;
@@ -27,7 +31,10 @@ export default class RandomLevel extends Phaser.Scene {
   private pickups;
   public grappleGroup;
   public playerGroup;
-  public shouldReset;
+  public levelUp = false;
+  public gameOver = false;
+  private title_text: Text | null;
+  private restart_text: Text | null;
 
   // Incraments each restart
   private levelNumber = 0;
@@ -135,6 +142,44 @@ export default class RandomLevel extends Phaser.Scene {
     };
   }
 
+  private showRestart() {
+    if (!this.title_text || !this.restart_text) {
+      this.title_text = this.add.text(0, 0, "GAME OVER!!", {
+        fontSize: TITLE_FONT_SIZE + "px",
+        color: "#FFFFFF",
+        fontStyle: "bold",
+      });
+      this.title_text.setOrigin(0.5, 0.5);
+      this.title_text.x = GAME_WIDTH / 2;
+      this.title_text.y = GAME_HEIGHT / 2;
+
+      this.restart_text = this.add.text(0, 0, "> CLICK HERE TO RESTART <", {
+        fontSize: SUBTITLE_FONT_SIZE + "px",
+        color: "#FFFFFF",
+        fontStyle: "bold",
+      });
+      this.restart_text.setOrigin(0.5, 0.5);
+      this.restart_text.x = GAME_WIDTH / 2;
+      this.restart_text.y = GAME_HEIGHT / 2 + 150;
+
+      this.restart_text.setInteractive().on("pointerdown", (pointer) => {
+        if (pointer instanceof Pointer) {
+          console.log("pointer:");
+          console.log(pointer);
+          this.scene.restart({});
+        }
+      });
+
+      this.restart_text.on("pointerover", (pointer) => {
+        this.restart_text.setColor("#88b5b1");
+      });
+
+      this.restart_text.on("pointerout", (pointer) => {
+        this.restart_text.setColor("#FFFFFF");
+      });
+    }
+  }
+
   private generateWorld() {
     addObjects(
       padRoom(
@@ -151,7 +196,10 @@ export default class RandomLevel extends Phaser.Scene {
   }
 
   create(): void {
-    this.shouldReset = false;
+    this.levelUp = false;
+    this.gameOver = false;
+    this.title_text = null;
+    this.restart_text = null;
     this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, "background");
     console.warn("CREATING GAME #" + this.levelNumber);
 
@@ -252,7 +300,9 @@ export default class RandomLevel extends Phaser.Scene {
   }
 
   update(): void {
-    this.player.update();
+    if (!this.gameOver) {
+      this.player.update();
+    }
     this.projectiles.forEach((p) => p.update());
     this.enemies.forEach((e) => e.update());
 
@@ -267,7 +317,12 @@ export default class RandomLevel extends Phaser.Scene {
       return true;
     });
 
-    if (this.shouldReset) {
+    if (this.gameOver) {
+      this.showRestart();
+      this.player.dead();
+    }
+
+    if (this.levelUp) {
       this.scene.restart({});
     }
   }
