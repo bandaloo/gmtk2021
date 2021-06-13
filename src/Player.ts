@@ -27,7 +27,7 @@ export class Player {
   private direction: "right" | "left" | "forward";
   private shootAngle: integer;
 
-  tintTimer = MAX_TINT_TIMER;
+  tintTimer = 0;
 
   private grappleAction: (player: Player) => void;
   private primaryAction: ((player: Player) => void) | undefined;
@@ -228,6 +228,7 @@ export class Player {
   }
 
   public takeDamage(): void {
+    if (this.tintTimer > 0) return;
     this.currentHealth--;
     this.tintTimer = MAX_TINT_TIMER;
     this.heartDisplay.redisplay(this.currentHealth, this.maxHealth);
