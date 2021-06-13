@@ -19,7 +19,7 @@ export class Cannon extends Enemy {
   private distanceToPlayer = 0;
   private timeBetweenShots = 200;
   private justRotate = false;
-  private shotTimer = this.timeBetweenShots;
+  private shotTimer = Phaser.Math.Between(30, this.timeBetweenShots);
   private playerRef: GameObjects.GameObject;
   private canMove = true;
 
