@@ -43,6 +43,8 @@ export abstract class Enemy {
   }
 
   abstract update(): void;
+  abstract eaten(): void;
+  abstract grappled(): void;
 
   /**
    * This enemy takes the given amount of damage. Taking more than the current

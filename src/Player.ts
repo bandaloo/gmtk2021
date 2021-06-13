@@ -32,7 +32,7 @@ export class Player {
   public constructor(
     public sprite: SpriteWithDynamicBody,
     public kbp: KeyboardPlugin,
-    public platforms: Phaser.Physics.Arcade.StaticGroup
+    public grappleGroup: Phaser.Physics.Arcade.Group
   ) {
     this.heartDisplay = new HeartDisplay(this.sprite.scene, this.maxMaxHealth);
     this.heartDisplay.redisplay(this.currentHealth, this.maxHealth);
@@ -134,7 +134,7 @@ export class Player {
           ),
           this.shootAngle,
           this,
-          this.platforms
+          grappleGroup
         );
       }
     });
