@@ -21,4 +21,4 @@ export const PLAYER_MAX_SPEED_NORMAL_X = 800;
 export const PLAYER_MAX_SPEED_NORMAL_Y = 3000;
 export const PLAYER_MAX_SPEED_GRAPPLE_X = 1600;
 
-export const MAX_TINT_TIMER = 20;
+export const MAX_TINT_TIMER = 40;
