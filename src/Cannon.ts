@@ -1,5 +1,5 @@
 import { GameObjects } from "phaser";
-import { PLAYER_PROPERTY_NAME } from "./consts";
+import { ENTITY_SIZE, PLAYER_PROPERTY_NAME } from "./consts";
 import { Projectile } from "./Projectile";
 import { Enemy } from "./Enemy";
 import { Player } from "./Player";
@@ -26,8 +26,8 @@ export class Cannon extends Enemy {
     private renderInit: (p: Projectile) => void
   ) {
     super(sprite);
-    sprite.setSize(120, 120);
-    sprite.body.setSize(120, 120);
+    sprite.setSize(ENTITY_SIZE, ENTITY_SIZE);
+    sprite.body.setSize(ENTITY_SIZE, ENTITY_SIZE);
     sprite.body.setBounce(0, 0);
     sprite.body.setCollideWorldBounds(true);
     sprite.body.setDrag(10, 10);

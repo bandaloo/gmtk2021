@@ -27,6 +27,8 @@ export class Projectile {
     private direction: integer
   ) {
     sprite.setData("outerObject", this);
+    sprite.setSize(50, 50);
+    sprite.body.setSize(50, 50);
     sprite.body.setAllowGravity(false);
     renderInit(this);
   }
