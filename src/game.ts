@@ -338,6 +338,7 @@ export default class RandomLevel extends Phaser.Scene {
       crunchSound = this.sound.add("crunch");
       portalSound = this.sound.add("portal");
       whooshSound = this.sound.add("whoosh");
+
       addedSounds = true;
     }
 

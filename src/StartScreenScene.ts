@@ -7,9 +7,15 @@ import {
   SUBTITLE_FONT_SIZE,
 } from "./consts";
 
+let musicSound: Phaser.Sound.BaseSound;
+
 export default class StartScreenScene extends Phaser.Scene {
   constructor() {
     super("startScreen");
+  }
+
+  preload(): void {
+    this.load.audio("music", "assets/music.mp3");
   }
 
   initialize(): void {
@@ -17,6 +23,7 @@ export default class StartScreenScene extends Phaser.Scene {
   }
 
   create(): void {
+    musicSound = this.sound.add("music", { loop: true, volume: 0.35 });
     const title_text = this.add.text(0, 0, "SCHLORP", {
       fontSize: TITLE_FONT_SIZE + "px",
       color: "#FFFFFF",
@@ -31,6 +38,7 @@ export default class StartScreenScene extends Phaser.Scene {
       color: "#FFFFFF",
       fontStyle: "bold",
     });
+
     play_text.setOrigin(0.5, 0.5);
     play_text.x = GAME_WIDTH / 2;
     play_text.y = GAME_HEIGHT / 2 + 150;
@@ -39,6 +47,7 @@ export default class StartScreenScene extends Phaser.Scene {
       if (pointer instanceof Pointer) {
         console.log("pointer:");
         console.log(pointer);
+        musicSound.play();
         this.scene.start("RandomLevel");
       }
     });
