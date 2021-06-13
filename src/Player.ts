@@ -74,11 +74,18 @@ export class Player {
     public playerGroup: Phaser.Physics.Arcade.Group,
     public grappleGroup: Phaser.Physics.Arcade.Group,
     public demo: Demo,
-    health?: integer
+    health?: number,
+    maxHealth?: number
   ) {
-    if (health) {
+    if (maxHealth !== undefined) {
+      this.maxHealth = maxHealth;
+      console.log("max health", this.maxHealth);
+    }
+
+    if (health !== undefined) {
       this.currentHealth = health;
     }
+
     this.heartDisplay = new HeartDisplay(this.sprite.scene, this.maxMaxHealth);
     this.heartDisplay.redisplay(this.currentHealth, this.maxHealth);
     this.sprite.name = "player";

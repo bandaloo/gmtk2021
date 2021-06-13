@@ -50,6 +50,7 @@ export default class RandomLevel extends Phaser.Scene {
   public playerGroup: Phaser.Physics.Arcade.Group;
   public shouldReset: boolean;
   public storePlayerHealthBetweenLevels: number;
+  public storePlayerMaxHealthBetweenLevels: number;
   public exit: Exit;
   public lastRoom: integer;
 
@@ -71,6 +72,11 @@ export default class RandomLevel extends Phaser.Scene {
     } else {
       this.storePlayerHealthBetweenLevels = 3;
     }
+
+    if (data["playerMaxHeath"]) {
+      this.storePlayerMaxHealthBetweenLevels = data["playerMaxHeath"];
+    }
+
     this.levelNumber += 1;
     this.enemies = [];
     this.projectiles = [];
@@ -474,7 +480,10 @@ export default class RandomLevel extends Phaser.Scene {
     if (this.levelUp) {
       this.increaseScore(50);
       portalSound.play();
-      this.scene.restart({ playerHeath: this.player.currentHealth });
+      this.scene.restart({
+        playerHeath: this.player.currentHealth,
+        playerMaxHeath: this.player.maxHealth,
+      });
     }
   }
 

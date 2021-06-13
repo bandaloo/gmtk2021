@@ -132,7 +132,8 @@ export function addObjects(
           scene.playerGroup,
           scene.grappleGroup,
           scene,
-          scene.storePlayerHealthBetweenLevels // This is horrible. Too bad!
+          scene.storePlayerHealthBetweenLevels, // This is horrible. Too bad!
+          scene.storePlayerMaxHealthBetweenLevels
         );
       } else if (tile === "e") {
         scene.exit = new Exit(
