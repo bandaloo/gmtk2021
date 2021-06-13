@@ -4,6 +4,8 @@ export const GAME_HEIGHT = 1080;
 export const TILE_COLS = 16;
 export const TILE_ROWS = 9;
 
+export const PLAYER_PROPERTY_NAME = "player";
+
 export const TILE_SIZE = GAME_WIDTH / TILE_COLS;
 
 export const ENTITY_SIZE = 90;
