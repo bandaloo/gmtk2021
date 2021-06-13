@@ -16,6 +16,7 @@ import { Grapple } from "./Grapple";
 import StartScreenScene from "./StartScreenScene";
 import HowToScene from "./HowToScreenScene";
 import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
+import { Exit } from "./Exit";
 
 export let absorbSound: Phaser.Sound.BaseSound;
 export let cannonShotSound: Phaser.Sound.BaseSound;
@@ -39,6 +40,8 @@ export default class RandomLevel extends Phaser.Scene {
   public playerGroup: Phaser.Physics.Arcade.Group;
   public shouldReset: boolean;
   public storePlayerHealthBetweenLevels: number;
+  public exit: Exit;
+  public lastRoom: integer;
 
   // Incraments each restart
   private levelNumber = 0;
@@ -195,14 +198,17 @@ export default class RandomLevel extends Phaser.Scene {
 
   private generateWorld() {
     console.log("new level");
-    const enemyChance = 1 / (1 + Math.exp((-this.levelNumber + 10) / 2));
+    const enemyChance = 1 / (1 + Math.exp((-this.levelNumber + 10) / 2)) + 0.25;
     console.log(enemyChance);
     console.log(0.5 - (this.levelNumber / 2) * 0.05);
 
+    let newRoom = Math.floor(rooms.length * Math.random()); // This is terrible. Too bad!
+    while (newRoom == this.lastRoom)
+      newRoom = Math.floor(rooms.length * Math.random());
     addObjects(
       padRoom(
         randomizeRoom(
-          splitRoom(rooms[Math.floor(rooms.length * Math.random())]),
+          splitRoom(rooms[newRoom]),
           enemyChance,
           0.5 - (this.levelNumber / 10) * 0.05
         )
@@ -306,37 +312,22 @@ export default class RandomLevel extends Phaser.Scene {
     this.enemies.forEach((e) => {
       this.physics.add.collider(e.sprite, this.platforms);
     });
-
-    this.input.on(
-      "pointerdown",
-      (pointer: Phaser.Input.Pointer) => {
-        if (!this.pointerDown) {
-          console.log(pointer.worldX);
-          console.log(pointer.worldY);
-          this.pointerDown = true;
-        }
-      },
-      this
-    );
-
-    this.input.on(
-      "pointerup",
-      () => {
-        if (this.pointerDown) {
-          this.pointerDown = false;
-        }
-      },
-      this
-    );
   }
 
   update(): void {
     this.player.update();
     this.projectiles.forEach((p) => p.update());
     this.enemies.forEach((e) => e.update());
+    this.exit.update();
 
     // clear dead projectiles
-    this.projectiles = this.projectiles.filter((p) => !p.isDead());
+    this.projectiles = this.projectiles.filter((p) => {
+      if (p.isDead()) {
+        p.sprite.destroy(false);
+        return false;
+      }
+      return true;
+    });
     // remove dead enemies from the world
     this.enemies = this.enemies.filter((enemy) => {
       if (enemy.isDead()) {
@@ -350,13 +341,15 @@ export default class RandomLevel extends Phaser.Scene {
     }
   }
 
-  public addProjectile(projectile: Projectile): void {
+  public addProjectile(projectile: Projectile, collidesWall = false): void {
     this.projectiles.push(projectile);
-    this.physics.add.collider(this.platforms, projectile.sprite, (obj1) => {
-      if (obj1.getData("outerObject") instanceof Projectile) {
-        obj1.getData("outerObject").kill();
-      }
-    });
+    if (collidesWall) {
+      this.physics.add.collider(this.platforms, projectile.sprite, (obj1) => {
+        if (obj1.getData("outerObject") instanceof Projectile) {
+          obj1.getData("outerObject").kill();
+        }
+      });
+    }
 
     if (projectile.friendly) {
       for (const enemy of this.enemies) {

@@ -25,3 +25,5 @@ export const MAX_TINT_TIMER = 40;
 export const GRAPPLE_OFFSET = 50;
 export const GRAPPLE_SPEED = 2000;
 export const DEFAULT_GRAPPLE_MAX_LENGTH = 500;
+
+export const PROJECTILE_MAX_LEN = 200;
