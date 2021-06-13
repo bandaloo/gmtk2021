@@ -236,12 +236,14 @@ export class Player {
       this.sprite.setFlipX(this.sprite.body.velocity.x > 0);
       for (const c of this.cosmetics) {
         c.sprite.anims.play(c.keys.move, true);
-        c.sprite.setFlipX(this.sprite.body.velocity.x > 0);
       }
     } else {
       this.sprite.anims.play("player_still", true);
       for (const c of this.cosmetics) {
         c.sprite.anims.play(c.keys.still, true);
+      }
+      for (const c of this.cosmetics) {
+        c.sprite.setFlipX(this.direction !== "left");
       }
     }
 

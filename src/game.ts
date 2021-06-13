@@ -167,6 +167,42 @@ export default class RandomLevel extends Phaser.Scene {
       frameWidth: TILE_SIZE,
       frameHeight: TILE_SIZE,
     });
+    this.load.spritesheet(
+      "blob_dropping_cannon",
+      "assets/blob_dropping_cannon.png",
+      {
+        frameWidth: SPRITE_SIZE,
+        frameHeight: SPRITE_SIZE,
+      }
+    );
+    this.load.spritesheet("blob_egg_cannon", "assets/blob_egg_cannon.png", {
+      frameWidth: SPRITE_SIZE,
+      frameHeight: SPRITE_SIZE,
+    });
+    this.load.spritesheet(
+      "blob_falling_cannon",
+      "assets/blob_falling_cannon.png",
+      {
+        frameWidth: SPRITE_SIZE,
+        frameHeight: SPRITE_SIZE,
+      }
+    );
+    this.load.spritesheet("blob_move_cannon", "assets/blob_move_cannon.png", {
+      frameWidth: SPRITE_SIZE,
+      frameHeight: SPRITE_SIZE,
+    });
+    this.load.spritesheet(
+      "blob_rising_cannon",
+      "assets/blob_rising_cannon.png",
+      {
+        frameWidth: SPRITE_SIZE,
+        frameHeight: SPRITE_SIZE,
+      }
+    );
+    this.load.spritesheet("blob_still_cannon", "assets/blob_still_cannon.png", {
+      frameWidth: SPRITE_SIZE,
+      frameHeight: SPRITE_SIZE,
+    });
   }
 
   /**
@@ -194,10 +230,7 @@ export default class RandomLevel extends Phaser.Scene {
   }
 
   private generateWorld() {
-    console.log("new level");
     const enemyChance = 1 / (1 + Math.exp((-this.levelNumber + 10) / 2));
-    console.log(enemyChance);
-    console.log(0.5 - (this.levelNumber / 2) * 0.05);
 
     addObjects(
       padRoom(

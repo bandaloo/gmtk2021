@@ -57,9 +57,7 @@ export class Cannon extends Enemy {
   }
 
   public playerStuff = {
-    initialize: (): void => {
-      console.log("TODO: Initialize player");
-    },
+    initialize: this.playerInitialize,
     action: (player: Player): void => {
       // TODO shoot
       console.log(player);
@@ -87,7 +85,7 @@ export class Cannon extends Enemy {
 
       this.shotTimer--;
       if (this.shotTimer <= 0) {
-        //this.shoot(); TODO uncomment
+        this.shoot();
         this.shotTimer = this.timeBetweenShots;
       }
       this.move();
@@ -154,7 +152,80 @@ export class Cannon extends Enemy {
 
   onEaten(player: Player): void {
     this.currentHealth = 0;
-    // TODO player.absorb(this)
-    console.log(player);
+    player.absorb(this);
+  }
+
+  private playerInitialize(player: Player): void {
+    // set up cosmetic cannon
+    const s = player.sprite.scene.add.sprite(
+      player.sprite.x,
+      player.sprite.y,
+      "blob_still_cannon"
+    );
+    s.setDepth(110);
+
+    s.anims.create({
+      key: "player_still_cannon",
+      frames: s.anims.generateFrameNumbers("blob_still_cannon", {
+        start: 0,
+        end: 1,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+    s.anims.create({
+      key: "player_move_cannon",
+      frames: s.anims.generateFrameNumbers("blob_move_cannon", {
+        start: 0,
+        end: 1,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+    s.anims.create({
+      key: "player_dropping_cannon",
+      frames: s.anims.generateFrameNumbers("blob_dropping_cannon", {
+        start: 0,
+        end: 1,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+    s.anims.create({
+      key: "player_egg_cannon",
+      frames: s.anims.generateFrameNumbers("blob_egg_cannon", {
+        start: 0,
+        end: 1,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+    s.anims.create({
+      key: "player_falling_cannon",
+      frames: s.anims.generateFrameNumbers("blob_falling_cannon", {
+        start: 0,
+        end: 1,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+    s.anims.create({
+      key: "player_rising_cannon",
+      frames: s.anims.generateFrameNumbers("blob_rising_cannon", {
+        start: 0,
+        end: 1,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+
+    player.addCosmetic(s, {
+      still: "player_still_cannon",
+      move: "player_move_cannon",
+      dropping: "player_dropping_cannon",
+      egg: "player_egg_cannon",
+      falling: "player_falling_cannon",
+      rising: "player_rising_cannon",
+    });
   }
 }
