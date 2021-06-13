@@ -37,7 +37,7 @@ export default class StartScreenScene extends Phaser.Scene {
       if (pointer instanceof Pointer) {
         console.log("pointer:");
         console.log(pointer);
-        this.scene.start("demo");
+        this.scene.start("RandomLevel");
       }
     });
 
