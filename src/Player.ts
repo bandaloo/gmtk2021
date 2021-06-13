@@ -57,7 +57,7 @@ export class Player {
   };
   private primaryAction: PlayerAction = this.grappleAction;
 
-  tintTimer = MAX_TINT_TIMER;
+  tintTimer = 0;
 
   private actionCharges = 0;
   private actionCooldown = 30;
@@ -303,6 +303,7 @@ export class Player {
   }
 
   public takeDamage(damage = 1): void {
+    if (this.tintTimer > 0) return;
     if (damage <= 0) return;
     this.currentHealth -= damage;
     this.tintTimer = MAX_TINT_TIMER;

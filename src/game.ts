@@ -1,13 +1,11 @@
 import "phaser";
 import StaticGroup = Phaser.Physics.Arcade.StaticGroup;
-import { Bat } from "./Bat";
 import { Projectile } from "./Projectile";
 import { Enemy } from "./Enemy";
 import { GAME_HEIGHT, GAME_WIDTH, SPRITE_SIZE, TILE_SIZE } from "./consts";
 import { addObjects, padRoom, randomizeRoom, splitRoom } from "./gen";
 import { rooms } from "./rooms";
 import { Player } from "./Player";
-import { Cannon } from "./Cannon";
 import { Grapple } from "./Grapple";
 import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 
@@ -140,21 +138,13 @@ export default class Demo extends Phaser.Scene {
   create(): void {
     this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, "background");
 
-    const bat = new Bat(this.physics.add.sprite(500, 500, "bat_flying"));
-    const cannon = new Cannon(
-      this.physics.add.sprite(200, 500, "cannon_walk"),
-      this.projectileRenderInit(this)
-    );
-    this.enemies.push(bat);
-    this.enemies.push(cannon);
-
     this.platforms = this.physics.add.staticGroup();
     const pickups = this.physics.add.staticGroup();
 
     addObjects(
       padRoom(
         randomizeRoom(
-          splitRoom(rooms[Math.floor((rooms.length - 1) * Math.random())]),
+          splitRoom(rooms[Math.floor(rooms.length * Math.random())]),
           0.5,
           0.5
         )

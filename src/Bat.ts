@@ -106,6 +106,7 @@ export class Bat extends Enemy {
   }
 
   private flap() {
+    if (this.currentHealth <= 0) return;
     const acc = this.sprite.body.acceleration.add(
       new Vector2(400 * this.direction, -300)
     );
