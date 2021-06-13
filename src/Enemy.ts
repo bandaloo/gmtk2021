@@ -1,5 +1,6 @@
 import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 import GameObjectWithBody = Phaser.Types.Physics.Arcade.GameObjectWithBody;
+import { Player } from "./Player";
 
 /**
  * The base enemy class contains logic common to all enemy types
@@ -21,7 +22,15 @@ export abstract class Enemy {
     }
   }
 
-  abstract onCollide(other: GameObjectWithBody): void;
+  public onCollide(other: GameObjectWithBody): void {
+    const wrapper = other.getData("outerObject");
+    if (wrapper !== undefined && wrapper instanceof Player) {
+      wrapper.takeDamage();
+      const v = this.sprite.body.velocity;
+      other.body.velocity.set(v.x, v.y);
+      this.sprite.body.velocity.set(-v.x, -v.y);
+    }
+  }
 
   /**
    * This enemy takes the given amount of damage. Taking more than the current

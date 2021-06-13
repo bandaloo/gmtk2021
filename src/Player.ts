@@ -1,17 +1,32 @@
-import { TILE_SIZE } from "./consts";
+import { HeartDisplay } from "./HeartDisplay";
+import { ENTITY_SIZE, VELOCITY_EPSILON } from "./consts";
 import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
-import Cursors = Phaser.Types.Input.Keyboard.CursorKeys;
+import KeyboardPlugin = Phaser.Input.Keyboard.KeyboardPlugin;
 
 export class Player {
-  public constructor(public sprite: SpriteWithDynamicBody) {
+  private maxHealth = 3;
+  private currentHealth = this.maxHealth;
+  /** the maximum number of hearts you can have even with upgrades */
+  private maxMaxHealth = 10;
+  private heartDisplay: HeartDisplay;
+
+  public constructor(
+    public sprite: SpriteWithDynamicBody,
+    public kbp: KeyboardPlugin
+  ) {
+    this.heartDisplay = new HeartDisplay(this.sprite.scene, this.maxMaxHealth);
+    this.heartDisplay.redisplay(this.currentHealth, this.maxHealth);
     this.sprite.name = "player";
     this.sprite.setData("outerObject", this);
     this.sprite.body.setBounce(0, 0);
-    this.sprite.body.setSize(TILE_SIZE, TILE_SIZE);
-    this.sprite.setSize(TILE_SIZE, TILE_SIZE);
+    this.sprite.body.setSize(ENTITY_SIZE, ENTITY_SIZE);
+    this.sprite.setSize(ENTITY_SIZE, ENTITY_SIZE);
     this.sprite.body.setCollideWorldBounds(true);
     this.sprite.body.setDrag(1200, 0);
     this.sprite.body.setMaxVelocity(300, 10000);
+
+    this.sprite.body.offset.add({ x: 0, y: 30 });
+
     this.sprite.anims.create({
       key: "player_move",
       frames: this.sprite.anims.generateFrameNumbers("blob_move", {
@@ -31,27 +46,105 @@ export class Player {
       frameRate: 10,
       repeat: -1,
     });
+
+    this.sprite.anims.create({
+      key: "player_rising",
+      frames: this.sprite.anims.generateFrameNumbers("blob_rising", {
+        start: 0,
+        end: 1,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+
+    this.sprite.anims.create({
+      key: "player_falling",
+      frames: this.sprite.anims.generateFrameNumbers("blob_falling", {
+        start: 0,
+        end: 1,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+
+    this.sprite.anims.create({
+      key: "player_egg",
+      frames: this.sprite.anims.generateFrameNumbers("blob_egg", {
+        start: 0,
+        end: 1,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+
+    this.sprite.anims.create({
+      key: "player_dropping",
+      frames: this.sprite.anims.generateFrameNumbers("blob_dropping", {
+        start: 0,
+        end: 1,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+
+    this.kbp.on("keydown-SPACE", () => {
+      if (this.sprite.body.touching.down) {
+        this.sprite.body.setVelocityY(-900);
+      }
+    });
+
+    this.kbp.on("keyup-SPACE", () => {
+      if (this.sprite.body.velocity.y < 0) {
+        this.sprite.body.setVelocityY(this.sprite.body.velocity.y / 2);
+      }
+    });
   }
 
-  public update(cursors: Cursors): void {
-    if (!(cursors.right.isDown || cursors.left.isDown)) {
-      this.sprite.body.setAccelerationX(0);
+  public update(): void {
+    if (!this.sprite.body.touching.down) {
+      const fallingSpeed = this.sprite.body.velocity.y;
+      if (fallingSpeed > 400) {
+        this.sprite.anims.play("player_dropping", true);
+      } else if (fallingSpeed > 200) {
+        this.sprite.anims.play("player_egg", true);
+      } else if (fallingSpeed > -200) {
+        this.sprite.anims.play("player_falling", true);
+      } else {
+        this.sprite.anims.play("player_rising", true);
+      }
+    } else if (Math.abs(this.sprite.body.velocity.x) > VELOCITY_EPSILON) {
+      this.sprite.anims.play("player_move", true);
+      this.sprite.setFlipX(this.sprite.body.velocity.x > 0);
+    } else {
       this.sprite.anims.play("player_still", true);
     }
-    if (cursors.left.isDown) {
-      this.sprite.body.setAccelerationX(-1800);
-      this.sprite.setFlipX(false);
-      this.sprite.anims.play("player_move", true);
-    }
+
+    const cursors = this.kbp.createCursorKeys();
+
     if (cursors.right.isDown) {
       this.sprite.body.setAccelerationX(1800);
-      this.sprite.setFlipX(true);
-      this.sprite.anims.play("player_move", true);
+    } else if (cursors.left.isDown) {
+      this.sprite.body.setAccelerationX(-1800);
+    } else {
+      this.sprite.body.setAccelerationX(0);
     }
-    if (cursors.up.isDown || cursors.space.isDown) {
-      if (this.sprite.body.touching.down) {
-        this.sprite.body.setVelocityY(-500);
-      }
+
+    // TODO this doesn't seem to work
+    if (
+      (this.sprite.body.touching.left && this.sprite.body.acceleration.x < 0) ||
+      (this.sprite.body.touching.right && this.sprite.body.acceleration.x > 0)
+    ) {
+      this.sprite.body.setVelocityX(0);
+      this.sprite.body.setAccelerationX(0);
+      return;
+    }
+  }
+
+  public takeDamage(): void {
+    this.currentHealth--;
+    this.heartDisplay.redisplay(this.currentHealth, this.maxHealth);
+    if (this.currentHealth <= 0) {
+      // TODO lose the game
     }
   }
 }

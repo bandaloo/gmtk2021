@@ -1,5 +1,6 @@
-import { GameObjects, Scene } from "phaser";
+import { GameObjects } from "phaser";
 import { PLAYER_PROPERTY_NAME } from "./consts";
+import { Projectile } from "./Projectile";
 import { Enemy } from "./Enemy";
 import { Player } from "./Player";
 import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
@@ -8,17 +9,39 @@ import GameObjectWithBody = Phaser.Types.Physics.Arcade.GameObjectWithBody;
 const MIN_PROXIMITY = 500;
 const MAX_SPEED = 140;
 export class Cannon extends Enemy {
-  /** -1 for left, 1 for right*/
+  /**
+   *  This tracks what way we need to move to get closer to the player
+   * -1 for left, 1 for right
+   */
   private direction: -1 | 1 = 1;
 
   private distanceToPlayer = 0;
-  private timeBetweenShots = 120;
+  private timeBetweenShots = 200;
   private justRotate = false;
   private shotTimer = this.timeBetweenShots;
   private playerRef: GameObjects.GameObject;
 
-  constructor(sprite: SpriteWithDynamicBody) {
+  constructor(
+    sprite: SpriteWithDynamicBody,
+    private renderInit: (p: Projectile) => void
+  ) {
     super(sprite);
+    sprite.setSize(120, 120);
+    sprite.body.setSize(120, 120);
+    sprite.body.setBounce(0, 0);
+    sprite.body.setCollideWorldBounds(true);
+    sprite.body.setDrag(10, 10);
+    sprite.body.setMaxVelocity(350, Infinity);
+    sprite.body.setAllowGravity(true);
+    sprite.anims.create({
+      key: "cannon_walk",
+      frames: sprite.anims.generateFrameNumbers("cannon_walk", {
+        start: 0,
+        end: 7,
+      }),
+      frameRate: 15,
+      repeat: -1,
+    });
     this.currentHealth = 1;
     this.maxHealth = 1;
     this.sprite.body.setAcceleration(0, 0);
@@ -29,8 +52,6 @@ export class Cannon extends Enemy {
     this.sprite.setFlipX(this.sprite.body.velocity.x >= 0);
     // movement logic goes here
     this.updateDistanceToPlayer();
-    console.log("direction: " + this.direction);
-    console.log(this.distanceToPlayer + " distance to player");
     if (this.distanceToPlayer >= MIN_PROXIMITY) {
       // if cannon is touching a wall AND too far from the player, just stop
       console.log("moving backward");
@@ -42,7 +63,7 @@ export class Cannon extends Enemy {
       this.justRotate = false;
     } else {
       console.log("stopped");
-      this.direction = this.distanceToPlayer >= 0 ? 1 : -1;
+      this.direction = this.distanceToPlayer >= 0 ? -1 : 1;
       this.justRotate = true;
     }
 
@@ -55,20 +76,15 @@ export class Cannon extends Enemy {
   }
 
   public shoot(): void {
-    // don't shoot if there's another bullet on the screen
-
     // add or subtract the spawn point using the direction were headed
-    this.sprite.scene.physics.add.sprite(
-      this.sprite.body.position.x +
-        (this.direction * this.sprite.displayWidth) / 2 +
+    const projectileSprite = this.sprite.scene.physics.add.sprite(
+      this.sprite.body.x +
+        (this.direction * this.sprite.body.width) / 2 +
         this.direction * 50,
-      this.sprite.body.position.y,
+      this.sprite.body.y + this.sprite.body.height / 2,
       "bullet"
     );
-
-    // use the update method to move the bullet across the screen
-
-    this.sprite.scene.registry;
+    new Projectile(projectileSprite, this.renderInit, this.direction);
   }
 
   public updateDistanceToPlayer(): void {
@@ -98,38 +114,13 @@ export class Cannon extends Enemy {
         this.sprite.body.velocity.y
       );
     } else {
-      this.sprite.body.setVelocity(
-        0.0001 * this.direction,
-        this.sprite.body.velocity.y
-      );
+      this.sprite.body.setVelocity(0, this.sprite.body.velocity.y);
       // flip the sprite at slow speeds to make sure that the cannon faces the right way
-      if (this.sprite.body.velocity.x > 0) {
-        this.sprite.setFlipX(false);
-      } else {
+      if (this.direction == 1) {
         this.sprite.setFlipX(true);
+      } else {
+        this.sprite.setFlipX(false);
       }
     }
   }
 }
-
-export const createCannon = (scene: Scene, x: number, y: number): Cannon => {
-  const swdb = scene.physics.add.sprite(x, y, "circle");
-  swdb.setSize(120, 120);
-  swdb.body.setSize(120, 120);
-  swdb.body.setBounce(0, 0);
-  swdb.body.setCollideWorldBounds(true);
-  swdb.body.setDrag(10, 10);
-  swdb.body.setMaxVelocity(350, Infinity);
-  swdb.body.setAllowGravity(true);
-  swdb.anims.create({
-    key: "cannon_walk",
-    frames: swdb.anims.generateFrameNumbers("cannon_walk", {
-      start: 0,
-      end: 7,
-    }),
-    frameRate: 15,
-    repeat: -1,
-  });
-  const cannon = new Cannon(swdb);
-  return cannon;
-};
