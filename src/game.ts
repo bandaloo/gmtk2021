@@ -25,6 +25,7 @@ export let jumpSound: Phaser.Sound.BaseSound;
 export let landSound: Phaser.Sound.BaseSound;
 export let takeDamageSound: Phaser.Sound.BaseSound;
 export let slurp: Phaser.Sound.BaseSound;
+export let pickupSound: Phaser.Sound.BaseSound;
 
 let addedSounds = false;
 
@@ -82,6 +83,7 @@ export default class RandomLevel extends Phaser.Scene {
     this.load.audio("land", "assets/land.wav");
     this.load.audio("take_damage", "assets/take_damage.wav");
     this.load.audio("slurp", "assets/slurp.wav");
+    this.load.audio("pickup", "assets/pickup.wav");
 
     this.load.image("rectangle", "assets/rectangle.png");
     this.load.image("tile_1", "assets/tile_1.png");
@@ -207,6 +209,8 @@ export default class RandomLevel extends Phaser.Scene {
       landSound = this.sound.add("land"); // unused
       takeDamageSound = this.sound.add("take_damage");
       slurp = this.sound.add("slurp");
+      pickupSound = this.sound.add("pickup");
+
       addedSounds = true;
     }
 
@@ -274,8 +278,11 @@ export default class RandomLevel extends Phaser.Scene {
       const player = obj1.getData("outerObject");
       if (player instanceof Player) {
         if (obj2.name === "fruit") {
+          gainHealthSound.play();
           player.eatFruit();
+          this.increaseScore(10);
         } else if (obj2.name === "coin") {
+          pickupSound.play();
           this.increaseScore(100);
         }
         obj2.destroy();
