@@ -31,7 +31,7 @@ type PlayerAnimationKeys = {
 
 export class Player {
   private maxHealth = 3;
-  private currentHealth = this.maxHealth;
+  public currentHealth = this.maxHealth;
   /** the maximum number of hearts you can have even with upgrades */
   private maxMaxHealth = 10;
   private heartDisplay: HeartDisplay;
@@ -71,8 +71,12 @@ export class Player {
     public kbp: KeyboardPlugin,
     public playerGroup: Phaser.Physics.Arcade.Group,
     public grappleGroup: Phaser.Physics.Arcade.Group,
-    public demo: Demo
+    public demo: Demo,
+    health?: integer
   ) {
+    if (health) {
+      this.currentHealth = health;
+    }
     this.heartDisplay = new HeartDisplay(this.sprite.scene, this.maxMaxHealth);
     this.heartDisplay.redisplay(this.currentHealth, this.maxHealth);
     this.sprite.name = "player";

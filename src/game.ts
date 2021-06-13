@@ -30,15 +30,15 @@ let addedSounds = false;
 
 export default class RandomLevel extends Phaser.Scene {
   public player: Player;
-  private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   public enemies: Enemy[];
   public projectiles: Projectile[];
   public platforms: StaticGroup;
   private pointerDown = false;
-  private pickups;
-  public grappleGroup;
-  public playerGroup;
-  public shouldReset;
+  private pickups: Phaser.Physics.Arcade.StaticGroup;
+  public grappleGroup: Phaser.Physics.Arcade.Group;
+  public playerGroup: Phaser.Physics.Arcade.Group;
+  public shouldReset: boolean;
+  public storePlayerHealthBetweenLevels: number;
 
   // Incraments each restart
   private levelNumber = 0;
@@ -48,10 +48,21 @@ export default class RandomLevel extends Phaser.Scene {
   }
 
   init(data: unknown): void {
+    if (data["playerHeath"]) {
+      this.storePlayerHealthBetweenLevels = data["playerHeath"];
+    } else {
+      this.storePlayerHealthBetweenLevels = 3;
+    }
     this.levelNumber += 1;
     this.enemies = [];
     this.projectiles = [];
-    this.pickups = [];
+    if (this.pickups === undefined) {
+      this.pickups = this.physics.add.staticGroup();
+    } else {
+      if (this.pickups?.children?.size > 0) {
+        this.pickups.clear(true, true);
+      }
+    }
   }
 
   preload(): void {
@@ -183,12 +194,17 @@ export default class RandomLevel extends Phaser.Scene {
   }
 
   private generateWorld() {
+    console.log("new level");
+    const enemyChance = 1 / (1 + Math.exp((-this.levelNumber + 10) / 2));
+    console.log(enemyChance);
+    console.log(0.5 - (this.levelNumber / 2) * 0.05);
+
     addObjects(
       padRoom(
         randomizeRoom(
           splitRoom(rooms[Math.floor(rooms.length * Math.random())]),
-          0.5,
-          0.5
+          enemyChance,
+          0.5 - (this.levelNumber / 10) * 0.05
         )
       ),
       this.platforms,
@@ -213,7 +229,6 @@ export default class RandomLevel extends Phaser.Scene {
     this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, "background");
 
     this.platforms = this.physics.add.staticGroup();
-    //const pickups = this.physics.add.staticGroup();
 
     this.shouldReset = false;
     this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, "background");
@@ -331,7 +346,7 @@ export default class RandomLevel extends Phaser.Scene {
       return true;
     });
     if (this.shouldReset) {
-      this.scene.restart({});
+      this.scene.restart({ playerHeath: this.player.currentHealth });
     }
   }
 

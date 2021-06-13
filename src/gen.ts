@@ -122,7 +122,8 @@ export function addObjects(
           scene.input.keyboard,
           scene.playerGroup,
           scene.grappleGroup,
-          scene
+          scene,
+          scene.storePlayerHealthBetweenLevels // This is horrible. Too bad!
         );
       } else if (tile === "e") {
         new Exit(
