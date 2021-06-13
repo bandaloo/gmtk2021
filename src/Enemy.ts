@@ -25,15 +25,6 @@ export abstract class Enemy {
     sprite.setData("outerObject", this);
   }
 
-  /**
-   * Logic to execute every game step.
-   */
-  update(): void {
-    if (this.isDead()) {
-      this.sprite.destroy(true);
-    }
-  }
-
   public onCollide(other: GameObjectWithBody): void {
     const wrapper = other.getData("outerObject");
     if (wrapper !== undefined && wrapper instanceof Player) {
@@ -43,6 +34,8 @@ export abstract class Enemy {
       this.sprite.body.velocity.set(-v.x, -v.y);
     }
   }
+
+  abstract update(): void;
 
   /**
    * This enemy takes the given amount of damage. Taking more than the current
@@ -57,6 +50,6 @@ export abstract class Enemy {
   }
 
   public isDead(): boolean {
-    return this.currentHealth === 0;
+    return this.currentHealth <= 0;
   }
 }

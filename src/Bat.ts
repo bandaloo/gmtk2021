@@ -71,7 +71,8 @@ export class Bat extends Enemy {
     if (!this.swooping && this.swoopTimer <= 0) {
       const player = this.sprite.scene.children.getFirst("name", "player");
       const dx = this.sprite.body.position.x - player.body.position.x;
-      if (Math.abs(dx) < 200) {
+      const dy = this.sprite.body.position.y - player.body.position.y;
+      if (Math.abs(dx) < 200 && dy < 0) {
         // swoop
         this.sprite.anims.play("bat_swooping", true);
         this.sprite.body.setVelocity(0, 0);
