@@ -22,7 +22,7 @@
   "homepage": "https://github.com/bandaloo/gmtk2021#readme",
   "lint-staged": {
     "src/**/*.ts": [
-      "eslint --fix --max-warnings=0"
+      "eslint --fix"
     ]
   },
   "contributors": [
