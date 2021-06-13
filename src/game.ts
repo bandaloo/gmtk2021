@@ -39,7 +39,6 @@ export default class RandomLevel extends Phaser.Scene {
   public enemies: Enemy[];
   public projectiles: Projectile[];
   public platforms: StaticGroup;
-  private pointerDown = false;
   public levelUp = false;
   public gameOver = false;
   private title_text: Text | null;
@@ -195,6 +194,42 @@ export default class RandomLevel extends Phaser.Scene {
       frameWidth: TILE_SIZE,
       frameHeight: TILE_SIZE,
     });
+    this.load.spritesheet(
+      "blob_dropping_cannon",
+      "assets/blob_dropping_cannon.png",
+      {
+        frameWidth: SPRITE_SIZE,
+        frameHeight: SPRITE_SIZE,
+      }
+    );
+    this.load.spritesheet("blob_egg_cannon", "assets/blob_egg_cannon.png", {
+      frameWidth: SPRITE_SIZE,
+      frameHeight: SPRITE_SIZE,
+    });
+    this.load.spritesheet(
+      "blob_falling_cannon",
+      "assets/blob_falling_cannon.png",
+      {
+        frameWidth: SPRITE_SIZE,
+        frameHeight: SPRITE_SIZE,
+      }
+    );
+    this.load.spritesheet("blob_move_cannon", "assets/blob_move_cannon.png", {
+      frameWidth: SPRITE_SIZE,
+      frameHeight: SPRITE_SIZE,
+    });
+    this.load.spritesheet(
+      "blob_rising_cannon",
+      "assets/blob_rising_cannon.png",
+      {
+        frameWidth: SPRITE_SIZE,
+        frameHeight: SPRITE_SIZE,
+      }
+    );
+    this.load.spritesheet("blob_still_cannon", "assets/blob_still_cannon.png", {
+      frameWidth: SPRITE_SIZE,
+      frameHeight: SPRITE_SIZE,
+    });
   }
 
   increaseScore(num: number): void {
@@ -205,30 +240,6 @@ export default class RandomLevel extends Phaser.Scene {
   resetScore(): void {
     this.score = 0;
     this.scoreText.setText("" + this.score);
-  }
-
-  /**
-   * inits colliders for projectiles. Sets dead to true when it collides with the platform
-   */
-  projectileRenderInit(scene: RandomLevel): (projectile: Projectile) => void {
-    return (projectile: Projectile) => {
-      scene.projectiles.push(projectile);
-      scene.physics.add.collider(scene.platforms, projectile.sprite, (obj1) => {
-        if (obj1.getData("outerObject") instanceof Projectile) {
-          obj1.getData("outerObject").kill();
-        }
-      });
-
-      scene.physics.add.collider(
-        projectile.sprite,
-        scene.playerGroup,
-        (obj1, obj2) => {
-          if (obj1.getData("outerObject") instanceof Projectile) {
-            obj1.getData("outerObject").onCollide(obj2);
-          }
-        }
-      );
-    };
   }
 
   private showRestart() {
@@ -272,10 +283,7 @@ export default class RandomLevel extends Phaser.Scene {
   }
 
   private generateWorld() {
-    console.log("new level");
     const enemyChance = 1 / (1 + Math.exp((-this.levelNumber + 10) / 2)) + 0.25;
-    console.log(enemyChance);
-    console.log(0.5 - (this.levelNumber / 2) * 0.05);
 
     let newRoom = Math.floor(rooms.length * Math.random()); // This is terrible. Too bad!
     while (newRoom == this.lastRoom)

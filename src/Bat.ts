@@ -117,7 +117,7 @@ export class Bat extends Enemy {
   }
 
   private playerAction(player: Player, demo: Demo): void {
-    this.sprite.body.setVelocityY(-900);
+    player.sprite.body.setVelocityY(-900);
     for (const i of [-1, 1]) {
       for (const j of [-1, 1]) {
         const projectileSprite = demo.physics.add.sprite(
