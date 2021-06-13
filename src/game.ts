@@ -500,7 +500,7 @@ const config = {
   physics: {
     default: "arcade",
     arcade: {
-      debug: true,
+      // debug: true,
       gravity: { y: 800 },
     },
   },
