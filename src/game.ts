@@ -304,7 +304,7 @@ export default class RandomLevel extends Phaser.Scene {
     const enemyChance = Math.min(this.levelNumber * 0.1, 1);
 
     // Linear
-    const itemChance = Math.max(1 - this.levelNumber * 0.2, 0);
+    const itemChance = Math.max(1 - this.levelNumber * 0.02, 0);
 
     let newRoom = Math.floor(rooms.length * Math.random()); // This is terrible. Too bad!
     while (newRoom == this.lastRoom)

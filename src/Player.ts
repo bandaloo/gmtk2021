@@ -357,6 +357,10 @@ export class Player {
 
   public dead(): void {
     this.sprite.body.setMaxVelocity(0, 1000); // only limit x
+    if (this.sprite.scene instanceof RandomLevel) {
+      this.sprite.scene.storePlayerHealthBetweenLevels = 3;
+      this.sprite.scene.storePlayerMaxHealthBetweenLevels = 3;
+    }
     if (this.grapple) this.grapple.destroy();
   }
 
