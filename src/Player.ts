@@ -172,8 +172,8 @@ export class Player {
           this.grapple.destroy();
           this.grapplePull = false;
         }
-        jumpSound.play();
         if (this.sprite.body.touching.down) {
+          jumpSound.play();
           this.sprite.body.setVelocityY(-900);
         }
         if (this.grapplePull) {
