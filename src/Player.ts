@@ -15,7 +15,8 @@ import KeyboardPlugin = Phaser.Input.Keyboard.KeyboardPlugin;
 import { Grapple } from "./Grapple";
 import { Enemy } from "./Enemy";
 import { colorToNum } from "./utils";
-import Demo from "./game";
+import RandomLevel from "./game";
+import Demo from "./game"; // TODO this should be the same TOO BAD!
 import { jumpSound, slurp, takeDamageSound } from "./game";
 
 export type PlayerAction = (player: Player, demo: Demo) => void;
@@ -63,6 +64,7 @@ export class Player {
   tintTimer = 0;
 
   private actionCharges = 0;
+  private isDead: boolean;
   private actionCooldown = 30;
   private actionTimer = this.actionCooldown;
 
@@ -88,6 +90,7 @@ export class Player {
     this.sprite.body.setDrag(PLAYER_DRAG, 0);
     this.direction = "forward";
     this.grapplePull = false;
+    this.isDead = false;
     this.sprite.setDepth(100);
     playerGroup.add(sprite);
 
@@ -154,31 +157,44 @@ export class Player {
     });
 
     this.kbp.on("keydown-SPACE", () => {
-      jumpSound.play();
-      if (this.sprite.body.touching.down) {
-        this.sprite.body.setVelocityY(-900);
-      }
-      if (this.grapplePull) {
-        this.grapple.destroy();
-        this.grapplePull = false;
+      if (!this.isDead) {
+        if (this.sprite.body.touching.down) {
+          this.sprite.body.setVelocityY(-900);
+        }
+        if (this.grapplePull) {
+          this.grapple.destroy();
+          this.grapplePull = false;
+        }
+        jumpSound.play();
+        if (this.sprite.body.touching.down) {
+          this.sprite.body.setVelocityY(-900);
+        }
+        if (this.grapplePull) {
+          this.grapple.destroy();
+          this.grapplePull = false;
+        }
       }
     });
 
     this.kbp.on("keyup-SPACE", () => {
-      if (this.sprite.body.velocity.y < 0) {
-        this.sprite.body.setVelocityY(this.sprite.body.velocity.y / 2);
+      if (!this.isDead) {
+        if (this.sprite.body.velocity.y < 0) {
+          this.sprite.body.setVelocityY(this.sprite.body.velocity.y / 2);
+        }
       }
     });
 
     this.kbp.on("keydown-SHIFT", () => {
-      if (this.actionTimer <= 0) {
-        this.primaryAction(this, this.demo);
-        this.actionTimer = this.actionCooldown;
-        if (this.primaryAction !== this.grappleAction) {
-          this.actionCharges--;
-          if (this.actionCharges === 0) {
-            this.resetCosmetics();
-            this.primaryAction = this.grappleAction;
+      if (!this.isDead) {
+        if (this.actionTimer <= 0) {
+          this.primaryAction(this, this.demo);
+          this.actionTimer = this.actionCooldown;
+          if (this.primaryAction !== this.grappleAction) {
+            this.actionCharges--;
+            if (this.actionCharges === 0) {
+              this.resetCosmetics();
+              this.primaryAction = this.grappleAction;
+            }
           }
         }
       }
@@ -324,8 +340,17 @@ export class Player {
     this.tintTimer = MAX_TINT_TIMER;
     this.heartDisplay.redisplay(this.currentHealth, this.maxHealth);
     if (this.currentHealth <= 0) {
-      // TODO lose the game
+      // only set gameOver one time
+      const level = this.sprite.scene as RandomLevel;
+      level.gameOver = true;
+      this.isDead = true;
+      this.sprite.body.setVelocity(0, this.sprite.body.velocity.y);
     }
+  }
+
+  public dead(): void {
+    this.sprite.body.setMaxVelocity(0, 1000); // only limit x
+    if (this.grapple) this.grapple.destroy();
   }
 
   public eatFruit(): void {
