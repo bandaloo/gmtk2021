@@ -64,7 +64,6 @@ export class Projectile {
       wrapper !== undefined &&
       wrapper instanceof Enemy
     ) {
-      console.log("Collided with enemy");
       wrapper.takeDamage();
       const v = this.sprite.body.velocity;
       other.body.velocity.set(v.x, v.y);

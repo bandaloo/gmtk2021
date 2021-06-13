@@ -4,7 +4,7 @@ import { Projectile } from "./Projectile";
 import { Enemy } from "./Enemy";
 import { Player } from "./Player";
 import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
-import Demo from "./game";
+import RandomLevel from "./game";
 import Vec2 = Phaser.Math.Vector2;
 
 const MIN_PROXIMITY = 500;
@@ -19,11 +19,11 @@ export class Cannon extends Enemy {
   private distanceToPlayer = 0;
   private timeBetweenShots = 200;
   private justRotate = false;
-  private shotTimer = this.timeBetweenShots;
+  private shotTimer = Phaser.Math.Between(30, this.timeBetweenShots);
   private playerRef: GameObjects.GameObject;
   private canMove = true;
 
-  constructor(sprite: SpriteWithDynamicBody, private demo: Demo) {
+  constructor(sprite: SpriteWithDynamicBody, private demo: RandomLevel) {
     super(sprite);
     this.currentHealth = 1;
     this.maxHealth = 1;
@@ -57,15 +57,10 @@ export class Cannon extends Enemy {
   }
 
   public playerStuff = {
-    initialize: (): void => {
-      console.log("TODO: Initialize player");
-    },
-    action: (player: Player): void => {
-      // TODO shoot
-      console.log(player);
-    },
+    initialize: this.playerInitialize,
+    action: this.playerAction,
     charges: 3,
-    cooldown: 30,
+    cooldown: 50,
   };
 
   public update(): void {
@@ -154,7 +149,97 @@ export class Cannon extends Enemy {
 
   onEaten(player: Player): void {
     this.currentHealth = 0;
-    // TODO player.absorb(this)
-    console.log(player);
+    player.absorb(this);
+  }
+
+  private playerAction(player: Player, demo: RandomLevel): void {
+    const dirNum = player.direction === "right" ? 1 : -1;
+    const projectileSprite = this.sprite.scene.physics.add.sprite(
+      player.sprite.body.x +
+        (dirNum * player.sprite.body.width) / 2 +
+        dirNum * 50,
+      player.sprite.body.y + player.sprite.body.height / 2,
+      "bullet"
+    );
+    projectileSprite.scaleX = 0.15;
+    projectileSprite.scaleY = 0.15;
+    if (dirNum === 1) {
+      projectileSprite.toggleFlipX();
+    }
+    new Projectile(projectileSprite, new Vec2(350 * dirNum, 0), demo, true);
+  }
+
+  private playerInitialize(player: Player): void {
+    // set up cosmetic cannon
+    const s = player.sprite.scene.add.sprite(
+      player.sprite.x,
+      player.sprite.y,
+      "blob_still_cannon"
+    );
+    s.setDepth(110);
+
+    s.anims.create({
+      key: "player_still_cannon",
+      frames: s.anims.generateFrameNumbers("blob_still_cannon", {
+        start: 0,
+        end: 1,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+    s.anims.create({
+      key: "player_move_cannon",
+      frames: s.anims.generateFrameNumbers("blob_move_cannon", {
+        start: 0,
+        end: 1,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+    s.anims.create({
+      key: "player_dropping_cannon",
+      frames: s.anims.generateFrameNumbers("blob_dropping_cannon", {
+        start: 0,
+        end: 1,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+    s.anims.create({
+      key: "player_egg_cannon",
+      frames: s.anims.generateFrameNumbers("blob_egg_cannon", {
+        start: 0,
+        end: 1,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+    s.anims.create({
+      key: "player_falling_cannon",
+      frames: s.anims.generateFrameNumbers("blob_falling_cannon", {
+        start: 0,
+        end: 1,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+    s.anims.create({
+      key: "player_rising_cannon",
+      frames: s.anims.generateFrameNumbers("blob_rising_cannon", {
+        start: 0,
+        end: 1,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+
+    player.addCosmetic(s, {
+      still: "player_still_cannon",
+      move: "player_move_cannon",
+      dropping: "player_dropping_cannon",
+      egg: "player_egg_cannon",
+      falling: "player_falling_cannon",
+      rising: "player_rising_cannon",
+    });
   }
 }
