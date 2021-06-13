@@ -8,7 +8,7 @@ import GameObjectWithBody = Phaser.Types.Physics.Arcade.GameObjectWithBody;
 const MIN_PROXIMITY = 500;
 const MAX_SPEED = 140;
 export class Cannon extends Enemy {
-  /** -1 for left, 1 for right, 0 to stop */
+  /** -1 for left, 1 for right*/
   private direction: -1 | 1 = 1;
 
   private distanceToPlayer = 0;
@@ -55,7 +55,20 @@ export class Cannon extends Enemy {
   }
 
   public shoot(): void {
-    console.log("shooting");
+    // don't shoot if there's another bullet on the screen
+
+    // add or subtract the spawn point using the direction were headed
+    this.sprite.scene.physics.add.sprite(
+      this.sprite.body.position.x +
+        (this.direction * this.sprite.displayWidth) / 2 +
+        this.direction * 50,
+      this.sprite.body.position.y,
+      "bullet"
+    );
+
+    // use the update method to move the bullet across the screen
+
+    this.sprite.scene.registry;
   }
 
   public updateDistanceToPlayer(): void {
@@ -89,6 +102,12 @@ export class Cannon extends Enemy {
         0.0001 * this.direction,
         this.sprite.body.velocity.y
       );
+      // flip the sprite at slow speeds to make sure that the cannon faces the right way
+      if (this.sprite.body.velocity.x > 0) {
+        this.sprite.setFlipX(false);
+      } else {
+        this.sprite.setFlipX(true);
+      }
     }
   }
 }

@@ -11,6 +11,7 @@ export default class Demo extends Phaser.Scene {
   private player: Player;
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   private enemies: Enemy[] = [];
+  // private projectiles: Projectile[] = [];
   private pointerDown = false;
 
   constructor() {
@@ -21,6 +22,7 @@ export default class Demo extends Phaser.Scene {
     this.load.image("rectangle", "assets/rectangle.png");
     this.load.glsl("stars", "assets/starfields.glsl.js");
     this.load.image("oldcircle", "assets/blank circle.png");
+    this.load.image("bullet", "assets/blank circle.png");
     this.load.spritesheet("circle", "assets/circle tileset.png", {
       frameWidth: 100,
       frameHeight: 100,
