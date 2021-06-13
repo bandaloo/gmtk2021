@@ -4,7 +4,8 @@ import { Projectile } from "./Projectile";
 import { Enemy } from "./Enemy";
 import { Player } from "./Player";
 import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
-import GameObjectWithBody = Phaser.Types.Physics.Arcade.GameObjectWithBody;
+import Demo from "./game";
+import Vec2 = Phaser.Math.Vector2;
 
 const MIN_PROXIMITY = 500;
 const MAX_SPEED = 140;
@@ -22,11 +23,10 @@ export class Cannon extends Enemy {
   private playerRef: GameObjects.GameObject;
   private canMove = true;
 
-  constructor(
-    sprite: SpriteWithDynamicBody,
-    private renderInit: (p: Projectile) => void
-  ) {
+  constructor(sprite: SpriteWithDynamicBody, private demo: Demo) {
     super(sprite);
+    this.currentHealth = 1;
+    this.maxHealth = 1;
     sprite.setSize(ENTITY_SIZE, ENTITY_SIZE);
     sprite.body.setSize(ENTITY_SIZE, ENTITY_SIZE);
     sprite.body.setBounce(0, 0);
@@ -52,18 +52,20 @@ export class Cannon extends Enemy {
       frameRate: 15,
       repeat: 0,
     });
-    this.currentHealth = 1;
-    this.maxHealth = 1;
     this.sprite.body.setAcceleration(0, 0);
     this.sprite.anims.play("cannon_walk", true);
   }
 
   public playerStuff = {
+    initialize: (): void => {
+      console.log("TODO: Initialize player");
+    },
     action: (player: Player): void => {
       // TODO shoot
       console.log(player);
     },
-    charges: 1,
+    charges: 3,
+    cooldown: 30,
   };
 
   public update(): void {
@@ -85,7 +87,7 @@ export class Cannon extends Enemy {
 
       this.shotTimer--;
       if (this.shotTimer <= 0) {
-        this.shoot();
+        //this.shoot(); TODO uncomment
         this.shotTimer = this.timeBetweenShots;
       }
       this.move();
@@ -110,7 +112,11 @@ export class Cannon extends Enemy {
       if (this.direction == 1) {
         projectileSprite.toggleFlipX();
       }
-      new Projectile(projectileSprite, this.renderInit, this.direction);
+      new Projectile(
+        projectileSprite,
+        new Vec2(350 * this.direction, 0),
+        this.demo
+      );
       this.canMove = true;
       this.sprite.anims.play("cannon_walk", true);
     });
@@ -126,13 +132,6 @@ export class Cannon extends Enemy {
     if (this.playerRef !== undefined) {
       this.distanceToPlayer =
         this.sprite.body.position.x - this.playerRef.body.position.x;
-    }
-  }
-
-  public onCollide(other: GameObjectWithBody): void {
-    const player = other.getData("outerObject");
-    if (player !== undefined && player instanceof Player) {
-      console.log("hit player");
     }
   }
 
@@ -153,11 +152,9 @@ export class Cannon extends Enemy {
     }
   }
 
-  eaten(): void {
-    console.log("eaten by player");
-  }
-
-  grappled(): void {
-    console.log("grappled by player");
+  onEaten(player: Player): void {
+    this.currentHealth = 0;
+    // TODO player.absorb(this)
+    console.log(player);
   }
 }

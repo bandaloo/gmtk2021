@@ -1,9 +1,11 @@
 import "phaser";
 import Pointer = Phaser.Input.Pointer;
-import { GAME_WIDTH, GAME_HEIGHT } from "./consts";
-
-const TITLE_FONT_SIZE = 250;
-const SUBTITLE_FONT_SIZE = 50;
+import {
+  GAME_WIDTH,
+  GAME_HEIGHT,
+  TITLE_FONT_SIZE,
+  SUBTITLE_FONT_SIZE,
+} from "./consts";
 
 export default class StartScreenScene extends Phaser.Scene {
   constructor() {

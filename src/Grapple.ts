@@ -54,8 +54,6 @@ export class Grapple {
 
     this.sprite.body.setAllowGravity(false);
 
-    console.log(this.sprite.displayHeight);
-
     this.update();
   }
 
@@ -63,7 +61,7 @@ export class Grapple {
     if (entity instanceof Player) {
       if (this.player.grapplePull) {
         if (this.trackedEnemy) {
-          this.trackedEnemy.eaten();
+          this.trackedEnemy.onEaten(this.player);
           this.trackedEnemy = undefined;
         }
         this.destroy();
@@ -74,7 +72,7 @@ export class Grapple {
         this.sprite.setTexture("grapple_grabbing");
         this.sprite.setVelocity(0);
         this.player.grapplePull = true;
-        entity.grappled();
+        entity.onGrappled();
         this.trackedEnemy = entity;
       }
     } else {
@@ -92,7 +90,6 @@ export class Grapple {
       );
     }
 
-    console.log("a");
     const playerCenterX =
       this.player.sprite.body.position.x + this.player.sprite.displayWidth / 4;
     const playerCenterY =

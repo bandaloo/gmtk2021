@@ -1,5 +1,6 @@
 import "phaser";
 import StaticGroup = Phaser.Physics.Arcade.StaticGroup;
+import Pointer = Phaser.Input.Pointer;
 import { Projectile } from "./Projectile";
 import { Enemy } from "./Enemy";
 import {
@@ -7,7 +8,9 @@ import {
   GAME_WIDTH,
   PLAYER_DRAG,
   SPRITE_SIZE,
+  SUBTITLE_FONT_SIZE,
   TILE_SIZE,
+  TITLE_FONT_SIZE,
 } from "./consts";
 import { addObjects, padRoom, randomizeRoom, splitRoom } from "./gen";
 import { rooms } from "./rooms";
@@ -16,6 +19,7 @@ import { Grapple } from "./Grapple";
 import StartScreenScene from "./StartScreenScene";
 import HowToScene from "./HowToScreenScene";
 import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
+import Text = Phaser.GameObjects.Text;
 
 export let absorbSound: Phaser.Sound.BaseSound;
 export let cannonShotSound: Phaser.Sound.BaseSound;
@@ -31,16 +35,19 @@ let addedSounds = false;
 
 export default class RandomLevel extends Phaser.Scene {
   public player: Player;
-  private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   public enemies: Enemy[];
-  private projectiles: Projectile[];
-  private platforms: StaticGroup;
+  public projectiles: Projectile[];
+  public platforms: StaticGroup;
   private pointerDown = false;
-  private pickups;
-  public grappleGroup;
-  public playerGroup;
-  public shouldReset;
-  public storePlayerHealthBetweenLevels;
+  public levelUp = false;
+  public gameOver = false;
+  private title_text: Text | null;
+  private restart_text: Text | null;
+  private pickups: Phaser.Physics.Arcade.StaticGroup;
+  public grappleGroup: Phaser.Physics.Arcade.Group;
+  public playerGroup: Phaser.Physics.Arcade.Group;
+  public shouldReset: boolean;
+  public storePlayerHealthBetweenLevels: number;
 
   public score = 0;
 
@@ -60,12 +67,16 @@ export default class RandomLevel extends Phaser.Scene {
     } else {
       this.storePlayerHealthBetweenLevels = 3;
     }
-    console.log("init scene");
-    console.log(data);
     this.levelNumber += 1;
     this.enemies = [];
     this.projectiles = [];
-    this.pickups = [];
+    if (this.pickups === undefined) {
+      this.pickups = this.physics.add.staticGroup();
+    } else {
+      if (this.pickups?.children?.size > 0) {
+        this.pickups.clear(true, true);
+      }
+    }
   }
 
   increaseLevel(): void {
@@ -99,6 +110,7 @@ export default class RandomLevel extends Phaser.Scene {
     this.load.image("grapple_grabbing", "assets/Grapple_Grabbing.png");
     this.load.image("oldcircle", "assets/blank circle.png");
     this.load.image("bullet", "assets/Bullet.png");
+    this.load.image("gust", "assets/gust.png");
     this.load.image("fruit", "assets/fruit.png");
     this.load.spritesheet("circle", "assets/circle tileset.png", {
       frameWidth: 100,
@@ -137,6 +149,34 @@ export default class RandomLevel extends Phaser.Scene {
       frameHeight: SPRITE_SIZE,
     });
     this.load.spritesheet("blob_egg", "assets/blob_egg.png", {
+      frameWidth: SPRITE_SIZE,
+      frameHeight: SPRITE_SIZE,
+    });
+    this.load.spritesheet(
+      "blob_double_jump_wings",
+      "assets/blob_double_jump_wings.png",
+      {
+        frameWidth: SPRITE_SIZE,
+        frameHeight: SPRITE_SIZE,
+      }
+    );
+    this.load.spritesheet(
+      "blob_falling_wings",
+      "assets/blob_falling_wings.png",
+      {
+        frameWidth: SPRITE_SIZE,
+        frameHeight: SPRITE_SIZE,
+      }
+    );
+    this.load.spritesheet("blob_jump_wings", "assets/blob_jump_wings.png", {
+      frameWidth: SPRITE_SIZE,
+      frameHeight: SPRITE_SIZE,
+    });
+    this.load.spritesheet("blob_move_wings", "assets/blob_move_wings.png", {
+      frameWidth: SPRITE_SIZE,
+      frameHeight: SPRITE_SIZE,
+    });
+    this.load.spritesheet("blob_still_wings", "assets/blog_still_wings.png", {
       frameWidth: SPRITE_SIZE,
       frameHeight: SPRITE_SIZE,
     });
@@ -179,6 +219,44 @@ export default class RandomLevel extends Phaser.Scene {
     };
   }
 
+  private showRestart() {
+    if (!this.title_text || !this.restart_text) {
+      this.title_text = this.add.text(0, 0, "GAME OVER!!", {
+        fontSize: TITLE_FONT_SIZE + "px",
+        color: "#FFFFFF",
+        fontStyle: "bold",
+      });
+      this.title_text.setOrigin(0.5, 0.5);
+      this.title_text.x = GAME_WIDTH / 2;
+      this.title_text.y = GAME_HEIGHT / 2;
+
+      this.restart_text = this.add.text(0, 0, "> CLICK HERE TO RESTART <", {
+        fontSize: SUBTITLE_FONT_SIZE + "px",
+        color: "#FFFFFF",
+        fontStyle: "bold",
+      });
+      this.restart_text.setOrigin(0.5, 0.5);
+      this.restart_text.x = GAME_WIDTH / 2;
+      this.restart_text.y = GAME_HEIGHT / 2 + 150;
+
+      this.restart_text.setInteractive().on("pointerdown", (pointer) => {
+        if (pointer instanceof Pointer) {
+          console.log("pointer:");
+          console.log(pointer);
+          this.scene.restart({});
+        }
+      });
+
+      this.restart_text.on("pointerover", (pointer) => {
+        this.restart_text.setColor("#88b5b1");
+      });
+
+      this.restart_text.on("pointerout", (pointer) => {
+        this.restart_text.setColor("#FFFFFF");
+      });
+    }
+  }
+
   private generateWorld() {
     console.log("new level");
     const enemyChance = 1 / (1 + Math.exp((-this.levelNumber + 10) / 2));
@@ -200,6 +278,10 @@ export default class RandomLevel extends Phaser.Scene {
   }
 
   create(): void {
+    this.levelUp = false;
+    this.gameOver = false;
+    this.title_text = null;
+    this.restart_text = null;
     if (!addedSounds) {
       absorbSound = this.sound.add("absorb"); // TODO
       cannonShotSound = this.sound.add("cannon_shot"); // TODO
@@ -217,9 +299,7 @@ export default class RandomLevel extends Phaser.Scene {
     this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, "background");
 
     this.platforms = this.physics.add.staticGroup();
-    //const pickups = this.physics.add.staticGroup();
 
-    this.shouldReset = false;
     this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, "background");
     console.warn("CREATING GAME #" + this.levelNumber);
 
@@ -243,7 +323,7 @@ export default class RandomLevel extends Phaser.Scene {
     const grappleCollideCallback = (
       obj1: SpriteWithDynamicBody,
       obj2: SpriteWithDynamicBody
-    ) => {
+    ): void => {
       const object = obj1.getData("outerObject");
       const object2 = obj2.getData("outerObject");
       if (object instanceof Grapple) {
@@ -345,7 +425,9 @@ export default class RandomLevel extends Phaser.Scene {
   }
 
   update(): void {
-    this.player.update();
+    if (!this.gameOver) {
+      this.player.update();
+    }
     this.projectiles.forEach((p) => p.update());
     this.enemies.forEach((e) => e.update());
 
@@ -360,8 +442,46 @@ export default class RandomLevel extends Phaser.Scene {
       return true;
     });
 
-    if (this.shouldReset) {
+    if (this.gameOver) {
+      this.showRestart();
+      this.player.dead();
+    }
+
+    if (this.levelUp) {
       this.scene.restart({ playerHeath: this.player.currentHealth });
+    }
+  }
+
+  public addProjectile(projectile: Projectile): void {
+    this.projectiles.push(projectile);
+    this.physics.add.collider(this.platforms, projectile.sprite, (obj1) => {
+      if (obj1.getData("outerObject") instanceof Projectile) {
+        obj1.getData("outerObject").kill();
+      }
+    });
+
+    if (projectile.friendly) {
+      for (const enemy of this.enemies) {
+        this.physics.add.collider(
+          projectile.sprite,
+          enemy.sprite,
+          (obj1, obj2) => {
+            if (obj1.getData("outerObject") instanceof Projectile) {
+              obj1.getData("outerObject")?.onCollide(obj2);
+            }
+          }
+        );
+      }
+    } else {
+      this.physics.add.collider(
+        projectile.sprite,
+        this.player.sprite,
+        (obj1, obj2) => {
+          if (obj1.getData("outerObject") instanceof Projectile) {
+            obj1.getData("outerObject")?.onCollide(obj2);
+          }
+        }
+      );
     }
   }
 }

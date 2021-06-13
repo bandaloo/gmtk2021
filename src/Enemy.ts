@@ -1,6 +1,6 @@
 import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 import GameObjectWithBody = Phaser.Types.Physics.Arcade.GameObjectWithBody;
-import { Player } from "./Player";
+import { Player, PlayerAction } from "./Player";
 import Vec2 = Phaser.Math.Vector2;
 
 /**
@@ -9,17 +9,28 @@ import Vec2 = Phaser.Math.Vector2;
 export abstract class Enemy {
   protected currentHealth: number;
   protected maxHealth: number;
+  protected attackPower = 1;
   abstract playerStuff: {
+    /**
+     * This function is executed once when the enemy is absorbed by the player.
+     * It can be used to set up cosmetic changes and other one-time setup
+     * changes.
+     */
+    initialize: (player: Player) => void;
     /**
      * When the player absorbs a this enemy this action will replace the player's
      * primary attack action.
      */
-    action: (player: Player) => void;
+    action: PlayerAction;
     /**
      * The number of times the player can use the action before this enemy is
      * used up and falls off.
      */
     charges: number;
+    /**
+     * The number of ticks after using the action before it can be used again.
+     */
+    cooldown: number;
   };
 
   protected constructor(public sprite: SpriteWithDynamicBody) {
@@ -33,7 +44,7 @@ export abstract class Enemy {
       const myPos = new Vec2(this.sprite.x, this.sprite.y);
       // TODO handle zero vector
       const vec = playerPos.subtract(myPos).normalize().scale(400);
-      wrapper.takeDamage();
+      wrapper.takeDamage(this.attackPower);
 
       //const v = this.sprite.body.velocity;
       other.body.velocity.set(vec.x, vec.y);
@@ -43,8 +54,13 @@ export abstract class Enemy {
   }
 
   abstract update(): void;
-  abstract eaten(): void;
-  abstract grappled(): void;
+  /** Called when this enemy gets absorbed by a player. */
+  abstract onEaten(player: Player): void;
+  /** Called when a player's grappling hook attaches to this enemy. */
+  public onGrappled(): void {
+    this.attackPower = 0;
+    /* no op */
+  }
 
   /**
    * This enemy takes the given amount of damage. Taking more than the current
@@ -52,10 +68,10 @@ export abstract class Enemy {
    * has no effect. Any fractional amount of damage taken is floored.
    * @param amount the amount of damage to take.
    */
-  public takeDamage(amount: number): void {
-    amount = Math.floor(amount);
-    if (amount <= 1) return;
-    this.currentHealth = Math.max(this.currentHealth - amount, 0);
+  public takeDamage(damage = 1): void {
+    damage = Math.floor(damage);
+    if (damage <= 0) return;
+    this.currentHealth = Math.max(this.currentHealth - damage, 0);
   }
 
   public isDead(): boolean {
