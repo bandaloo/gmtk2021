@@ -133,16 +133,6 @@ export class Player {
     } else {
       this.sprite.body.setAccelerationX(0);
     }
-
-    // TODO this doesn't seem to work
-    if (
-      (this.sprite.body.touching.left && this.sprite.body.acceleration.x < 0) ||
-      (this.sprite.body.touching.right && this.sprite.body.acceleration.x > 0)
-    ) {
-      this.sprite.body.setVelocityX(0);
-      this.sprite.body.setAccelerationX(0);
-      return;
-    }
   }
 
   public takeDamage(): void {

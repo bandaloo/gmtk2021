@@ -1,5 +1,4 @@
 import "phaser";
-import { Bat } from "./Bat";
 import { Enemy } from "./Enemy";
 import { GAME_HEIGHT, GAME_WIDTH, SPRITE_SIZE } from "./consts";
 import { addObjects, padRoom, randomizeRoom, splitRoom } from "./gen";
@@ -8,7 +7,8 @@ import { Player } from "./Player";
 
 export default class Demo extends Phaser.Scene {
   private player: Player;
-  private enemies: Enemy[] = [];
+  private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
+  enemies: Enemy[] = [];
   private pointerDown = false;
 
   constructor() {
@@ -64,9 +64,6 @@ export default class Demo extends Phaser.Scene {
   create(): void {
     this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, "background");
 
-    const bat = new Bat(this.physics.add.sprite(500, 500, "bat_flying"));
-    this.enemies.push(bat);
-
     const platforms = this.physics.add.staticGroup();
 
     addObjects(
@@ -77,7 +74,8 @@ export default class Demo extends Phaser.Scene {
           0.5
         )
       ),
-      platforms
+      platforms,
+      this
     );
 
     this.player = new Player(
@@ -124,15 +122,13 @@ export default class Demo extends Phaser.Scene {
     this.player.update();
     this.enemies.forEach((e) => e.update());
     // remove dead enemies from the world
-    /*
     this.enemies = this.enemies.filter((enemy) => {
       if (enemy.isDead()) {
         enemy.sprite.destroy(false);
-        return true;
+        return false;
       }
-      return false;
+      return true;
     });
-   */
   }
 }
 
