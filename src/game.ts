@@ -7,6 +7,8 @@ import { addObjects, padRoom, randomizeRoom, splitRoom } from "./gen";
 import { rooms } from "./rooms";
 import { Player } from "./Player";
 import { Grapple } from "./Grapple";
+import StartScreenScene from "./StartScreenScene";
+import HowToScene from "./HowToScreenScene";
 import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 
 export default class Demo extends Phaser.Scene {
@@ -258,10 +260,10 @@ export default class Demo extends Phaser.Scene {
 
 const config = {
   type: Phaser.AUTO,
-  backgroundColor: "#125555",
+  backgroundColor: "#222222",
   width: GAME_WIDTH,
   height: GAME_HEIGHT,
-  scene: Demo,
+  scene: [StartScreenScene, Demo, HowToScene],
   physics: {
     default: "arcade",
     arcade: {
