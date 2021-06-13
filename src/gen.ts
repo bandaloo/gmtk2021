@@ -106,7 +106,7 @@ export function addObjects(
         } else if (int === 0) {
           const cannon = new Cannon(
             scene.physics.add.sprite(x, y, "cannon_walk"),
-            scene.projectileRenderInit(scene)
+            scene
           );
           scene.enemies.push(cannon);
         } else {
@@ -122,6 +122,7 @@ export function addObjects(
           scene.input.keyboard,
           scene.playerGroup,
           scene.grappleGroup,
+          scene,
           scene.storePlayerHealthBetweenLevels // This is horrible. Too bad!
         );
       } else if (tile === "e") {

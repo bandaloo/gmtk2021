@@ -30,16 +30,15 @@ let addedSounds = false;
 
 export default class RandomLevel extends Phaser.Scene {
   public player: Player;
-  private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   public enemies: Enemy[];
-  private projectiles: Projectile[];
-  private platforms: StaticGroup;
+  public projectiles: Projectile[];
+  public platforms: StaticGroup;
   private pointerDown = false;
-  private pickups;
-  public grappleGroup;
-  public playerGroup;
-  public shouldReset;
-  public storePlayerHealthBetweenLevels;
+  private pickups: Phaser.Physics.Arcade.StaticGroup;
+  public grappleGroup: Phaser.Physics.Arcade.Group;
+  public playerGroup: Phaser.Physics.Arcade.Group;
+  public shouldReset: boolean;
+  public storePlayerHealthBetweenLevels: number;
 
   // Incraments each restart
   private levelNumber = 0;
@@ -54,12 +53,16 @@ export default class RandomLevel extends Phaser.Scene {
     } else {
       this.storePlayerHealthBetweenLevels = 3;
     }
-    console.log("init scene");
-    console.log(data);
     this.levelNumber += 1;
     this.enemies = [];
     this.projectiles = [];
-    this.pickups = [];
+    if (this.pickups === undefined) {
+      this.pickups = this.physics.add.staticGroup();
+    } else {
+      if (this.pickups?.children?.size > 0) {
+        this.pickups.clear(true, true);
+      }
+    }
   }
 
   preload(): void {
@@ -86,6 +89,7 @@ export default class RandomLevel extends Phaser.Scene {
     this.load.image("grapple_grabbing", "assets/Grapple_Grabbing.png");
     this.load.image("oldcircle", "assets/blank circle.png");
     this.load.image("bullet", "assets/Bullet.png");
+    this.load.image("gust", "assets/gust.png");
     this.load.image("fruit", "assets/fruit.png");
     this.load.spritesheet("circle", "assets/circle tileset.png", {
       frameWidth: 100,
@@ -124,6 +128,34 @@ export default class RandomLevel extends Phaser.Scene {
       frameHeight: SPRITE_SIZE,
     });
     this.load.spritesheet("blob_egg", "assets/blob_egg.png", {
+      frameWidth: SPRITE_SIZE,
+      frameHeight: SPRITE_SIZE,
+    });
+    this.load.spritesheet(
+      "blob_double_jump_wings",
+      "assets/blob_double_jump_wings.png",
+      {
+        frameWidth: SPRITE_SIZE,
+        frameHeight: SPRITE_SIZE,
+      }
+    );
+    this.load.spritesheet(
+      "blob_falling_wings",
+      "assets/blob_falling_wings.png",
+      {
+        frameWidth: SPRITE_SIZE,
+        frameHeight: SPRITE_SIZE,
+      }
+    );
+    this.load.spritesheet("blob_jump_wings", "assets/blob_jump_wings.png", {
+      frameWidth: SPRITE_SIZE,
+      frameHeight: SPRITE_SIZE,
+    });
+    this.load.spritesheet("blob_move_wings", "assets/blob_move_wings.png", {
+      frameWidth: SPRITE_SIZE,
+      frameHeight: SPRITE_SIZE,
+    });
+    this.load.spritesheet("blob_still_wings", "assets/blog_still_wings.png", {
       frameWidth: SPRITE_SIZE,
       frameHeight: SPRITE_SIZE,
     });
@@ -197,7 +229,6 @@ export default class RandomLevel extends Phaser.Scene {
     this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, "background");
 
     this.platforms = this.physics.add.staticGroup();
-    //const pickups = this.physics.add.staticGroup();
 
     this.shouldReset = false;
     this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, "background");
@@ -223,7 +254,7 @@ export default class RandomLevel extends Phaser.Scene {
     const grappleCollideCallback = (
       obj1: SpriteWithDynamicBody,
       obj2: SpriteWithDynamicBody
-    ) => {
+    ): void => {
       const object = obj1.getData("outerObject");
       const object2 = obj2.getData("outerObject");
       if (object instanceof Grapple) {
@@ -314,9 +345,41 @@ export default class RandomLevel extends Phaser.Scene {
       }
       return true;
     });
-
     if (this.shouldReset) {
       this.scene.restart({ playerHeath: this.player.currentHealth });
+    }
+  }
+
+  public addProjectile(projectile: Projectile): void {
+    this.projectiles.push(projectile);
+    this.physics.add.collider(this.platforms, projectile.sprite, (obj1) => {
+      if (obj1.getData("outerObject") instanceof Projectile) {
+        obj1.getData("outerObject").kill();
+      }
+    });
+
+    if (projectile.friendly) {
+      for (const enemy of this.enemies) {
+        this.physics.add.collider(
+          projectile.sprite,
+          enemy.sprite,
+          (obj1, obj2) => {
+            if (obj1.getData("outerObject") instanceof Projectile) {
+              obj1.getData("outerObject")?.onCollide(obj2);
+            }
+          }
+        );
+      }
+    } else {
+      this.physics.add.collider(
+        projectile.sprite,
+        this.player.sprite,
+        (obj1, obj2) => {
+          if (obj1.getData("outerObject") instanceof Projectile) {
+            obj1.getData("outerObject")?.onCollide(obj2);
+          }
+        }
+      );
     }
   }
 }
