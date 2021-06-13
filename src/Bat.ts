@@ -126,7 +126,12 @@ export class Bat extends Enemy {
           "gust"
         );
         projectileSprite.setRotation(Math.atan2(j, i) + Math.PI);
-        new Projectile(projectileSprite, new Vector2(350 * i, 350 * j), demo);
+        new Projectile(
+          projectileSprite,
+          new Vector2(350 * i, 350 * j),
+          demo,
+          true
+        );
       }
     }
   }

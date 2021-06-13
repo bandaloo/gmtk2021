@@ -305,6 +305,7 @@ export class Player {
   }
 
   public takeDamage(damage = 1): void {
+    damage = Math.floor(damage);
     if (this.tintTimer > 0) return;
     if (damage <= 0) return;
     this.currentHealth -= damage;

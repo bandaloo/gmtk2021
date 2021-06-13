@@ -3,6 +3,7 @@ import GameObjectWithBody = Phaser.Types.Physics.Arcade.GameObjectWithBody;
 import Demo from "./game";
 import { Player } from "./Player";
 import Vec2 = Phaser.Math.Vector2;
+import { Enemy } from "./Enemy";
 
 /**
  * The projectile class handles things that shoot and shouldn't be coupled to the object that creates it
@@ -19,11 +20,13 @@ export class Projectile {
    * @param sprite the sprite to render
    * @param velocity the bullet's velocity
    * @param demo a reference to the scene containing this projectile
+   * @param friendly a friendly bullet will damage enemies but not the player
    */
   public constructor(
     public sprite: SpriteWithDynamicBody,
     private velocity: Vec2,
-    demo: Demo
+    demo: Demo,
+    public friendly = false
   ) {
     sprite.setData("outerObject", this);
     sprite.setSize(50, 50);
@@ -43,8 +46,18 @@ export class Projectile {
 
   public onCollide(other: GameObjectWithBody): void {
     const wrapper = other.getData("outerObject");
-    if (wrapper !== undefined && wrapper instanceof Player) {
-      console.log("hit player");
+    if (!this.friendly && wrapper !== undefined && wrapper instanceof Player) {
+      wrapper.takeDamage();
+      const v = this.sprite.body.velocity;
+      other.body.velocity.set(v.x, v.y);
+      this.dead = true;
+      this.sprite.destroy(false);
+    } else if (
+      this.friendly &&
+      wrapper !== undefined &&
+      wrapper instanceof Enemy
+    ) {
+      console.log("Collided with enemy");
       wrapper.takeDamage();
       const v = this.sprite.body.velocity;
       other.body.velocity.set(v.x, v.y);

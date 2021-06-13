@@ -25,6 +25,8 @@ export class Cannon extends Enemy {
 
   constructor(sprite: SpriteWithDynamicBody, private demo: Demo) {
     super(sprite);
+    this.currentHealth = 1;
+    this.maxHealth = 1;
     sprite.setSize(ENTITY_SIZE, ENTITY_SIZE);
     sprite.body.setSize(ENTITY_SIZE, ENTITY_SIZE);
     sprite.body.setBounce(0, 0);
@@ -85,7 +87,7 @@ export class Cannon extends Enemy {
 
       this.shotTimer--;
       if (this.shotTimer <= 0) {
-        this.shoot();
+        //this.shoot(); TODO uncomment
         this.shotTimer = this.timeBetweenShots;
       }
       this.move();

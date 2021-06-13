@@ -68,10 +68,11 @@ export abstract class Enemy {
    * has no effect. Any fractional amount of damage taken is floored.
    * @param amount the amount of damage to take.
    */
-  public takeDamage(amount: number): void {
-    amount = Math.floor(amount);
-    if (amount <= 1) return;
-    this.currentHealth = Math.max(this.currentHealth - amount, 0);
+  public takeDamage(damage = 1): void {
+    console.log(`Enemy taking ${damage} damage`);
+    damage = Math.floor(damage);
+    this.currentHealth = Math.max(this.currentHealth - damage, 0);
+    console.log(`New enemy health: ${this.currentHealth}`);
   }
 
   public isDead(): boolean {

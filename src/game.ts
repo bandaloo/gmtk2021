@@ -220,13 +220,17 @@ export default class Demo extends Phaser.Scene {
     this.enemies.forEach((e) => e.update());
     this.projectiles = this.projectiles.filter((p) => !p.isDead());
     // remove dead enemies from the world
+    let died = false;
     this.enemies = this.enemies.filter((enemy) => {
       if (enemy.isDead()) {
+        console.log("Dead enemy!");
+        died = true;
         enemy.sprite.destroy(false);
         return false;
       }
       return true;
     });
+    if (died) console.log(this.enemies);
   }
 
   public addProjectile(projectile: Projectile): void {
@@ -237,15 +241,29 @@ export default class Demo extends Phaser.Scene {
       }
     });
 
-    this.physics.add.collider(
-      projectile.sprite,
-      this.player.sprite,
-      (obj1, obj2) => {
-        if (obj1.getData("outerObject") instanceof Projectile) {
-          obj1.getData("outerObject").onCollide(obj2);
-        }
+    if (projectile.friendly) {
+      for (const enemy of this.enemies) {
+        this.physics.add.collider(
+          projectile.sprite,
+          enemy.sprite,
+          (obj1, obj2) => {
+            if (obj1.getData("outerObject") instanceof Projectile) {
+              obj1.getData("outerObject")?.onCollide(obj2);
+            }
+          }
+        );
       }
-    );
+    } else {
+      this.physics.add.collider(
+        projectile.sprite,
+        this.player.sprite,
+        (obj1, obj2) => {
+          if (obj1.getData("outerObject") instanceof Projectile) {
+            obj1.getData("outerObject")?.onCollide(obj2);
+          }
+        }
+      );
+    }
   }
 }
 
