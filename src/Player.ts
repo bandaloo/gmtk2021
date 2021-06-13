@@ -38,7 +38,7 @@ export class Player {
   private heartDisplay: HeartDisplay;
   public grapple: Grapple | undefined;
   public grapplePull: boolean;
-  private direction: "right" | "left" | "forward";
+  public direction: "right" | "left" | "forward";
   private shootAngle: integer;
   public cosmetics: {
     sprite: Phaser.GameObjects.Sprite;
@@ -258,9 +258,9 @@ export class Player {
       for (const c of this.cosmetics) {
         c.sprite.anims.play(c.keys.still, true);
       }
-      for (const c of this.cosmetics) {
-        c.sprite.setFlipX(this.direction !== "left");
-      }
+    }
+    for (const c of this.cosmetics) {
+      c.sprite.setFlipX(this.direction !== "left");
     }
 
     const cursors = this.kbp.createCursorKeys();

@@ -4,7 +4,7 @@ import { Projectile } from "./Projectile";
 import { Enemy } from "./Enemy";
 import { Player } from "./Player";
 import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
-import Demo from "./game";
+import RandomLevel from "./game";
 import Vec2 = Phaser.Math.Vector2;
 
 const MIN_PROXIMITY = 500;
@@ -23,7 +23,7 @@ export class Cannon extends Enemy {
   private playerRef: GameObjects.GameObject;
   private canMove = true;
 
-  constructor(sprite: SpriteWithDynamicBody, private demo: Demo) {
+  constructor(sprite: SpriteWithDynamicBody, private demo: RandomLevel) {
     super(sprite);
     this.currentHealth = 1;
     this.maxHealth = 1;
@@ -58,12 +58,9 @@ export class Cannon extends Enemy {
 
   public playerStuff = {
     initialize: this.playerInitialize,
-    action: (player: Player): void => {
-      // TODO shoot
-      console.log(player);
-    },
+    action: this.playerAction,
     charges: 3,
-    cooldown: 30,
+    cooldown: 50,
   };
 
   public update(): void {
@@ -153,6 +150,23 @@ export class Cannon extends Enemy {
   onEaten(player: Player): void {
     this.currentHealth = 0;
     player.absorb(this);
+  }
+
+  private playerAction(player: Player, demo: RandomLevel): void {
+    const dirNum = player.direction === "right" ? 1 : -1;
+    const projectileSprite = this.sprite.scene.physics.add.sprite(
+      player.sprite.body.x +
+        (dirNum * player.sprite.body.width) / 2 +
+        dirNum * 50,
+      player.sprite.body.y + player.sprite.body.height / 2,
+      "bullet"
+    );
+    projectileSprite.scaleX = 0.15;
+    projectileSprite.scaleY = 0.15;
+    if (dirNum === 1) {
+      projectileSprite.toggleFlipX();
+    }
+    new Projectile(projectileSprite, new Vec2(350 * dirNum, 0), demo, true);
   }
 
   private playerInitialize(player: Player): void {
