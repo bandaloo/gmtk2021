@@ -1,3 +1,4 @@
+import { GRAPPLE_OFFSET } from "./consts";
 import { Player } from "./Player";
 import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 
@@ -65,6 +66,8 @@ export class Grapple {
       this
     );
     console.log(this.sprite.displayHeight);
+
+    this.update();
   }
 
   public update(): void {
@@ -74,19 +77,31 @@ export class Grapple {
     const playerCenterY =
       this.player.sprite.body.position.y + this.player.sprite.displayHeight / 4;
 
-    this.baseSprite.setPosition(playerCenterX, playerCenterY);
-
-    this.armSprite.setPosition(
-      (this.sprite.x + playerCenterX) / 2,
-      (this.sprite.y + playerCenterY) / 2
-    );
-
-    const span = new Phaser.Math.Vector2(
+    let span = new Phaser.Math.Vector2(
       this.sprite.x - playerCenterX,
       this.sprite.y - playerCenterY
     );
+
+    this.sprite.setRotation(span.angle());
     this.armSprite.setRotation(span.angle());
     this.baseSprite.setRotation(span.angle());
+
+    const grappleBaseX =
+      playerCenterX + Math.cos(span.angle()) * GRAPPLE_OFFSET;
+    const grappleBaseY =
+      playerCenterY + Math.sin(span.angle()) * GRAPPLE_OFFSET;
+
+    span = new Phaser.Math.Vector2(
+      this.sprite.x - grappleBaseX,
+      this.sprite.y - grappleBaseY
+    );
+
+    this.baseSprite.setPosition(grappleBaseX, grappleBaseY);
+
+    this.armSprite.setPosition(
+      (this.sprite.x + grappleBaseX) / 2,
+      (this.sprite.y + grappleBaseY) / 2
+    );
 
     const stretch = span.length() / this.armSprite.width;
     this.armSprite.setScale(stretch, 1);
