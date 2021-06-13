@@ -1,5 +1,4 @@
 import "phaser";
-import { Bat } from "./Bat";
 import { Enemy } from "./Enemy";
 import { GAME_HEIGHT, GAME_WIDTH, SPRITE_SIZE } from "./consts";
 import { addObjects, padRoom, randomizeRoom, splitRoom } from "./gen";
@@ -9,7 +8,7 @@ import { Player } from "./Player";
 export default class Demo extends Phaser.Scene {
   private player: Player;
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
-  private enemies: Enemy[] = [];
+  enemies: Enemy[] = [];
   private pointerDown = false;
 
   constructor() {
@@ -40,7 +39,11 @@ export default class Demo extends Phaser.Scene {
       frameWidth: SPRITE_SIZE,
       frameHeight: SPRITE_SIZE,
     });
-    this.load.spritesheet("blob_jump", "assets/blob_jump.png", {
+    this.load.spritesheet("blob_rising", "assets/blob_rising.png", {
+      frameWidth: SPRITE_SIZE,
+      frameHeight: SPRITE_SIZE,
+    });
+    this.load.spritesheet("blob_falling", "assets/blob_falling.png", {
       frameWidth: SPRITE_SIZE,
       frameHeight: SPRITE_SIZE,
     });
@@ -52,13 +55,18 @@ export default class Demo extends Phaser.Scene {
       frameWidth: SPRITE_SIZE,
       frameHeight: SPRITE_SIZE,
     });
+    this.load.spritesheet("blob_dropping", "assets/blob_dropping.png", {
+      frameWidth: SPRITE_SIZE,
+      frameHeight: SPRITE_SIZE,
+    });
+    this.load.spritesheet("blob_egg", "assets/blob_egg.png", {
+      frameWidth: SPRITE_SIZE,
+      frameHeight: SPRITE_SIZE,
+    });
   }
 
   create(): void {
     this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, "background");
-
-    const bat = new Bat(this.physics.add.sprite(500, 500, "bat_flying"));
-    this.enemies.push(bat);
 
     const platforms = this.physics.add.staticGroup();
 
@@ -70,7 +78,8 @@ export default class Demo extends Phaser.Scene {
           0.5
         )
       ),
-      platforms
+      platforms,
+      this
     );
 
     this.player = new Player(
