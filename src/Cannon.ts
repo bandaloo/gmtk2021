@@ -169,7 +169,7 @@ export class Cannon extends Enemy {
     if (dirNum === 1) {
       projectileSprite.toggleFlipX();
     }
-    new Projectile(projectileSprite, new Vec2(350 * dirNum, 0), demo, true);
+    new Projectile(projectileSprite, new Vec2(1000 * dirNum, 0), demo, true);
   }
 
   private playerInitialize(player: Player): void {
