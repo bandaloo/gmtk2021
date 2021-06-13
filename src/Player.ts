@@ -1,5 +1,13 @@
 import { HeartDisplay } from "./HeartDisplay";
-import { ENTITY_SIZE, VELOCITY_EPSILON } from "./consts";
+import {
+  ENTITY_SIZE,
+  PLAYER_ACC_AIR,
+  PLAYER_ACC_GROUND,
+  PLAYER_DRAG,
+  PLAYER_MAX_SPEED_X,
+  PLAYER_MAX_SPEED_Y,
+  VELOCITY_EPSILON,
+} from "./consts";
 import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 import KeyboardPlugin = Phaser.Input.Keyboard.KeyboardPlugin;
 
@@ -22,8 +30,8 @@ export class Player {
     this.sprite.body.setSize(ENTITY_SIZE, ENTITY_SIZE);
     this.sprite.setSize(ENTITY_SIZE, ENTITY_SIZE);
     this.sprite.body.setCollideWorldBounds(true);
-    this.sprite.body.setDrag(1200, 0);
-    this.sprite.body.setMaxVelocity(300, 10000);
+    this.sprite.body.setDrag(PLAYER_DRAG, 0);
+    this.sprite.body.setMaxVelocity(PLAYER_MAX_SPEED_X, PLAYER_MAX_SPEED_Y);
 
     this.sprite.body.offset.add({ x: 0, y: 30 });
 
@@ -121,10 +129,13 @@ export class Player {
 
     const cursors = this.kbp.createCursorKeys();
 
+    const acc = this.sprite.body.touching.down
+      ? PLAYER_ACC_GROUND
+      : PLAYER_ACC_AIR;
     if (cursors.right.isDown) {
-      this.sprite.body.setAccelerationX(1800);
+      this.sprite.body.setAccelerationX(acc);
     } else if (cursors.left.isDown) {
-      this.sprite.body.setAccelerationX(-1800);
+      this.sprite.body.setAccelerationX(-acc);
     } else {
       this.sprite.body.setAccelerationX(0);
     }
