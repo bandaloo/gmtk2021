@@ -1,4 +1,8 @@
-import { GRAPPLE_OFFSET, GRAPPLE_SPEED } from "./consts";
+import {
+  DEFAULT_GRAPPLE_MAX_LENGTH,
+  GRAPPLE_OFFSET,
+  GRAPPLE_SPEED,
+} from "./consts";
 import { Enemy } from "./Enemy";
 import { grabSound } from "./game";
 import { Player } from "./Player";
@@ -8,6 +12,7 @@ export class Grapple {
   public armSprite: Phaser.GameObjects.Sprite;
   public baseSprite: Phaser.GameObjects.Sprite;
   private trackedEnemy: Enemy;
+  public maxLength: integer;
   constructor(
     public sprite: SpriteWithDynamicBody,
     public angle: integer,
@@ -24,6 +29,8 @@ export class Grapple {
     this.sprite.body.setCollideWorldBounds(true);
     this.sprite.body.setDrag(0, 0);
     grappleGroup.add(sprite);
+
+    this.maxLength = DEFAULT_GRAPPLE_MAX_LENGTH;
 
     // arm logic
     this.armSprite = this.sprite.scene.add.sprite(
@@ -110,6 +117,9 @@ export class Grapple {
       this.sprite.y - grappleBaseY
     );
 
+    if (span.length() > this.maxLength) {
+      this.destroy();
+    }
     this.baseSprite.setPosition(grappleBaseX, grappleBaseY);
 
     this.armSprite.setPosition(
