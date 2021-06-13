@@ -9,6 +9,14 @@ import { Player } from "./Player";
 import { Grapple } from "./Grapple";
 import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 
+export let absorbSound: Phaser.Sound.BaseSound;
+export let cannonShotSound: Phaser.Sound.BaseSound;
+export let gainHealthSound: Phaser.Sound.BaseSound;
+export let grabSound: Phaser.Sound.BaseSound;
+export let jumpSound: Phaser.Sound.BaseSound;
+export let landSound: Phaser.Sound.BaseSound;
+export let takeDamageSound: Phaser.Sound.BaseSound;
+
 export default class Demo extends Phaser.Scene {
   private player: Player;
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
@@ -22,13 +30,13 @@ export default class Demo extends Phaser.Scene {
   }
 
   preload(): void {
-    this.load.audio("absorb", "absorb.wav");
-    this.load.audio("cannon_shot", "cannon_shot.wav");
-    this.load.audio("gain_health", "gain_health.wav");
-    this.load.audio("grab", "grab.wav");
-    this.load.audio("jump", "jump.wav");
-    this.load.audio("land", "land.wav");
-    this.load.audio("take_damage", "take_damage.wav");
+    this.load.audio("absorb", "assets/absorb.wav");
+    this.load.audio("cannon_shot", "assets/cannon_shot.wav");
+    this.load.audio("gain_health", "assets/gain_health.wav");
+    this.load.audio("grab", "assets/grab.wav");
+    this.load.audio("jump", "assets/jump.wav");
+    this.load.audio("land", "assets/land.wav");
+    this.load.audio("take_damage", "assets/take_damage.wav");
 
     this.load.image("rectangle", "assets/rectangle.png");
     this.load.image("tile_1", "assets/tile_1.png");
@@ -116,6 +124,14 @@ export default class Demo extends Phaser.Scene {
   }
 
   create(): void {
+    absorbSound = this.sound.add("absorb");
+    cannonShotSound = this.sound.add("cannon_shot");
+    gainHealthSound = this.sound.add("gain_health");
+    grabSound = this.sound.add("grab");
+    jumpSound = this.sound.add("jump");
+    landSound = this.sound.add("land");
+    takeDamageSound = this.sound.add("take_damage");
+
     this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, "background");
 
     this.platforms = this.physics.add.staticGroup();
