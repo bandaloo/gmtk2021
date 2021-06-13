@@ -186,18 +186,6 @@ export class Player {
 
     this.kbp.on("keydown-SHIFT", () => {
       if (!this.isDead) {
-        if (!this.grapple) {
-          this.grapple = new Grapple(
-            this.sprite.scene.physics.add.sprite(
-              this.sprite.body.position.x + this.sprite.displayWidth / 4,
-              this.sprite.body.position.y + this.sprite.displayHeight / 4,
-              "grapple_hand"
-            ),
-            this.shootAngle,
-            this,
-            grappleGroup
-          );
-        }
         if (this.actionTimer <= 0) {
           this.primaryAction(this, this.demo);
           this.actionTimer = this.actionCooldown;
@@ -360,6 +348,7 @@ export class Player {
 
   public dead(): void {
     this.sprite.body.setMaxVelocity(0, 1000); // only limit x
+    if (this.grapple) this.grapple.destroy();
   }
 
   public eatFruit(): void {
