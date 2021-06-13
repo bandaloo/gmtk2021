@@ -57,6 +57,7 @@ function solidAt(room: string[][], i: number, j: number) {
 export function addObjects(
   room: string[][],
   platforms: Phaser.Physics.Arcade.StaticGroup,
+  pickups: Phaser.Physics.Arcade.StaticGroup,
   scene: Demo
 ): void {
   for (let i = 0; i < TILE_COLS; i++) {
@@ -77,6 +78,18 @@ export function addObjects(
         //b.body.checkCollision.down = false;
 
         platforms.add(b);
+      } else if (tile === "!") {
+        const p = scene.physics.add.staticSprite(
+          (i + 0.5) * TILE_SIZE,
+          (j + 0.5) * TILE_SIZE,
+          "fruit"
+        );
+        p.body.setSize(120, 120);
+        p.setSize(120, 120);
+        p.setOrigin(0.5, 0.5);
+        p.setScale(0.4);
+        p.setName("fruit");
+        pickups.add(p);
       } else if (!isNaN(parseInt(tile))) {
         //const int = parseInt(tile);
         const bat = new Bat(

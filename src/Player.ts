@@ -12,6 +12,7 @@ import {
 import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 import KeyboardPlugin = Phaser.Input.Keyboard.KeyboardPlugin;
 import { Grapple } from "./Grapple";
+import { Enemy } from "./Enemy";
 
 export class Player {
   private maxHealth = 3;
@@ -23,6 +24,10 @@ export class Player {
   public grapplePull: boolean;
   private direction: "right" | "left" | "forward";
   private shootAngle: integer;
+
+  private grappleAction: (player: Player) => void;
+  private primaryAction: ((player: Player) => void) | undefined;
+  private actionCharges = 0;
 
   public constructor(
     public sprite: SpriteWithDynamicBody,
@@ -220,5 +225,16 @@ export class Player {
     if (this.currentHealth <= 0) {
       // TODO lose the game
     }
+  }
+
+  public eatFruit(): void {
+    this.currentHealth = Math.min(this.currentHealth + 1, this.maxHealth);
+    this.heartDisplay.redisplay(this.currentHealth, this.maxHealth);
+  }
+
+  public absorb(enemy: Enemy): void {
+    this.primaryAction = enemy.playerStuff.action;
+    this.actionCharges = enemy.playerStuff.charges;
+    // TODO apply cosmetic changes
   }
 }
