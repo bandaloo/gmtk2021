@@ -162,12 +162,17 @@ export default class RandomLevel extends Phaser.Scene {
   }
 
   private generateWorld() {
+    console.log("new level");
+    const enemyChance = 1 / (1 + Math.exp((-this.levelNumber + 10) / 2));
+    console.log(enemyChance);
+    console.log(0.5 - (this.levelNumber / 2) * 0.05);
+
     addObjects(
       padRoom(
         randomizeRoom(
           splitRoom(rooms[Math.floor(rooms.length * Math.random())]),
-          0.5,
-          0.5
+          enemyChance,
+          0.5 - (this.levelNumber / 10) * 0.05
         )
       ),
       this.platforms,
