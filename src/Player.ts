@@ -2,6 +2,7 @@ import { HeartDisplay } from "./HeartDisplay";
 import { ENTITY_SIZE, VELOCITY_EPSILON } from "./consts";
 import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 import KeyboardPlugin = Phaser.Input.Keyboard.KeyboardPlugin;
+import { Grapple } from "./Grapple";
 
 export class Player {
   private maxHealth = 3;
@@ -9,10 +10,15 @@ export class Player {
   /** the maximum number of hearts you can have even with upgrades */
   private maxMaxHealth = 10;
   private heartDisplay: HeartDisplay;
+  public grapple: Grapple | undefined;
+  public grapplePull: boolean;
+  private direction: "right" | "left" | "forward";
+  private shootAngle: integer;
 
   public constructor(
     public sprite: SpriteWithDynamicBody,
-    public kbp: KeyboardPlugin
+    public kbp: KeyboardPlugin,
+    public platforms: Phaser.Physics.Arcade.StaticGroup
   ) {
     this.heartDisplay = new HeartDisplay(this.sprite.scene, this.maxMaxHealth);
     this.heartDisplay.redisplay(this.currentHealth, this.maxHealth);
@@ -24,6 +30,8 @@ export class Player {
     this.sprite.body.setCollideWorldBounds(true);
     this.sprite.body.setDrag(1200, 0);
     this.sprite.body.setMaxVelocity(300, 10000);
+    this.direction = "forward";
+    this.grapplePull = false;
 
     this.sprite.body.offset.add({ x: 0, y: 30 });
 
@@ -91,11 +99,30 @@ export class Player {
       if (this.sprite.body.touching.down) {
         this.sprite.body.setVelocityY(-900);
       }
+      if (this.grapplePull) {
+        this.grapple.destroy();
+        this.grapplePull = false;
+      }
     });
 
     this.kbp.on("keyup-SPACE", () => {
       if (this.sprite.body.velocity.y < 0) {
         this.sprite.body.setVelocityY(this.sprite.body.velocity.y / 2);
+      }
+    });
+
+    this.kbp.on("keyup-SHIFT", () => {
+      if (!this.grapple) {
+        this.grapple = new Grapple(
+          this.sprite.scene.physics.add.sprite(
+            this.sprite.body.position.x + this.sprite.displayWidth / 4,
+            this.sprite.body.position.y + this.sprite.displayHeight / 4,
+            "grapple_hand"
+          ),
+          this.shootAngle,
+          this,
+          this.platforms
+        );
       }
     });
   }
@@ -123,10 +150,43 @@ export class Player {
 
     if (cursors.right.isDown) {
       this.sprite.body.setAccelerationX(1800);
+      this.direction = "right";
     } else if (cursors.left.isDown) {
       this.sprite.body.setAccelerationX(-1800);
+      this.direction = "left";
     } else {
       this.sprite.body.setAccelerationX(0);
+    }
+
+    // Grapple Pull
+    if (this.grapplePull) {
+      const dir = {
+        x:
+          this.grapple.sprite.body.x -
+          this.grapple.sprite.body.width / 2 -
+          this.sprite.body.position.x,
+        y:
+          this.grapple.sprite.body.y -
+          this.grapple.sprite.body.height / 2 -
+          this.sprite.body.position.y,
+      };
+
+      this.sprite.body.setVelocityX(dir.x * 10);
+      this.sprite.body.setVelocityY(dir.y * 10);
+    }
+
+    // This is a dumb way to get player angle. Too bad!
+    if (this.direction == "right") this.shootAngle = 0;
+    if (this.direction == "left") this.shootAngle = 180;
+
+    if (this.direction == "right" && cursors.up.isDown) this.shootAngle = -45;
+    if (this.direction == "left" && cursors.down.isDown) this.shootAngle = 135;
+
+    if (this.direction == "right" && cursors.down.isDown) this.shootAngle = 45;
+    if (this.direction == "left" && cursors.up.isDown) this.shootAngle = -135;
+
+    if (this.grapple) {
+      this.grapple.update();
     }
   }
 
