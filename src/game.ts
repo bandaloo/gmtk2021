@@ -17,6 +17,17 @@ import StartScreenScene from "./StartScreenScene";
 import HowToScene from "./HowToScreenScene";
 import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 
+export let absorbSound: Phaser.Sound.BaseSound;
+export let cannonShotSound: Phaser.Sound.BaseSound;
+export let gainHealthSound: Phaser.Sound.BaseSound;
+export let grabSound: Phaser.Sound.BaseSound;
+export let jumpSound: Phaser.Sound.BaseSound;
+export let landSound: Phaser.Sound.BaseSound;
+export let takeDamageSound: Phaser.Sound.BaseSound;
+export let slurp: Phaser.Sound.BaseSound;
+
+let addedSounds = false;
+
 export default class RandomLevel extends Phaser.Scene {
   public player: Player;
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
@@ -50,6 +61,15 @@ export default class RandomLevel extends Phaser.Scene {
   }
 
   preload(): void {
+    this.load.audio("absorb", "assets/absorb.wav");
+    this.load.audio("cannon_shot", "assets/cannon_shot.wav");
+    this.load.audio("gain_health", "assets/gain_health.wav");
+    this.load.audio("grab", "assets/grab.wav");
+    this.load.audio("jump", "assets/jump.wav");
+    this.load.audio("land", "assets/land.wav");
+    this.load.audio("take_damage", "assets/take_damage.wav");
+    this.load.audio("slurp", "assets/slurp.wav");
+
     this.load.image("rectangle", "assets/rectangle.png");
     this.load.image("tile_1", "assets/tile_1.png");
     this.load.image("tile_2", "assets/tile_2.png");
@@ -160,6 +180,23 @@ export default class RandomLevel extends Phaser.Scene {
   }
 
   create(): void {
+    if (!addedSounds) {
+      absorbSound = this.sound.add("absorb"); // TODO
+      cannonShotSound = this.sound.add("cannon_shot"); // TODO
+      gainHealthSound = this.sound.add("gain_health");
+      grabSound = this.sound.add("grab");
+      jumpSound = this.sound.add("jump");
+      landSound = this.sound.add("land"); // unused
+      takeDamageSound = this.sound.add("take_damage");
+      slurp = this.sound.add("slurp");
+      addedSounds = true;
+    }
+
+    this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, "background");
+
+    this.platforms = this.physics.add.staticGroup();
+    //const pickups = this.physics.add.staticGroup();
+
     this.shouldReset = false;
     this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, "background");
     console.warn("CREATING GAME #" + this.levelNumber);

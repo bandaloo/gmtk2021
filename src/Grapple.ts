@@ -1,5 +1,6 @@
 import { GRAPPLE_OFFSET, GRAPPLE_SPEED } from "./consts";
 import { Enemy } from "./Enemy";
+import { grabSound } from "./game";
 import { Player } from "./Player";
 import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 
@@ -62,6 +63,7 @@ export class Grapple {
       }
     } else if (entity instanceof Enemy) {
       if (this.trackedEnemy == undefined) {
+        grabSound.play();
         this.sprite.setTexture("grapple_grabbing");
         this.sprite.setVelocity(0);
         this.player.grapplePull = true;
