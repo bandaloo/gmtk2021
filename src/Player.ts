@@ -19,6 +19,10 @@ export type PlayerAction = (player: Player) => void;
 type PlayerAnimationKeys = {
   still: string;
   move: string;
+  dropping: string;
+  egg: string;
+  falling: string;
+  rising: string;
 };
 
 export class Player {
@@ -188,12 +192,24 @@ export class Player {
       const fallingSpeed = this.sprite.body.velocity.y;
       if (fallingSpeed > 400) {
         this.sprite.anims.play("player_dropping", true);
+        for (const c of this.cosmetics) {
+          c.sprite.anims.play(c.keys.dropping, true);
+        }
       } else if (fallingSpeed > 200) {
         this.sprite.anims.play("player_egg", true);
+        for (const c of this.cosmetics) {
+          c.sprite.anims.play(c.keys.egg, true);
+        }
       } else if (fallingSpeed > -200) {
         this.sprite.anims.play("player_falling", true);
+        for (const c of this.cosmetics) {
+          c.sprite.anims.play(c.keys.falling, true);
+        }
       } else {
         this.sprite.anims.play("player_rising", true);
+        for (const c of this.cosmetics) {
+          c.sprite.anims.play(c.keys.rising, true);
+        }
       }
     } else if (Math.abs(this.sprite.body.velocity.x) > VELOCITY_EPSILON) {
       this.sprite.anims.play("player_move", true);

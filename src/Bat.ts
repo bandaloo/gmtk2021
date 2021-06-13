@@ -137,10 +137,50 @@ export class Bat extends Enemy {
       frameRate: 10,
       repeat: -1,
     });
+    s.anims.create({
+      key: "player_dropping_wings",
+      frames: s.anims.generateFrameNumbers("blob_falling_wings", {
+        start: 2,
+        end: 3,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+    s.anims.create({
+      key: "player_egg_wings",
+      frames: s.anims.generateFrameNumbers("blob_falling_wings", {
+        start: 0,
+        end: 1,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+    s.anims.create({
+      key: "player_falling_wings",
+      frames: s.anims.generateFrameNumbers("blob_jump_wings", {
+        start: 0,
+        end: 1,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+    s.anims.create({
+      key: "player_rising_wings",
+      frames: s.anims.generateFrameNumbers("blob_jump_wings", {
+        start: 0,
+        end: 1,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
 
     player.addCosmetic(s, {
       still: "player_still_wings",
       move: "player_move_wings",
+      dropping: "player_dropping_wings",
+      egg: "player_egg_wings",
+      falling: "player_falling_wings",
+      rising: "player_rising_wings",
     });
   }
 }
