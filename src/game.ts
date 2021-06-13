@@ -105,6 +105,9 @@ export default class RandomLevel extends Phaser.Scene {
     this.load.image("tile_2", "assets/tile_2.png");
     this.load.image("tile_3", "assets/tile_3.png");
     this.load.image("tile_bart", "assets/tile_bart.png");
+    this.load.image("tile_5", "assets/tile_5.png");
+    this.load.image("tile_6", "assets/tile_6.png");
+    this.load.image("tile_7", "assets/tile_7.png");
     this.load.image("background", "assets/background.png");
     this.load.image("heart_empty", "assets/heart_empty.png");
     this.load.image("heart_full", "assets/heart_full.png");
