@@ -29,3 +29,5 @@ export const SUBTITLE_FONT_SIZE = 50;
 export const DEFAULT_GRAPPLE_MAX_LENGTH = 500;
 
 export const PROJECTILE_MAX_LEN = 200;
+
+export const MAGIC_FRUIT_CHANCE = 1.0;

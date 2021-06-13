@@ -31,10 +31,10 @@ type PlayerAnimationKeys = {
 };
 
 export class Player {
-  private maxHealth = 3;
+  maxHealth = 3;
   public currentHealth = this.maxHealth;
   /** the maximum number of hearts you can have even with upgrades */
-  private maxMaxHealth = 10;
+  maxMaxHealth = 10;
   private heartDisplay: HeartDisplay;
   public grapple: Grapple | undefined;
   public grapplePull: boolean;

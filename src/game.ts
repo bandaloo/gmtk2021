@@ -398,6 +398,11 @@ export default class RandomLevel extends Phaser.Scene {
         } else if (obj2.name === "coin") {
           pickupSound.play();
           this.increaseScore(100);
+        } else {
+          console.log("max max increased");
+          gainHealthSound.play();
+          this.player.maxHealth++;
+          player.eatFruit();
         }
         obj2.destroy();
       }
