@@ -22,6 +22,14 @@ export default class Demo extends Phaser.Scene {
   }
 
   preload(): void {
+    this.load.audio("absorb", "absorb.wav");
+    this.load.audio("cannon_shot", "cannon_shot.wav");
+    this.load.audio("gain_health", "gain_health.wav");
+    this.load.audio("grab", "grab.wav");
+    this.load.audio("jump", "jump.wav");
+    this.load.audio("land", "land.wav");
+    this.load.audio("take_damage", "take_damage.wav");
+
     this.load.image("rectangle", "assets/rectangle.png");
     this.load.image("tile_1", "assets/tile_1.png");
     this.load.image("tile_2", "assets/tile_2.png");
