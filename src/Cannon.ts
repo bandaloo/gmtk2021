@@ -20,6 +20,7 @@ export class Cannon extends Enemy {
   private justRotate = false;
   private shotTimer = this.timeBetweenShots;
   private playerRef: GameObjects.GameObject;
+  private canMove = true;
 
   constructor(
     sprite: SpriteWithDynamicBody,
@@ -42,6 +43,15 @@ export class Cannon extends Enemy {
       frameRate: 15,
       repeat: -1,
     });
+    sprite.anims.create({
+      key: "cannon_shoot",
+      frames: sprite.anims.generateFrameNumbers("cannon_shoot", {
+        start: 0,
+        end: 11,
+      }),
+      frameRate: 15,
+      repeat: 0,
+    });
     this.currentHealth = 1;
     this.maxHealth = 1;
     this.sprite.body.setAcceleration(0, 0);
@@ -57,42 +67,56 @@ export class Cannon extends Enemy {
   };
 
   public update(): void {
-    this.sprite.setFlipX(this.sprite.body.velocity.x >= 0);
-    // movement logic goes here
-    this.updateDistanceToPlayer();
-    if (this.distanceToPlayer >= MIN_PROXIMITY) {
-      // if cannon is touching a wall AND too far from the player, just stop
-      console.log("moving backward");
-      this.direction = -1;
-      this.justRotate = false;
-    } else if (this.distanceToPlayer <= -MIN_PROXIMITY) {
-      console.log("moving foward");
-      this.direction = 1;
-      this.justRotate = false;
-    } else {
-      console.log("stopped");
-      this.direction = this.distanceToPlayer >= 0 ? -1 : 1;
-      this.justRotate = true;
-    }
+    if (this.canMove) {
+      this.sprite.setFlipX(this.sprite.body.velocity.x >= 0);
+      // movement logic goes here
+      this.updateDistanceToPlayer();
+      if (this.distanceToPlayer >= MIN_PROXIMITY) {
+        // if cannon is touching a wall AND too far from the player, just stop
+        console.log("moving backward");
+        this.direction = -1;
+        this.justRotate = false;
+      } else if (this.distanceToPlayer <= -MIN_PROXIMITY) {
+        console.log("moving foward");
+        this.direction = 1;
+        this.justRotate = false;
+      } else {
+        console.log("stopped");
+        this.direction = this.distanceToPlayer >= 0 ? -1 : 1;
+        this.justRotate = true;
+      }
 
-    this.shotTimer--;
-    if (this.shotTimer <= 0) {
-      this.shoot();
-      this.shotTimer = this.timeBetweenShots;
+      this.shotTimer--;
+      if (this.shotTimer <= 0) {
+        this.shoot();
+        this.shotTimer = this.timeBetweenShots;
+      }
+      this.move();
     }
-    this.move();
   }
 
   public shoot(): void {
-    // add or subtract the spawn point using the direction were headed
-    const projectileSprite = this.sprite.scene.physics.add.sprite(
-      this.sprite.body.x +
-        (this.direction * this.sprite.body.width) / 2 +
-        this.direction * 50,
-      this.sprite.body.y + this.sprite.body.height / 2,
-      "bullet"
-    );
-    new Projectile(projectileSprite, this.renderInit, this.direction);
+    this.sprite.anims.play("cannon_shoot");
+    // don't move while shooting
+    this.canMove = false;
+    this.sprite.once("animationcomplete", () => {
+      // add or subtract the spawn point using the direction were headed
+      const projectileSprite = this.sprite.scene.physics.add.sprite(
+        this.sprite.body.x +
+          (this.direction * this.sprite.body.width) / 2 +
+          this.direction * 50,
+        this.sprite.body.y + this.sprite.body.height / 2,
+        "bullet"
+      );
+      projectileSprite.scaleX = 0.15;
+      projectileSprite.scaleY = 0.15;
+      if (this.direction == 1) {
+        projectileSprite.toggleFlipX();
+      }
+      new Projectile(projectileSprite, this.renderInit, this.direction);
+      this.canMove = true;
+      this.sprite.anims.play("cannon_walk", true);
+    });
   }
 
   public updateDistanceToPlayer(): void {
@@ -130,5 +154,13 @@ export class Cannon extends Enemy {
         this.sprite.setFlipX(false);
       }
     }
+  }
+
+  eaten(): void {
+    console.log("eaten by player");
+  }
+
+  grappled(): void {
+    console.log("grappled by player");
   }
 }
