@@ -82,7 +82,11 @@ export default class RandomLevel extends Phaser.Scene {
   increaseLevel(): void {
     this.levelNumber += 1;
     this.levelText.text = "LVL " + this.levelNumber;
-    this.increaseScore(50);
+  }
+
+  resetLevel(): void {
+    this.levelNumber = 0;
+    this.levelText.text = "LVL " + this.levelNumber;
   }
 
   preload(): void {
@@ -195,6 +199,11 @@ export default class RandomLevel extends Phaser.Scene {
     this.scoreText.setText("" + this.score);
   }
 
+  resetScore(): void {
+    this.score = 0;
+    this.scoreText.setText("" + this.score);
+  }
+
   /**
    * inits colliders for projectiles. Sets dead to true when it collides with the platform
    */
@@ -240,6 +249,8 @@ export default class RandomLevel extends Phaser.Scene {
       this.restart_text.y = GAME_HEIGHT / 2 + 150;
 
       this.restart_text.setInteractive().on("pointerdown", (pointer) => {
+        this.resetLevel();
+        this.resetScore();
         if (pointer instanceof Pointer) {
           console.log("pointer:");
           console.log(pointer);
@@ -448,6 +459,7 @@ export default class RandomLevel extends Phaser.Scene {
     }
 
     if (this.levelUp) {
+      this.increaseScore(50);
       this.scene.restart({ playerHeath: this.player.currentHealth });
     }
   }
