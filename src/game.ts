@@ -31,6 +31,8 @@ export default class RandomLevel extends Phaser.Scene {
 
   public score = 0;
 
+  public scoreText: Phaser.GameObjects.Text;
+
   // Incraments each restart
   private levelNumber = 0;
 
@@ -111,6 +113,11 @@ export default class RandomLevel extends Phaser.Scene {
       frameWidth: TILE_SIZE,
       frameHeight: TILE_SIZE,
     });
+  }
+
+  increaseScore(num: number): void {
+    this.score += num;
+    this.scoreText.setText("" + this.score);
   }
 
   /**
@@ -214,7 +221,7 @@ export default class RandomLevel extends Phaser.Scene {
         if (obj2.name === "fruit") {
           player.eatFruit();
         } else if (obj2.name === "coin") {
-          this.score += 100;
+          this.increaseScore(100);
         }
         obj2.destroy();
       }
@@ -253,6 +260,16 @@ export default class RandomLevel extends Phaser.Scene {
       },
       this
     );
+
+    this.scoreText = this.add.text(0, 0, "" + this.score, {
+      fontSize: 64 + "px",
+      color: "#FFFFFF",
+      fontStyle: "bold",
+    });
+
+    this.scoreText.setOrigin(0.5, 0.5);
+    this.scoreText.x = GAME_WIDTH / 2;
+    this.scoreText.y = 50;
   }
 
   update(): void {
