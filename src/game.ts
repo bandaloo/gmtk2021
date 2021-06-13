@@ -37,7 +37,7 @@ export default class Demo extends Phaser.Scene {
     this.load.image("grapple_hand", "assets/Grapple_Hand.png");
     this.load.image("grapple_grabbing", "assets/Grapple_Grabbing.png");
     this.load.image("oldcircle", "assets/blank circle.png");
-    this.load.image("bullet", "assets/blank circle.png");
+    this.load.image("bullet", "assets/Bullet.png");
     this.load.image("fruit", "assets/fruit.png");
     this.load.spritesheet("circle", "assets/circle tileset.png", {
       frameWidth: 100,
@@ -76,6 +76,10 @@ export default class Demo extends Phaser.Scene {
       frameHeight: SPRITE_SIZE,
     });
     this.load.spritesheet("cannon_walk", "assets/cannon_walk.png", {
+      frameWidth: TILE_SIZE,
+      frameHeight: TILE_SIZE,
+    });
+    this.load.spritesheet("cannon_shoot", "assets/cannon_shoot.png", {
       frameWidth: TILE_SIZE,
       frameHeight: TILE_SIZE,
     });
