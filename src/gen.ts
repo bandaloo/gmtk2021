@@ -105,7 +105,7 @@ export function addObjects(
           scene.enemies.push(bat);
         } else if (int === 0) {
           const cannon = new Cannon(
-            scene.physics.add.sprite(200, 500, "cannon_walk"),
+            scene.physics.add.sprite(x, y, "cannon_walk"),
             scene.projectileRenderInit(scene)
           );
           scene.enemies.push(cannon);
