@@ -29,6 +29,8 @@ export default class RandomLevel extends Phaser.Scene {
   public playerGroup;
   public shouldReset;
 
+  public score = 0;
+
   // Incraments each restart
   private levelNumber = 0;
 
@@ -211,6 +213,8 @@ export default class RandomLevel extends Phaser.Scene {
       if (player instanceof Player) {
         if (obj2.name === "fruit") {
           player.eatFruit();
+        } else if (obj2.name === "coin") {
+          this.score += 100;
         }
         obj2.destroy();
       }

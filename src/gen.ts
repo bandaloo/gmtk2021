@@ -5,6 +5,7 @@ import { TILE_COLS, TILE_ROWS, TILE_SIZE } from "./consts";
 import { Exit } from "./Exit";
 import RandomLevel from "./game";
 import { Player } from "./Player";
+import { colorToNum } from "./utils";
 
 const MAX_ENEMY = 2;
 
@@ -27,8 +28,8 @@ export function randomizeRoom(
       }
       if (tile === "X" || tile === ".") return tile;
       if (tile === "!") {
-        if (Math.random() < itemChance) return tile;
-        return ".";
+        if (Math.random() < itemChance) return "f";
+        return "c";
       }
       if (!isNaN(parseInt(tile))) {
         if (Math.random() < enemyChance) return tile;
@@ -84,17 +85,22 @@ export function addObjects(
         b.body.checkCollision.right = !solidAt(room, i + 1, j);
 
         platforms.add(b);
-      } else if (tile === "!") {
+      } else if (tile === "f" || tile === "c") {
         const p = scene.physics.add.staticSprite(
           (i + 0.5) * TILE_SIZE,
           (j + 0.5) * TILE_SIZE,
           "fruit"
         );
+        const color =
+          tile === "f"
+            ? [colorToNum(255, 0, 0), colorToNum(252, 117, 3)]
+            : [colorToNum(233, 245, 66), colorToNum(104, 252, 93)];
+        p.setTint(color[0], color[0], color[0], color[1]);
         p.body.setSize(120, 120);
         p.setSize(120, 120);
         p.setOrigin(0.5, 0.5);
         p.setScale(0.4);
-        p.setName("fruit");
+        p.setName(tile === "f" ? "fruit" : "coin");
         pickups.add(p);
       } else if (!isNaN(parseInt(tile))) {
         const x = (i + 0.5) * TILE_SIZE;
