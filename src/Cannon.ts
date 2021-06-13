@@ -73,15 +73,12 @@ export class Cannon extends Enemy {
       this.updateDistanceToPlayer();
       if (this.distanceToPlayer >= MIN_PROXIMITY) {
         // if cannon is touching a wall AND too far from the player, just stop
-        console.log("moving backward");
         this.direction = -1;
         this.justRotate = false;
       } else if (this.distanceToPlayer <= -MIN_PROXIMITY) {
-        console.log("moving foward");
         this.direction = 1;
         this.justRotate = false;
       } else {
-        console.log("stopped");
         this.direction = this.distanceToPlayer >= 0 ? -1 : 1;
         this.justRotate = true;
       }

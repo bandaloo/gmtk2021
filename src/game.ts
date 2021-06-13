@@ -39,6 +39,7 @@ export default class RandomLevel extends Phaser.Scene {
   public grappleGroup;
   public playerGroup;
   public shouldReset;
+  public storePlayerHealthBetweenLevels;
 
   public score = 0;
 
@@ -52,6 +53,11 @@ export default class RandomLevel extends Phaser.Scene {
   }
 
   init(data: unknown): void {
+    if (data["playerHeath"]) {
+      this.storePlayerHealthBetweenLevels = data["playerHeath"];
+    } else {
+      this.storePlayerHealthBetweenLevels = 3;
+    }
     console.log("init scene");
     console.log(data);
     this.levelNumber += 1;
@@ -165,12 +171,17 @@ export default class RandomLevel extends Phaser.Scene {
   }
 
   private generateWorld() {
+    console.log("new level");
+    const enemyChance = 1 / (1 + Math.exp((-this.levelNumber + 10) / 2));
+    console.log(enemyChance);
+    console.log(0.5 - (this.levelNumber / 2) * 0.05);
+
     addObjects(
       padRoom(
         randomizeRoom(
           splitRoom(rooms[Math.floor(rooms.length * Math.random())]),
-          0.5,
-          0.5
+          enemyChance,
+          0.5 - (this.levelNumber / 10) * 0.05
         )
       ),
       this.platforms,
@@ -326,7 +337,7 @@ export default class RandomLevel extends Phaser.Scene {
     });
 
     if (this.shouldReset) {
-      this.scene.restart({});
+      this.scene.restart({ playerHeath: this.player.currentHealth });
     }
   }
 }
