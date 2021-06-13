@@ -155,9 +155,7 @@ export class Cannon extends Enemy {
   private playerAction(player: Player, demo: RandomLevel): void {
     const dirNum = player.direction === "right" ? 1 : -1;
     const projectileSprite = this.sprite.scene.physics.add.sprite(
-      player.sprite.body.x +
-        (dirNum * player.sprite.body.width) / 2 +
-        dirNum * 50,
+      player.sprite.body.x + player.sprite.body.width / 2,
       player.sprite.body.y + player.sprite.body.height / 2,
       "bullet"
     );

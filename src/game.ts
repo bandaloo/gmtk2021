@@ -290,18 +290,21 @@ export default class RandomLevel extends Phaser.Scene {
   }
 
   private generateWorld() {
-    const enemyChance = 1 / (1 + Math.exp((-this.levelNumber + 10) / 2)) + 0.25;
+    // Sigmoid
+    // const enemyChance = 1 / (1 + Math.exp((-this.levelNumber + 10) / 2)) + 0.25;
+    // Linear
+    const enemyChance = Math.min(this.levelNumber * 0.1, 1);
+
+    // Linear
+    const itemChance = Math.max(1 - this.levelNumber * 0.2, 0);
 
     let newRoom = Math.floor(rooms.length * Math.random()); // This is terrible. Too bad!
     while (newRoom == this.lastRoom)
       newRoom = Math.floor(rooms.length * Math.random());
+    this.lastRoom = newRoom;
     addObjects(
       padRoom(
-        randomizeRoom(
-          splitRoom(rooms[newRoom]),
-          enemyChance,
-          0.5 - (this.levelNumber / 10) * 0.05
-        )
+        randomizeRoom(splitRoom(rooms[newRoom]), enemyChance, itemChance)
       ),
       this.platforms,
       this.pickups,
