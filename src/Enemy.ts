@@ -8,6 +8,18 @@ import { Player } from "./Player";
 export abstract class Enemy {
   protected currentHealth: number;
   protected maxHealth: number;
+  abstract playerStuff: {
+    /**
+     * When the player absorbs a this enemy this action will replace the player's
+     * primary attack action.
+     */
+    action: (player: Player) => void;
+    /**
+     * The number of times the player can use the action before this enemy is
+     * used up and falls off.
+     */
+    charges: number;
+  };
 
   protected constructor(public sprite: SpriteWithDynamicBody) {
     sprite.setData("outerObject", this);

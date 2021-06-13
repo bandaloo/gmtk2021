@@ -8,7 +8,6 @@ import { Player } from "./Player";
 
 export default class Demo extends Phaser.Scene {
   private player: Player;
-  private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   private enemies: Enemy[] = [];
   private pointerDown = false;
 
@@ -107,13 +106,19 @@ export default class Demo extends Phaser.Scene {
       },
       this
     );
-
-    this.cursors = this.input.keyboard.createCursorKeys();
   }
 
   update(): void {
     this.player.update();
     this.enemies.forEach((e) => e.update());
+    // remove dead enemies from the world
+    this.enemies = this.enemies.filter((enemy) => {
+      if (enemy.isDead()) {
+        enemy.sprite.destroy(false);
+        return true;
+      }
+      return false;
+    });
   }
 }
 

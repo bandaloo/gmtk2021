@@ -1,5 +1,6 @@
 import { HeartDisplay } from "./HeartDisplay";
 import { ENTITY_SIZE, VELOCITY_EPSILON } from "./consts";
+import { Enemy } from "./Enemy";
 import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 import KeyboardPlugin = Phaser.Input.Keyboard.KeyboardPlugin;
 
@@ -9,6 +10,10 @@ export class Player {
   /** the maximum number of hearts you can have even with upgrades */
   private maxMaxHealth = 10;
   private heartDisplay: HeartDisplay;
+
+  private grappleAction: (player: Player) => void;
+  private primaryAction: ((player: Player) => void) | undefined;
+  private actionCharges = 0;
 
   public constructor(
     public sprite: SpriteWithDynamicBody,
@@ -94,5 +99,11 @@ export class Player {
     if (this.currentHealth <= 0) {
       // TODO lose the game
     }
+  }
+
+  public absorb(enemy: Enemy): void {
+    this.primaryAction = enemy.playerStuff.action;
+    this.actionCharges = enemy.playerStuff.charges;
+    // TODO apply cosmetic changes
   }
 }
