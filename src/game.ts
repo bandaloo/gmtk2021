@@ -240,30 +240,6 @@ export default class RandomLevel extends Phaser.Scene {
     this.scoreText.setText("" + this.score);
   }
 
-  /**
-   * inits colliders for projectiles. Sets dead to true when it collides with the platform
-   */
-  projectileRenderInit(scene: RandomLevel): (projectile: Projectile) => void {
-    return (projectile: Projectile) => {
-      scene.projectiles.push(projectile);
-      scene.physics.add.collider(scene.platforms, projectile.sprite, (obj1) => {
-        if (obj1.getData("outerObject") instanceof Projectile) {
-          obj1.getData("outerObject").kill();
-        }
-      });
-
-      scene.physics.add.collider(
-        projectile.sprite,
-        scene.playerGroup,
-        (obj1, obj2) => {
-          if (obj1.getData("outerObject") instanceof Projectile) {
-            obj1.getData("outerObject").onCollide(obj2);
-          }
-        }
-      );
-    };
-  }
-
   private showRestart() {
     if (!this.title_text || !this.restart_text) {
       this.title_text = this.add.text(0, 0, "GAME OVER!!", {
