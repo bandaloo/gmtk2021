@@ -48,7 +48,6 @@ export class Grapple {
       (grapple: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody) => {
         grapple.setVelocity(0);
         this.player.grapplePull = true;
-        this.player.sprite.body.setMaxVelocity(1000, 1000);
 
         // Wait until player catches up to grapple, destroy it then
         this.sprite.scene.physics.add.overlap(
@@ -56,9 +55,7 @@ export class Grapple {
           this.player.sprite,
           () => {
             this.player.grapplePull = false;
-            // this.player.grapplePoint = undefined;
             this.destroy();
-            this.player.sprite.body.setMaxVelocity(300, 10000);
           },
           null,
           this

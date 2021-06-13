@@ -102,9 +102,10 @@ export default class Demo extends Phaser.Scene {
     });
 
     this.enemies.forEach((e) => {
-      this.physics.add.collider(e.sprite, this.player.sprite, (obj1, obj2) => {
-        if (obj1.getData("outerObject") instanceof Enemy) {
-          obj1.getData("outerObject").onCollide(obj2);
+      this.physics.add.overlap(e.sprite, this.player.sprite, (obj1, obj2) => {
+        const enemy = obj1.getData("outerObject");
+        if (enemy instanceof Enemy) {
+          enemy.onOverlap(obj2);
         }
       });
     });

@@ -1,9 +1,18 @@
 import { HeartDisplay } from "./HeartDisplay";
-import { ENTITY_SIZE, VELOCITY_EPSILON } from "./consts";
-import { Enemy } from "./Enemy";
+import {
+  ENTITY_SIZE,
+  PLAYER_ACC_AIR,
+  PLAYER_ACC_GROUND,
+  PLAYER_DRAG,
+  PLAYER_MAX_SPEED_GRAPPLE_X,
+  PLAYER_MAX_SPEED_NORMAL_X,
+  PLAYER_MAX_SPEED_NORMAL_Y,
+  VELOCITY_EPSILON,
+} from "./consts";
 import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 import KeyboardPlugin = Phaser.Input.Keyboard.KeyboardPlugin;
 import { Grapple } from "./Grapple";
+import { Enemy } from "./Enemy";
 
 export class Player {
   private maxHealth = 3;
@@ -33,8 +42,7 @@ export class Player {
     this.sprite.body.setSize(ENTITY_SIZE, ENTITY_SIZE);
     this.sprite.setSize(ENTITY_SIZE, ENTITY_SIZE);
     this.sprite.body.setCollideWorldBounds(true);
-    this.sprite.body.setDrag(1200, 0);
-    this.sprite.body.setMaxVelocity(300, 10000);
+    this.sprite.body.setDrag(PLAYER_DRAG, 0);
     this.direction = "forward";
     this.grapplePull = false;
 
@@ -153,14 +161,30 @@ export class Player {
 
     const cursors = this.kbp.createCursorKeys();
 
+    const acc = this.sprite.body.touching.down
+      ? PLAYER_ACC_GROUND
+      : PLAYER_ACC_AIR;
+
     if (cursors.right.isDown) {
-      this.sprite.body.setAccelerationX(1800);
+      this.sprite.body.setAccelerationX(acc);
       this.direction = "right";
     } else if (cursors.left.isDown) {
-      this.sprite.body.setAccelerationX(-1800);
+      this.sprite.body.setAccelerationX(-acc);
       this.direction = "left";
     } else {
       this.sprite.body.setAccelerationX(0);
+    }
+
+    if (this.grapplePull) {
+      this.sprite.body.setMaxVelocity(
+        PLAYER_MAX_SPEED_GRAPPLE_X,
+        PLAYER_MAX_SPEED_NORMAL_Y
+      );
+    } else {
+      this.sprite.body.setMaxVelocity(
+        PLAYER_MAX_SPEED_NORMAL_X,
+        PLAYER_MAX_SPEED_NORMAL_Y
+      );
     }
 
     // Grapple Pull
