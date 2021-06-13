@@ -21,6 +21,9 @@ export default class Demo extends Phaser.Scene {
     this.load.image("background", "assets/background.png");
     this.load.image("heart_empty", "assets/heart_empty.png");
     this.load.image("heart_full", "assets/heart_full.png");
+    this.load.image("grapple_arm", "assets/grapple_arm.png");
+    this.load.image("grapple_base", "assets/Grapple_Base.png");
+    this.load.image("grapple_hand", "assets/Grapple_Hand.png");
     this.load.image("oldcircle", "assets/blank circle.png");
     this.load.image("fruit", "assets/fruit.png");
     this.load.spritesheet("circle", "assets/circle tileset.png", {
@@ -82,7 +85,8 @@ export default class Demo extends Phaser.Scene {
 
     this.player = new Player(
       this.physics.add.sprite(200, 200, "blob_move"),
-      this.input.keyboard
+      this.input.keyboard,
+      platforms
     );
 
     this.physics.add.collider(this.player.sprite, platforms);
