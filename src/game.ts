@@ -1,5 +1,6 @@
 import "phaser";
 import StaticGroup = Phaser.Physics.Arcade.StaticGroup;
+import Pointer = Phaser.Input.Pointer;
 import { Projectile } from "./Projectile";
 import { Enemy } from "./Enemy";
 import {
@@ -7,7 +8,9 @@ import {
   GAME_WIDTH,
   PLAYER_DRAG,
   SPRITE_SIZE,
+  SUBTITLE_FONT_SIZE,
   TILE_SIZE,
+  TITLE_FONT_SIZE,
 } from "./consts";
 import { addObjects, padRoom, randomizeRoom, splitRoom } from "./gen";
 import { rooms } from "./rooms";
@@ -17,6 +20,7 @@ import StartScreenScene from "./StartScreenScene";
 import HowToScene from "./HowToScreenScene";
 import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 import { Exit } from "./Exit";
+import Text = Phaser.GameObjects.Text;
 
 export let absorbSound: Phaser.Sound.BaseSound;
 export let cannonShotSound: Phaser.Sound.BaseSound;
@@ -35,6 +39,10 @@ export default class RandomLevel extends Phaser.Scene {
   public projectiles: Projectile[];
   public platforms: StaticGroup;
   private pointerDown = false;
+  public levelUp = false;
+  public gameOver = false;
+  private title_text: Text | null;
+  private restart_text: Text | null;
   private pickups: Phaser.Physics.Arcade.StaticGroup;
   public grappleGroup: Phaser.Physics.Arcade.Group;
   public playerGroup: Phaser.Physics.Arcade.Group;
@@ -172,28 +180,42 @@ export default class RandomLevel extends Phaser.Scene {
     });
   }
 
-  /**
-   * inits colliders for projectiles. Sets dead to true when it collides with the platform
-   */
-  projectileRenderInit(scene: RandomLevel): (projectile: Projectile) => void {
-    return (projectile: Projectile) => {
-      scene.projectiles.push(projectile);
-      scene.physics.add.collider(scene.platforms, projectile.sprite, (obj1) => {
-        if (obj1.getData("outerObject") instanceof Projectile) {
-          obj1.getData("outerObject").kill();
+  private showRestart() {
+    if (!this.title_text || !this.restart_text) {
+      this.title_text = this.add.text(0, 0, "GAME OVER!!", {
+        fontSize: TITLE_FONT_SIZE + "px",
+        color: "#FFFFFF",
+        fontStyle: "bold",
+      });
+      this.title_text.setOrigin(0.5, 0.5);
+      this.title_text.x = GAME_WIDTH / 2;
+      this.title_text.y = GAME_HEIGHT / 2;
+
+      this.restart_text = this.add.text(0, 0, "> CLICK HERE TO RESTART <", {
+        fontSize: SUBTITLE_FONT_SIZE + "px",
+        color: "#FFFFFF",
+        fontStyle: "bold",
+      });
+      this.restart_text.setOrigin(0.5, 0.5);
+      this.restart_text.x = GAME_WIDTH / 2;
+      this.restart_text.y = GAME_HEIGHT / 2 + 150;
+
+      this.restart_text.setInteractive().on("pointerdown", (pointer) => {
+        if (pointer instanceof Pointer) {
+          console.log("pointer:");
+          console.log(pointer);
+          this.scene.restart({});
         }
       });
 
-      scene.physics.add.collider(
-        projectile.sprite,
-        scene.playerGroup,
-        (obj1, obj2) => {
-          if (obj1.getData("outerObject") instanceof Projectile) {
-            obj1.getData("outerObject").onCollide(obj2);
-          }
-        }
-      );
-    };
+      this.restart_text.on("pointerover", () => {
+        this.restart_text.setColor("#88b5b1");
+      });
+
+      this.restart_text.on("pointerout", () => {
+        this.restart_text.setColor("#FFFFFF");
+      });
+    }
   }
 
   private generateWorld() {
@@ -220,6 +242,10 @@ export default class RandomLevel extends Phaser.Scene {
   }
 
   create(): void {
+    this.levelUp = false;
+    this.gameOver = false;
+    this.title_text = null;
+    this.restart_text = null;
     if (!addedSounds) {
       absorbSound = this.sound.add("absorb"); // TODO
       cannonShotSound = this.sound.add("cannon_shot"); // TODO
@@ -236,7 +262,6 @@ export default class RandomLevel extends Phaser.Scene {
 
     this.platforms = this.physics.add.staticGroup();
 
-    this.shouldReset = false;
     this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, "background");
     console.warn("CREATING GAME #" + this.levelNumber);
 
@@ -315,7 +340,9 @@ export default class RandomLevel extends Phaser.Scene {
   }
 
   update(): void {
-    this.player.update();
+    if (!this.gameOver) {
+      this.player.update();
+    }
     this.projectiles.forEach((p) => p.update());
     this.enemies.forEach((e) => e.update());
     this.exit.update();
@@ -336,12 +363,18 @@ export default class RandomLevel extends Phaser.Scene {
       }
       return true;
     });
-    if (this.shouldReset) {
+
+    if (this.gameOver) {
+      this.showRestart();
+      this.player.dead();
+    }
+
+    if (this.levelUp) {
       this.scene.restart({ playerHeath: this.player.currentHealth });
     }
   }
 
-  public addProjectile(projectile: Projectile, collidesWall = false): void {
+  public addProjectile(projectile: Projectile, collidesWall = true): void {
     this.projectiles.push(projectile);
     if (collidesWall) {
       this.physics.add.collider(this.platforms, projectile.sprite, (obj1) => {

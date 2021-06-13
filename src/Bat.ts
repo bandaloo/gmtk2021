@@ -130,7 +130,8 @@ export class Bat extends Enemy {
           projectileSprite,
           new Vector2(350 * i, 350 * j),
           demo,
-          true
+          true,
+          false
         );
       }
     }

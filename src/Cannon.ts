@@ -87,7 +87,7 @@ export class Cannon extends Enemy {
 
       this.shotTimer--;
       if (this.shotTimer <= 0) {
-        //this.shoot(); TODO uncomment
+        this.shoot();
         this.shotTimer = this.timeBetweenShots;
       }
       this.move();

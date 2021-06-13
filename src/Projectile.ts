@@ -28,7 +28,8 @@ export class Projectile {
     public sprite: SpriteWithDynamicBody,
     private velocity: Vec2,
     demo: Demo,
-    public friendly = false
+    public friendly = false,
+    collidesWalls = true
   ) {
     sprite.setData("outerObject", this);
     sprite.setSize(50, 50);
@@ -36,7 +37,7 @@ export class Projectile {
     sprite.body.setAllowGravity(false);
     sprite.body.setDrag(0, 0);
     sprite.body.setVelocity(this.velocity.x, this.velocity.y);
-    demo.addProjectile(this);
+    demo.addProjectile(this, collidesWalls);
     this.timer = 0;
   }
 
@@ -44,10 +45,8 @@ export class Projectile {
    * Logic to execute every game step.
    */
   public update(): void {
-    console.log("update proj");
     if (this.timer > PROJECTILE_MAX_LEN) {
       this.dead = true;
-      console.log("DESTROYED");
     }
     this.timer += 1;
   }
