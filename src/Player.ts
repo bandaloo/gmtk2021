@@ -15,7 +15,7 @@ import KeyboardPlugin = Phaser.Input.Keyboard.KeyboardPlugin;
 import { Grapple } from "./Grapple";
 import { Enemy } from "./Enemy";
 import { colorToNum } from "./utils";
-import { jumpSound, takeDamageSound } from "./game";
+import { jumpSound, slurp, takeDamageSound } from "./game";
 
 export class Player {
   private maxHealth = 3;
@@ -134,6 +134,7 @@ export class Player {
 
     this.kbp.on("keydown-SHIFT", () => {
       if (!this.grapple) {
+        slurp.play();
         this.grapple = new Grapple(
           this.sprite.scene.physics.add.sprite(
             this.sprite.body.position.x + this.sprite.displayWidth / 4,
