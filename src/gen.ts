@@ -1,7 +1,7 @@
 import "phaser";
 import { Bat } from "./Bat";
 import { Cannon } from "./Cannon";
-import { TILE_COLS, TILE_ROWS, TILE_SIZE } from "./consts";
+import { MAGIC_FRUIT_CHANCE, TILE_COLS, TILE_ROWS, TILE_SIZE } from "./consts";
 import { Exit } from "./Exit";
 import RandomLevel from "./game";
 import { Player } from "./Player";
@@ -28,6 +28,7 @@ export function randomizeRoom(
       }
       if (tile === "X" || tile === ".") return tile;
       if (tile === "!") {
+        if (Math.random() < MAGIC_FRUIT_CHANCE) return "h";
         if (Math.random() < itemChance) return "f";
         return "c";
       }
@@ -85,7 +86,7 @@ export function addObjects(
         b.body.checkCollision.right = !solidAt(room, i + 1, j);
 
         platforms.add(b);
-      } else if (tile === "f" || tile === "c") {
+      } else if (tile === "f" || tile === "c" || tile === "h") {
         const p = scene.physics.add.staticSprite(
           (i + 0.5) * TILE_SIZE,
           (j + 0.5) * TILE_SIZE,
@@ -94,13 +95,15 @@ export function addObjects(
         const color =
           tile === "f"
             ? [colorToNum(255, 0, 0), colorToNum(252, 117, 3)]
+            : tile === "h"
+            ? [colorToNum(255, 255, 255), colorToNum(0, 255, 255)]
             : [colorToNum(233, 245, 66), colorToNum(104, 252, 93)];
         p.setTint(color[0], color[0], color[0], color[1]);
         p.body.setSize(120, 120);
         p.setSize(120, 120);
         p.setOrigin(0.5, 0.5);
         p.setScale(0.4);
-        p.setName(tile === "f" ? "fruit" : "coin");
+        p.setName(tile === "f" ? "fruit" : tile === "h" ? "health" : "coin");
         pickups.add(p);
       } else if (!isNaN(parseInt(tile))) {
         const x = (i + 0.5) * TILE_SIZE;
@@ -129,7 +132,8 @@ export function addObjects(
           scene.playerGroup,
           scene.grappleGroup,
           scene,
-          scene.storePlayerHealthBetweenLevels // This is horrible. Too bad!
+          scene.storePlayerHealthBetweenLevels, // This is horrible. Too bad!
+          scene.storePlayerMaxHealthBetweenLevels
         );
       } else if (tile === "e") {
         scene.exit = new Exit(

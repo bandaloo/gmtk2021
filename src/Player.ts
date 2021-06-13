@@ -31,10 +31,10 @@ type PlayerAnimationKeys = {
 };
 
 export class Player {
-  private maxHealth = 3;
+  maxHealth = 3;
   public currentHealth = this.maxHealth;
   /** the maximum number of hearts you can have even with upgrades */
-  private maxMaxHealth = 10;
+  maxMaxHealth = 10;
   private heartDisplay: HeartDisplay;
   public grapple: Grapple | undefined;
   public grapplePull: boolean;
@@ -74,11 +74,18 @@ export class Player {
     public playerGroup: Phaser.Physics.Arcade.Group,
     public grappleGroup: Phaser.Physics.Arcade.Group,
     public demo: Demo,
-    health?: integer
+    health?: number,
+    maxHealth?: number
   ) {
-    if (health) {
+    if (maxHealth !== undefined) {
+      this.maxHealth = maxHealth;
+      console.log("max health", this.maxHealth);
+    }
+
+    if (health !== undefined) {
       this.currentHealth = health;
     }
+
     this.heartDisplay = new HeartDisplay(this.sprite.scene, this.maxMaxHealth);
     this.heartDisplay.redisplay(this.currentHealth, this.maxHealth);
     this.sprite.name = "player";
