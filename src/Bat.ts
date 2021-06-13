@@ -1,5 +1,6 @@
 import { VELOCITY_EPSILON } from "./consts";
 import { Enemy } from "./Enemy";
+import { Player } from "./Player";
 import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 import Vector2 = Phaser.Math.Vector2;
 
@@ -11,6 +12,14 @@ export class Bat extends Enemy {
   /** -1 for left, 1 for right */
   private direction: -1 | 1 = 1;
   private swooping = false;
+
+  public playerStuff = {
+    action: (player: Player): void => {
+      // TODO flap
+      console.log(player);
+    },
+    charges: 3,
+  };
 
   constructor(sprite: SpriteWithDynamicBody) {
     super(sprite);
