@@ -1,6 +1,7 @@
 import { HeartDisplay } from "./HeartDisplay";
 import {
   ENTITY_SIZE,
+  MAX_TINT_TIMER,
   PLAYER_ACC_AIR,
   PLAYER_ACC_GROUND,
   PLAYER_DRAG,
@@ -13,6 +14,7 @@ import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody
 import KeyboardPlugin = Phaser.Input.Keyboard.KeyboardPlugin;
 import { Grapple } from "./Grapple";
 import { Enemy } from "./Enemy";
+import { colorToNum } from "./utils";
 
 export class Player {
   private maxHealth = 3;
@@ -24,6 +26,8 @@ export class Player {
   public grapplePull: boolean;
   private direction: "right" | "left" | "forward";
   private shootAngle: integer;
+
+  tintTimer = MAX_TINT_TIMER;
 
   private grappleAction: (player: Player) => void;
   private primaryAction: ((player: Player) => void) | undefined;
@@ -141,6 +145,10 @@ export class Player {
   }
 
   public update(): void {
+    if (this.tintTimer > 0) this.tintTimer--;
+    const gb = Math.floor(255 - 255 * (this.tintTimer / MAX_TINT_TIMER));
+    const red = colorToNum(255, gb, gb);
+    this.sprite.setTint(red);
     if (!this.sprite.body.touching.down) {
       const fallingSpeed = this.sprite.body.velocity.y;
       if (fallingSpeed > 400) {
@@ -221,6 +229,7 @@ export class Player {
 
   public takeDamage(): void {
     this.currentHealth--;
+    this.tintTimer = MAX_TINT_TIMER;
     this.heartDisplay.redisplay(this.currentHealth, this.maxHealth);
     if (this.currentHealth <= 0) {
       // TODO lose the game
