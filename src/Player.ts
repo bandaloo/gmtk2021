@@ -16,6 +16,11 @@ import { Enemy } from "./Enemy";
 
 export type PlayerAction = (player: Player) => void;
 
+type PlayerAnimationKeys = {
+  still: string;
+  move: string;
+};
+
 export class Player {
   private maxHealth = 3;
   private currentHealth = this.maxHealth;
@@ -26,7 +31,10 @@ export class Player {
   public grapplePull: boolean;
   private direction: "right" | "left" | "forward";
   private shootAngle: integer;
-
+  public cosmetics: {
+    sprite: Phaser.GameObjects.Sprite;
+    keys: PlayerAnimationKeys;
+  }[] = [];
   private grappleAction: PlayerAction = (player: Player) => {
     if (!player.grapple) {
       player.grapple = new Grapple(
@@ -62,6 +70,7 @@ export class Player {
     this.sprite.body.setDrag(PLAYER_DRAG, 0);
     this.direction = "forward";
     this.grapplePull = false;
+    this.sprite.setDepth(100);
 
     this.sprite.body.offset.add({ x: 0, y: 30 });
 
@@ -154,6 +163,24 @@ export class Player {
         }
       }
     });
+    this.resetCosmetics();
+  }
+
+  private resetCosmetics(): void {
+    for (const c of this.cosmetics) {
+      c.sprite.destroy();
+    }
+    this.cosmetics = [];
+  }
+
+  /**
+   * @param zIndex note that the base sprite's z index is 100.
+   */
+  public addCosmetic(
+    sprite: Phaser.GameObjects.Sprite,
+    keys: PlayerAnimationKeys
+  ): void {
+    this.cosmetics.push({ sprite: sprite, keys: keys });
   }
 
   public update(): void {
@@ -171,8 +198,15 @@ export class Player {
     } else if (Math.abs(this.sprite.body.velocity.x) > VELOCITY_EPSILON) {
       this.sprite.anims.play("player_move", true);
       this.sprite.setFlipX(this.sprite.body.velocity.x > 0);
+      for (const c of this.cosmetics) {
+        c.sprite.anims.play(c.keys.move, true);
+        c.sprite.setFlipX(this.sprite.body.velocity.x > 0);
+      }
     } else {
       this.sprite.anims.play("player_still", true);
+      for (const c of this.cosmetics) {
+        c.sprite.anims.play(c.keys.still, true);
+      }
     }
 
     const cursors = this.kbp.createCursorKeys();
@@ -234,6 +268,12 @@ export class Player {
       this.grapple.update();
     }
 
+    // keep cosmetic sprites attached to this
+    for (const c of this.cosmetics) {
+      c.sprite.x = this.sprite.x;
+      c.sprite.y = this.sprite.y;
+    }
+
     this.actionTimer--;
   }
 
@@ -251,8 +291,10 @@ export class Player {
   }
 
   public absorb(enemy: Enemy): void {
+    enemy.playerStuff.initialize(this);
     this.primaryAction = enemy.playerStuff.action;
     this.actionCharges = enemy.playerStuff.charges;
-    // TODO apply cosmetic changes
+    this.actionCooldown = enemy.playerStuff.cooldown;
+    this.actionTimer = 0; // let the player use the action immediately
   }
 }

@@ -14,6 +14,7 @@ export class Bat extends Enemy {
   private swooping = false;
 
   public playerStuff = {
+    initialize: this.playerInitialize,
     action: (player: Player): void => {
       // TODO flap
       console.log(player);
@@ -106,6 +107,40 @@ export class Bat extends Enemy {
     this.sprite.body.setAcceleration(acc.x, acc.y);
     this.sprite.scene.time.delayedCall(500, () => {
       this.sprite.body.setAcceleration(0, 3);
+    });
+  }
+
+  private playerInitialize(player: Player): void {
+    // set up cosmetic wings
+    const s = player.sprite.scene.add.sprite(
+      player.sprite.x,
+      player.sprite.y,
+      "blob_still_wings"
+    );
+    s.setDepth(90);
+
+    s.anims.create({
+      key: "player_still_wings",
+      frames: s.anims.generateFrameNumbers("blob_still_wings", {
+        start: 0,
+        end: 1,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+    s.anims.create({
+      key: "player_move_wings",
+      frames: s.anims.generateFrameNumbers("blob_move_wings", {
+        start: 0,
+        end: 1,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+
+    player.addCosmetic(s, {
+      still: "player_still_wings",
+      move: "player_move_wings",
     });
   }
 }

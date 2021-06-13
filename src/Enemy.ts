@@ -11,6 +11,12 @@ export abstract class Enemy {
   protected maxHealth: number;
   abstract playerStuff: {
     /**
+     * This function is executed once when the enemy is absorbed by the player.
+     * It can be used to set up cosmetic changes and other one-time setup
+     * changes.
+     */
+    initialize: (player: Player) => void;
+    /**
      * When the player absorbs a this enemy this action will replace the player's
      * primary attack action.
      */
