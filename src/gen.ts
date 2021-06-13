@@ -71,7 +71,7 @@ export function addObjects(
     for (let j = 0; j < TILE_ROWS; j++) {
       const tile = room[j][i];
       if (tile === "X") {
-        let tileIndex = "" + Phaser.Math.Between(1, 3);
+        let tileIndex = "" + Phaser.Math.Between(1, 6);
         if (Math.random() < 0.01) tileIndex = "bart";
         const b = scene.physics.add.staticSprite(
           (i + 0.5) * TILE_SIZE,
