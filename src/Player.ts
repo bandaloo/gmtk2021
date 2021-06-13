@@ -10,10 +10,12 @@ export class Player {
   /** the maximum number of hearts you can have even with upgrades */
   private maxMaxHealth = 10;
   private heartDisplay: HeartDisplay;
+  public grapple: Grapple | undefined;
 
   public constructor(
     public sprite: SpriteWithDynamicBody,
-    public kbp: KeyboardPlugin
+    public kbp: KeyboardPlugin,
+    public platforms: Phaser.Physics.Arcade.StaticGroup
   ) {
     this.heartDisplay = new HeartDisplay(this.sprite.scene, this.maxMaxHealth);
     this.heartDisplay.redisplay(this.currentHealth, this.maxHealth);
@@ -52,6 +54,11 @@ export class Player {
       if (this.sprite.body.touching.down) {
         this.sprite.body.setVelocityY(-900);
       }
+      if (this.sprite.getData("grapplePull")) {
+        this.grapple.destroy();
+        this.sprite.setData("grapplePull", false);
+        this.sprite.setData("grappleOut", false);
+      }
     });
 
     this.kbp.on("keyup-SPACE", () => {
@@ -62,14 +69,17 @@ export class Player {
 
     this.kbp.on("keyup-SHIFT", () => {
       if (!this.sprite.getData("grappleOut")) {
-        new Grapple(
+        this.grapple = new Grapple(
           this.sprite.scene.physics.add.sprite(
-            this.sprite.body.position.x,
-            this.sprite.body.position.y,
-            "grapple"
+            this.sprite.body.position.x + this.sprite.displayWidth / 4,
+            this.sprite.body.position.y + this.sprite.displayHeight / 4,
+            "grapple_hand"
           ),
-          this.sprite.getData("angle")
+          this.sprite.getData("angle"),
+          this,
+          this.platforms
         );
+        this.sprite.setData("grappleOut", true);
       }
     });
   }
@@ -92,6 +102,17 @@ export class Player {
       this.sprite.setData("direction", "left");
     } else {
       this.sprite.body.setAccelerationX(0);
+    }
+
+    // Grapple Pull
+    if (this.sprite.getData("grapplePull")) {
+      const dir = {
+        x: this.grapple.sprite.x - this.sprite.body.position.x,
+        y: this.grapple.sprite.y - this.sprite.body.position.y,
+      };
+
+      this.sprite.body.setVelocityX(dir.x * 10);
+      this.sprite.body.setVelocityY(dir.y * 10);
     }
 
     // This is a dumb way to get player angle. Too bad!
@@ -118,6 +139,10 @@ export class Player {
       this.sprite.body.setVelocityX(0);
       this.sprite.body.setAccelerationX(0);
       return;
+    }
+
+    if (this.grapple) {
+      this.grapple.update();
     }
   }
 
