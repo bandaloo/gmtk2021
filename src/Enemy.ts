@@ -9,6 +9,7 @@ import Vec2 = Phaser.Math.Vector2;
 export abstract class Enemy {
   protected currentHealth: number;
   protected maxHealth: number;
+  protected attackPower = 1;
   abstract playerStuff: {
     /**
      * This function is executed once when the enemy is absorbed by the player.
@@ -43,7 +44,7 @@ export abstract class Enemy {
       const myPos = new Vec2(this.sprite.x, this.sprite.y);
       // TODO handle zero vector
       const vec = playerPos.subtract(myPos).normalize().scale(400);
-      wrapper.takeDamage();
+      wrapper.takeDamage(this.attackPower);
 
       //const v = this.sprite.body.velocity;
       other.body.velocity.set(vec.x, vec.y);
@@ -53,8 +54,13 @@ export abstract class Enemy {
   }
 
   abstract update(): void;
-  abstract eaten(): void;
-  abstract grappled(): void;
+  /** Called when this enemy gets absorbed by a player. */
+  abstract onEaten(player: Player): void;
+  /** Called when a player's grappling hook attaches to this enemy. */
+  public onGrappled(): void {
+    this.attackPower = 0;
+    /* no op */
+  }
 
   /**
    * This enemy takes the given amount of damage. Taking more than the current

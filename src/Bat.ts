@@ -56,6 +56,7 @@ export class Bat extends Enemy {
   }
 
   public update(): void {
+    if (this.currentHealth <= 0) return;
     if (Math.abs(this.sprite.body.velocity.x) >= VELOCITY_EPSILON) {
       this.sprite.setFlipX(this.sprite.body.velocity.x >= 0);
     }
@@ -99,12 +100,9 @@ export class Bat extends Enemy {
     this.swoopTimer--;
   }
 
-  eaten(): void {
-    console.log("eaten by player");
-  }
-
-  grappled(): void {
-    console.log("grappled by player");
+  onEaten(player: Player): void {
+    this.currentHealth = 0;
+    player.absorb(this);
   }
 
   private flap() {

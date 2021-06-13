@@ -4,7 +4,6 @@ import { Projectile } from "./Projectile";
 import { Enemy } from "./Enemy";
 import { Player } from "./Player";
 import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
-import GameObjectWithBody = Phaser.Types.Physics.Arcade.GameObjectWithBody;
 
 const MIN_PROXIMITY = 500;
 const MAX_SPEED = 140;
@@ -67,7 +66,7 @@ export class Cannon extends Enemy {
       console.log(player);
     },
     charges: 3,
-    cooldown: 200,
+    cooldown: 30,
   };
 
   public update(): void {
@@ -77,15 +76,12 @@ export class Cannon extends Enemy {
       this.updateDistanceToPlayer();
       if (this.distanceToPlayer >= MIN_PROXIMITY) {
         // if cannon is touching a wall AND too far from the player, just stop
-        console.log("moving backward");
         this.direction = -1;
         this.justRotate = false;
       } else if (this.distanceToPlayer <= -MIN_PROXIMITY) {
-        console.log("moving foward");
         this.direction = 1;
         this.justRotate = false;
       } else {
-        console.log("stopped");
         this.direction = this.distanceToPlayer >= 0 ? -1 : 1;
         this.justRotate = true;
       }
@@ -136,13 +132,6 @@ export class Cannon extends Enemy {
     }
   }
 
-  public onCollide(other: GameObjectWithBody): void {
-    const player = other.getData("outerObject");
-    if (player !== undefined && player instanceof Player) {
-      console.log("hit player");
-    }
-  }
-
   private move() {
     if (!this.justRotate) {
       this.sprite.body.setVelocity(
@@ -160,11 +149,9 @@ export class Cannon extends Enemy {
     }
   }
 
-  eaten(): void {
-    console.log("eaten by player");
-  }
-
-  grappled(): void {
-    console.log("grappled by player");
+  onEaten(player: Player): void {
+    this.currentHealth = 0;
+    // TODO player.absorb(this)
+    console.log(player);
   }
 }

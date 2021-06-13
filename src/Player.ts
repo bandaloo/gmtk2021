@@ -60,7 +60,7 @@ export class Player {
   tintTimer = MAX_TINT_TIMER;
 
   private actionCharges = 0;
-  private actionCooldown = 50;
+  private actionCooldown = 30;
   private actionTimer = this.actionCooldown;
 
   public constructor(
@@ -302,8 +302,9 @@ export class Player {
     this.actionTimer--;
   }
 
-  public takeDamage(): void {
-    this.currentHealth--;
+  public takeDamage(damage = 1): void {
+    if (damage <= 0) return;
+    this.currentHealth -= damage;
     this.tintTimer = MAX_TINT_TIMER;
     this.heartDisplay.redisplay(this.currentHealth, this.maxHealth);
     if (this.currentHealth <= 0) {
