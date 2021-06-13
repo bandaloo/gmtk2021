@@ -1,6 +1,6 @@
 import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 import GameObjectWithBody = Phaser.Types.Physics.Arcade.GameObjectWithBody;
-
+import Demo from "./game";
 import { Player } from "./Player";
 
 const BULLET_SPEED = 350;
@@ -23,14 +23,14 @@ export class Projectile {
    */
   public constructor(
     public sprite: SpriteWithDynamicBody,
-    renderInit: (p: Projectile) => void,
-    private direction: integer
+    private direction: integer,
+    demo: Demo
   ) {
     sprite.setData("outerObject", this);
     sprite.setSize(50, 50);
     sprite.body.setSize(50, 50);
     sprite.body.setAllowGravity(false);
-    renderInit(this);
+    demo.addProjectile(this);
   }
 
   /**

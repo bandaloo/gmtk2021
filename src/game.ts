@@ -10,11 +10,10 @@ import { Grapple } from "./Grapple";
 import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 
 export default class Demo extends Phaser.Scene {
-  private player: Player;
-  private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
+  public player: Player;
   public enemies: Enemy[] = [];
-  private projectiles: Projectile[] = [];
-  private platforms: StaticGroup;
+  public projectiles: Projectile[] = [];
+  public platforms: StaticGroup;
   private pointerDown = false;
 
   constructor() {
@@ -111,30 +110,6 @@ export default class Demo extends Phaser.Scene {
     });
   }
 
-  /**
-   * inits colliders for projectiles. Sets dead to true when it collides with the platform
-   */
-  projectileRenderInit(scene: Demo): (projectile: Projectile) => void {
-    return (projectile: Projectile) => {
-      scene.projectiles.push(projectile);
-      scene.physics.add.collider(scene.platforms, projectile.sprite, (obj1) => {
-        if (obj1.getData("outerObject") instanceof Projectile) {
-          obj1.getData("outerObject").kill();
-        }
-      });
-
-      scene.physics.add.collider(
-        projectile.sprite,
-        scene.player.sprite,
-        (obj1, obj2) => {
-          if (obj1.getData("outerObject") instanceof Projectile) {
-            obj1.getData("outerObject").onCollide(obj2);
-          }
-        }
-      );
-    };
-  }
-
   create(): void {
     this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, "background");
 
@@ -158,13 +133,14 @@ export default class Demo extends Phaser.Scene {
     this.player = new Player(
       this.physics.add.sprite(200, 200, "blob_move"),
       this.input.keyboard,
-      grappleGroup
+      grappleGroup,
+      this
     );
 
     const grappleCollideCallback = (
       obj1: SpriteWithDynamicBody,
       obj2: SpriteWithDynamicBody
-    ) => {
+    ): void => {
       const object = obj1.getData("outerObject");
       const object2 = obj2.getData("outerObject");
       if (object instanceof Grapple) {
@@ -250,6 +226,25 @@ export default class Demo extends Phaser.Scene {
       }
       return true;
     });
+  }
+
+  public addProjectile(projectile: Projectile): void {
+    this.projectiles.push(projectile);
+    this.physics.add.collider(this.platforms, projectile.sprite, (obj1) => {
+      if (obj1.getData("outerObject") instanceof Projectile) {
+        obj1.getData("outerObject").kill();
+      }
+    });
+
+    this.physics.add.collider(
+      projectile.sprite,
+      this.player.sprite,
+      (obj1, obj2) => {
+        if (obj1.getData("outerObject") instanceof Projectile) {
+          obj1.getData("outerObject").onCollide(obj2);
+        }
+      }
+    );
   }
 }
 

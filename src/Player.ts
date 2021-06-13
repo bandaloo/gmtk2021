@@ -15,8 +15,9 @@ import KeyboardPlugin = Phaser.Input.Keyboard.KeyboardPlugin;
 import { Grapple } from "./Grapple";
 import { Enemy } from "./Enemy";
 import { colorToNum } from "./utils";
+import Demo from "./game";
 
-export type PlayerAction = (player: Player) => void;
+export type PlayerAction = (player: Player, demo: Demo) => void;
 
 type PlayerAnimationKeys = {
   still: string;
@@ -66,7 +67,8 @@ export class Player {
   public constructor(
     public sprite: SpriteWithDynamicBody,
     public kbp: KeyboardPlugin,
-    public grappleGroup: Phaser.Physics.Arcade.Group
+    public grappleGroup: Phaser.Physics.Arcade.Group,
+    public demo: Demo
   ) {
     this.heartDisplay = new HeartDisplay(this.sprite.scene, this.maxMaxHealth);
     this.heartDisplay.redisplay(this.currentHealth, this.maxHealth);
@@ -161,7 +163,7 @@ export class Player {
 
     this.kbp.on("keydown-SHIFT", () => {
       if (this.actionTimer <= 0) {
-        this.primaryAction(this);
+        this.primaryAction(this, this.demo);
         this.actionTimer = this.actionCooldown;
         if (this.primaryAction !== this.grappleAction) {
           this.actionCharges--;

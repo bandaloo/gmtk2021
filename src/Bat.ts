@@ -3,6 +3,8 @@ import { Enemy } from "./Enemy";
 import { Player } from "./Player";
 import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 import Vector2 = Phaser.Math.Vector2;
+import { Projectile } from "./Projectile";
+import Demo from "./game";
 
 export class Bat extends Enemy {
   private timeBetweenFlaps = 120;
@@ -15,9 +17,7 @@ export class Bat extends Enemy {
 
   public playerStuff = {
     initialize: this.playerInitialize,
-    action: (player: Player): void => {
-      player.sprite.body.setVelocityY(-900);
-    },
+    action: this.playerAction,
     charges: 3,
     cooldown: 200,
   };
@@ -114,6 +114,17 @@ export class Bat extends Enemy {
     this.sprite.scene.time.delayedCall(500, () => {
       this.sprite.body.setAcceleration(0, 3);
     });
+  }
+
+  private playerAction(player: Player, demo: Demo): void {
+    for (const i of [-1, 1]) {
+      const projectileSprite = player.sprite.scene.physics.add.sprite(
+        player.sprite.body.x + player.sprite.body.width * i,
+        player.sprite.body.y + player.sprite.body.height / 2,
+        "bullet"
+      );
+      new Projectile(projectileSprite, 1, demo);
+    }
   }
 
   private playerInitialize(player: Player): void {

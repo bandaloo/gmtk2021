@@ -4,6 +4,7 @@ import { Projectile } from "./Projectile";
 import { Enemy } from "./Enemy";
 import { Player } from "./Player";
 import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
+import Demo from "./game";
 
 const MIN_PROXIMITY = 500;
 const MAX_SPEED = 140;
@@ -21,10 +22,7 @@ export class Cannon extends Enemy {
   private playerRef: GameObjects.GameObject;
   private canMove = true;
 
-  constructor(
-    sprite: SpriteWithDynamicBody,
-    private renderInit: (p: Projectile) => void
-  ) {
+  constructor(sprite: SpriteWithDynamicBody, private demo: Demo) {
     super(sprite);
     sprite.setSize(ENTITY_SIZE, ENTITY_SIZE);
     sprite.body.setSize(ENTITY_SIZE, ENTITY_SIZE);
@@ -113,7 +111,7 @@ export class Cannon extends Enemy {
       if (this.direction == 1) {
         projectileSprite.toggleFlipX();
       }
-      new Projectile(projectileSprite, this.renderInit, this.direction);
+      new Projectile(projectileSprite, this.direction, this.demo);
       this.canMove = true;
       this.sprite.anims.play("cannon_walk", true);
     });

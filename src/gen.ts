@@ -101,7 +101,7 @@ export function addObjects(
         } else if (int === 0) {
           const cannon = new Cannon(
             scene.physics.add.sprite(200, 500, "cannon_walk"),
-            scene.projectileRenderInit(scene)
+            scene
           );
           scene.enemies.push(cannon);
         } else {
