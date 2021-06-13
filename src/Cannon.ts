@@ -5,6 +5,7 @@ import { Enemy } from "./Enemy";
 import { Player } from "./Player";
 import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 import RandomLevel from "./game";
+import { cannonShotSound } from "./game";
 import Vec2 = Phaser.Math.Vector2;
 
 const MIN_PROXIMITY = 500;
@@ -86,14 +87,17 @@ export class Cannon extends Enemy {
         this.shotTimer = this.timeBetweenShots;
       }
       this.move();
+    } else {
+      this.sprite.body.setVelocity(0, 0);
     }
   }
 
   public shoot(): void {
+    this.canMove = false;
     this.sprite.anims.play("cannon_shoot");
     // don't move while shooting
-    this.canMove = false;
     this.sprite.once("animationcomplete", () => {
+      cannonShotSound.play();
       // add or subtract the spawn point using the direction were headed
       const projectileSprite = this.sprite.scene.physics.add.sprite(
         this.sprite.body.x +
@@ -153,6 +157,7 @@ export class Cannon extends Enemy {
   }
 
   private playerAction(player: Player, demo: RandomLevel): void {
+    cannonShotSound.play();
     const dirNum = player.direction === "right" ? 1 : -1;
     const projectileSprite = this.sprite.scene.physics.add.sprite(
       player.sprite.body.x +
