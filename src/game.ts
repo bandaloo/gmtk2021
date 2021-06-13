@@ -26,6 +26,7 @@ export let absorbSound: Phaser.Sound.BaseSound;
 export let cannonShotSound: Phaser.Sound.BaseSound;
 export let gainHealthSound: Phaser.Sound.BaseSound;
 export let grabSound: Phaser.Sound.BaseSound;
+export let whooshSound: Phaser.Sound.BaseSound;
 export let jumpSound: Phaser.Sound.BaseSound;
 export let landSound: Phaser.Sound.BaseSound;
 export let takeDamageSound: Phaser.Sound.BaseSound;
@@ -111,6 +112,7 @@ export default class RandomLevel extends Phaser.Scene {
     this.load.audio("pickup", "assets/pickup.wav");
     this.load.audio("crunch", "assets/crunch.wav");
     this.load.audio("portal", "assets/portal.wav");
+    this.load.audio("whoosh", "assets/whoosh.wav");
 
     this.load.image("rectangle", "assets/rectangle.png");
     this.load.image("tile_1", "assets/tile_1.png");
@@ -296,18 +298,21 @@ export default class RandomLevel extends Phaser.Scene {
   }
 
   private generateWorld() {
-    const enemyChance = 1 / (1 + Math.exp((-this.levelNumber + 10) / 2)) + 0.25;
+    // Sigmoid
+    // const enemyChance = 1 / (1 + Math.exp((-this.levelNumber + 10) / 2)) + 0.25;
+    // Linear
+    const enemyChance = Math.min(this.levelNumber * 0.1, 1);
+
+    // Linear
+    const itemChance = Math.max(1 - this.levelNumber * 0.2, 0);
 
     let newRoom = Math.floor(rooms.length * Math.random()); // This is terrible. Too bad!
     while (newRoom == this.lastRoom)
       newRoom = Math.floor(rooms.length * Math.random());
+    this.lastRoom = newRoom;
     addObjects(
       padRoom(
-        randomizeRoom(
-          splitRoom(rooms[newRoom]),
-          enemyChance,
-          0.5 - (this.levelNumber / 10) * 0.05
-        )
+        randomizeRoom(splitRoom(rooms[newRoom]), enemyChance, itemChance)
       ),
       this.platforms,
       this.pickups,
@@ -332,7 +337,7 @@ export default class RandomLevel extends Phaser.Scene {
       pickupSound = this.sound.add("pickup");
       crunchSound = this.sound.add("crunch");
       portalSound = this.sound.add("portal");
-
+      whooshSound = this.sound.add("whoosh");
       addedSounds = true;
     }
 
@@ -532,7 +537,7 @@ const config = {
   physics: {
     default: "arcade",
     arcade: {
-      debug: true,
+      // debug: true,
       gravity: { y: 800 },
     },
   },

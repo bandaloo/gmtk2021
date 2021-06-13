@@ -5,6 +5,7 @@ import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody
 import Vector2 = Phaser.Math.Vector2;
 import { Projectile } from "./Projectile";
 import Demo from "./game";
+import { whooshSound } from "./game";
 
 export class Bat extends Enemy {
   private timeBetweenFlaps = 120;
@@ -121,10 +122,11 @@ export class Bat extends Enemy {
     for (const i of [-1, 1]) {
       for (const j of [-1, 1]) {
         const projectileSprite = demo.physics.add.sprite(
-          player.sprite.body.x + player.sprite.body.width * i,
-          player.sprite.body.y + player.sprite.body.height * j,
+          player.sprite.body.x + player.sprite.body.width / 2,
+          player.sprite.body.y + player.sprite.body.height / 2,
           "gust"
         );
+        whooshSound.play();
         projectileSprite.setRotation(Math.atan2(j, i) + Math.PI);
         new Projectile(
           projectileSprite,
