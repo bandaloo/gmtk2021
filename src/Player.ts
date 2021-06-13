@@ -43,10 +43,10 @@ export class Player {
     this.heartDisplay.redisplay(this.currentHealth, this.maxHealth);
     this.sprite.name = "player";
     this.sprite.setData("outerObject", this);
-    this.sprite.body.setBounce(0, 0);
     this.sprite.body.setSize(ENTITY_SIZE, ENTITY_SIZE);
     this.sprite.setSize(ENTITY_SIZE, ENTITY_SIZE);
     this.sprite.body.setCollideWorldBounds(true);
+    this.sprite.body.setBounce(0, 0);
     this.sprite.body.setDrag(PLAYER_DRAG, 0);
     this.direction = "forward";
     this.grapplePull = false;

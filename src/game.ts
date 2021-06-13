@@ -2,7 +2,13 @@ import "phaser";
 import StaticGroup = Phaser.Physics.Arcade.StaticGroup;
 import { Projectile } from "./Projectile";
 import { Enemy } from "./Enemy";
-import { GAME_HEIGHT, GAME_WIDTH, SPRITE_SIZE, TILE_SIZE } from "./consts";
+import {
+  GAME_HEIGHT,
+  GAME_WIDTH,
+  PLAYER_DRAG,
+  SPRITE_SIZE,
+  TILE_SIZE,
+} from "./consts";
 import { addObjects, padRoom, randomizeRoom, splitRoom } from "./gen";
 import { rooms } from "./rooms";
 import { Player } from "./Player";
@@ -153,7 +159,16 @@ export default class RandomLevel extends Phaser.Scene {
     this.platforms = this.physics.add.staticGroup();
     this.pickups = this.physics.add.staticGroup();
     this.grappleGroup = this.physics.add.group();
-    this.playerGroup = this.physics.add.group();
+
+    const config = {} as Phaser.Types.Physics.Arcade.PhysicsGroupConfig;
+    config.allowDrag = true;
+    config.dragX = PLAYER_DRAG;
+    config.dragY = 0;
+    config.bounceX = 0;
+    config.bounceY = 0;
+    config.collideWorldBounds = true;
+
+    this.playerGroup = this.physics.add.group(config);
 
     this.generateWorld();
 
