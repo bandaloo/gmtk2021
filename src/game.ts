@@ -4,7 +4,6 @@ import { GAME_HEIGHT, GAME_WIDTH, SPRITE_SIZE } from "./consts";
 import { addObjects, padRoom, randomizeRoom, splitRoom } from "./gen";
 import { rooms } from "./rooms";
 import { Player } from "./Player";
-import { Bat } from "./Bat";
 
 export default class Demo extends Phaser.Scene {
   private player: Player;
@@ -118,10 +117,6 @@ export default class Demo extends Phaser.Scene {
       this.physics.add.sprite(200, 200, "blob_move"),
       this.input.keyboard,
       platforms
-    );
-
-    this.player.absorb(
-      new Bat(this.physics.add.sprite(500, 500, "bat_flying"))
     );
 
     this.physics.add.collider(this.player.sprite, platforms);

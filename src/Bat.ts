@@ -16,8 +16,7 @@ export class Bat extends Enemy {
   public playerStuff = {
     initialize: this.playerInitialize,
     action: (player: Player): void => {
-      // TODO flap
-      console.log(player);
+      player.sprite.body.setVelocityY(-900);
     },
     charges: 3,
     cooldown: 200,

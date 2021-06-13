@@ -161,7 +161,7 @@ export class Player {
         if (this.primaryAction !== this.grappleAction) {
           this.actionCharges--;
           if (this.actionCharges === 0) {
-            // TODO remove cosmetic powerup changes
+            this.resetCosmetics();
             this.primaryAction = this.grappleAction;
           }
         }
