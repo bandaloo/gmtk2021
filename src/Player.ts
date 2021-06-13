@@ -15,6 +15,7 @@ import KeyboardPlugin = Phaser.Input.Keyboard.KeyboardPlugin;
 import { Grapple } from "./Grapple";
 import { Enemy } from "./Enemy";
 import { colorToNum } from "./utils";
+import { jumpSound, takeDamageSound } from "./game";
 
 export class Player {
   private maxHealth = 3;
@@ -113,6 +114,7 @@ export class Player {
     });
 
     this.kbp.on("keydown-SPACE", () => {
+      jumpSound.play();
       if (this.sprite.body.touching.down) {
         this.sprite.body.setVelocityY(-900);
       }
@@ -229,6 +231,7 @@ export class Player {
 
   public takeDamage(): void {
     if (this.tintTimer > 0) return;
+    takeDamageSound.play();
     this.currentHealth--;
     this.tintTimer = MAX_TINT_TIMER;
     this.heartDisplay.redisplay(this.currentHealth, this.maxHealth);

@@ -124,12 +124,12 @@ export default class Demo extends Phaser.Scene {
   }
 
   create(): void {
-    absorbSound = this.sound.add("absorb");
-    cannonShotSound = this.sound.add("cannon_shot");
+    absorbSound = this.sound.add("absorb"); // TODO
+    cannonShotSound = this.sound.add("cannon_shot"); // TODO
     gainHealthSound = this.sound.add("gain_health");
     grabSound = this.sound.add("grab");
     jumpSound = this.sound.add("jump");
-    landSound = this.sound.add("land");
+    landSound = this.sound.add("land"); // unused
     takeDamageSound = this.sound.add("take_damage");
 
     this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, "background");
