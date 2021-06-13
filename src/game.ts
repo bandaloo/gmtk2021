@@ -7,7 +7,6 @@ import { Player } from "./Player";
 
 export default class Demo extends Phaser.Scene {
   private player: Player;
-  private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   enemies: Enemy[] = [];
   private pointerDown = false;
 
@@ -23,6 +22,7 @@ export default class Demo extends Phaser.Scene {
     this.load.image("heart_empty", "assets/heart_empty.png");
     this.load.image("heart_full", "assets/heart_full.png");
     this.load.image("oldcircle", "assets/blank circle.png");
+    this.load.image("fruit", "assets/fruit.png");
     this.load.spritesheet("circle", "assets/circle tileset.png", {
       frameWidth: 100,
       frameHeight: 100,
@@ -65,6 +65,7 @@ export default class Demo extends Phaser.Scene {
     this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, "background");
 
     const platforms = this.physics.add.staticGroup();
+    const pickups = this.physics.add.staticGroup();
 
     addObjects(
       padRoom(
@@ -75,6 +76,7 @@ export default class Demo extends Phaser.Scene {
         )
       ),
       platforms,
+      pickups,
       this
     );
 
@@ -84,6 +86,17 @@ export default class Demo extends Phaser.Scene {
     );
 
     this.physics.add.collider(this.player.sprite, platforms);
+
+    this.physics.add.overlap(this.player.sprite, pickups, (obj1, obj2) => {
+      const player = obj1.getData("outerObject");
+      if (player instanceof Player) {
+        if (obj2.name === "fruit") {
+          player.eatFruit();
+        }
+        obj2.destroy();
+      }
+    });
+
     this.enemies.forEach((e) => {
       this.physics.add.collider(e.sprite, this.player.sprite, (obj1, obj2) => {
         if (obj1.getData("outerObject") instanceof Enemy) {

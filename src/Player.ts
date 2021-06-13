@@ -143,6 +143,11 @@ export class Player {
     }
   }
 
+  public eatFruit(): void {
+    this.currentHealth = Math.min(this.currentHealth + 1, this.maxHealth);
+    this.heartDisplay.redisplay(this.currentHealth, this.maxHealth);
+  }
+
   public absorb(enemy: Enemy): void {
     this.primaryAction = enemy.playerStuff.action;
     this.actionCharges = enemy.playerStuff.charges;
