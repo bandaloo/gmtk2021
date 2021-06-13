@@ -124,7 +124,7 @@ export class Player {
       }
     });
 
-    this.kbp.on("keyup-SHIFT", () => {
+    this.kbp.on("keydown-SHIFT", () => {
       if (!this.grapple) {
         this.grapple = new Grapple(
           this.sprite.scene.physics.add.sprite(
