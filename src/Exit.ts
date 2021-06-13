@@ -1,5 +1,5 @@
 import { TILE_SIZE } from "./consts";
-import Demo from "./game";
+import RandomLevel from "./game";
 import SpriteWithStaticBody = Phaser.Types.Physics.Arcade.SpriteWithStaticBody;
 
 /**
@@ -23,14 +23,14 @@ export class Exit {
     this.sprite.anims.play("portal_boil", true);
 
     this.sprite.scene.physics.add.overlap(
-      (this.sprite.scene as Demo).playerGroup,
+      (this.sprite.scene as RandomLevel).playerGroup,
       this.sprite,
-      () => ((this.sprite.scene as Demo).shouldReset = true)
+      () => ((this.sprite.scene as RandomLevel).shouldReset = true)
     );
   }
 
   update(): void {
-    if ((this.sprite.scene as Demo).enemies.length == 0) {
+    if ((this.sprite.scene as RandomLevel).enemies.length == 0) {
       console.log("level finished!");
     }
   }

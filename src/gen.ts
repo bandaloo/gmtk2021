@@ -3,7 +3,7 @@ import { Bat } from "./Bat";
 import { Cannon } from "./Cannon";
 import { TILE_COLS, TILE_ROWS, TILE_SIZE } from "./consts";
 import { Exit } from "./Exit";
-import Demo from "./game";
+import RandomLevel from "./game";
 import { Player } from "./Player";
 
 const MAX_ENEMY = 2;
@@ -64,7 +64,7 @@ export function addObjects(
   room: string[][],
   platforms: Phaser.Physics.Arcade.StaticGroup,
   pickups: Phaser.Physics.Arcade.StaticGroup,
-  scene: Demo
+  scene: RandomLevel
 ): void {
   for (let i = 0; i < TILE_COLS; i++) {
     for (let j = 0; j < TILE_ROWS; j++) {

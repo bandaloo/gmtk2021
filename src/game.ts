@@ -11,7 +11,7 @@ import StartScreenScene from "./StartScreenScene";
 import HowToScene from "./HowToScreenScene";
 import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 
-export default class Demo extends Phaser.Scene {
+export default class RandomLevel extends Phaser.Scene {
   public player: Player;
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   public enemies: Enemy[];
@@ -108,7 +108,7 @@ export default class Demo extends Phaser.Scene {
   /**
    * inits colliders for projectiles. Sets dead to true when it collides with the platform
    */
-  projectileRenderInit(scene: Demo): (projectile: Projectile) => void {
+  projectileRenderInit(scene: RandomLevel): (projectile: Projectile) => void {
     return (projectile: Projectile) => {
       scene.projectiles.push(projectile);
       scene.physics.add.collider(scene.platforms, projectile.sprite, (obj1) => {
@@ -263,7 +263,7 @@ const config = {
   backgroundColor: "#222222",
   width: GAME_WIDTH,
   height: GAME_HEIGHT,
-  scene: [StartScreenScene, Demo, HowToScene],
+  scene: [StartScreenScene, RandomLevel, HowToScene],
   physics: {
     default: "arcade",
     arcade: {
