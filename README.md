@@ -4,7 +4,7 @@
 
 SCHLORP is a GMTK Game Jam 2021 submission created, the theme of which was "Joined Together". In this game you are a slime with a grapple hook, which you can use to join with your enemies and use their powers.
 
-![Screenshot](dist/assets/screenshot.png)
+![Screenshot](dist/assets/gameplay-screenshot.png)
 
 ## Authors
 
