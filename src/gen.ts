@@ -64,18 +64,18 @@ export function addObjects(
     for (let j = 0; j < TILE_ROWS; j++) {
       const tile = room[j][i];
       if (tile === "X") {
+        let tileIndex = "" + Phaser.Math.Between(1, 3);
+        if (Math.random() < 0.01) tileIndex = "bart";
         const b = scene.physics.add.staticSprite(
           (i + 0.5) * TILE_SIZE,
           (j + 0.5) * TILE_SIZE,
-          "tile_" + Phaser.Math.Between(1, 2)
+          "tile_" + tileIndex
         );
 
         b.body.checkCollision.down = !solidAt(room, i, j + 1);
         b.body.checkCollision.up = !solidAt(room, i, j - 1);
         b.body.checkCollision.left = !solidAt(room, i - 1, j);
         b.body.checkCollision.right = !solidAt(room, i + 1, j);
-
-        //b.body.checkCollision.down = false;
 
         platforms.add(b);
       } else if (tile === "!") {

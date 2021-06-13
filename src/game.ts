@@ -18,6 +18,8 @@ export default class Demo extends Phaser.Scene {
     this.load.image("rectangle", "assets/rectangle.png");
     this.load.image("tile_1", "assets/tile_1.png");
     this.load.image("tile_2", "assets/tile_2.png");
+    this.load.image("tile_3", "assets/tile_3.png");
+    this.load.image("tile_bart", "assets/tile_bart.png");
     this.load.image("background", "assets/background.png");
     this.load.image("heart_empty", "assets/heart_empty.png");
     this.load.image("heart_full", "assets/heart_full.png");
