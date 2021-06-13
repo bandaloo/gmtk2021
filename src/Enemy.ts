@@ -69,10 +69,9 @@ export abstract class Enemy {
    * @param amount the amount of damage to take.
    */
   public takeDamage(damage = 1): void {
-    console.log(`Enemy taking ${damage} damage`);
     damage = Math.floor(damage);
+    if (damage <= 0) return;
     this.currentHealth = Math.max(this.currentHealth - damage, 0);
-    console.log(`New enemy health: ${this.currentHealth}`);
   }
 
   public isDead(): boolean {

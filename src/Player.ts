@@ -16,6 +16,7 @@ import { Grapple } from "./Grapple";
 import { Enemy } from "./Enemy";
 import { colorToNum } from "./utils";
 import Demo from "./game";
+import { jumpSound, slurp, takeDamageSound } from "./game";
 
 export type PlayerAction = (player: Player, demo: Demo) => void;
 
@@ -44,6 +45,7 @@ export class Player {
   }[] = [];
   private grappleAction: PlayerAction = () => {
     if (!this.grapple) {
+      slurp.play();
       this.grapple = new Grapple(
         this.sprite.scene.physics.add.sprite(
           this.sprite.body.position.x + this.sprite.displayWidth / 4,
@@ -67,6 +69,7 @@ export class Player {
   public constructor(
     public sprite: SpriteWithDynamicBody,
     public kbp: KeyboardPlugin,
+    public playerGroup: Phaser.Physics.Arcade.Group,
     public grappleGroup: Phaser.Physics.Arcade.Group,
     public demo: Demo
   ) {
@@ -74,14 +77,15 @@ export class Player {
     this.heartDisplay.redisplay(this.currentHealth, this.maxHealth);
     this.sprite.name = "player";
     this.sprite.setData("outerObject", this);
-    this.sprite.body.setBounce(0, 0);
     this.sprite.body.setSize(ENTITY_SIZE, ENTITY_SIZE);
     this.sprite.setSize(ENTITY_SIZE, ENTITY_SIZE);
     this.sprite.body.setCollideWorldBounds(true);
+    this.sprite.body.setBounce(0, 0);
     this.sprite.body.setDrag(PLAYER_DRAG, 0);
     this.direction = "forward";
     this.grapplePull = false;
     this.sprite.setDepth(100);
+    playerGroup.add(sprite);
 
     this.sprite.body.offset.add({ x: 0, y: 30 });
 
@@ -146,6 +150,7 @@ export class Player {
     });
 
     this.kbp.on("keydown-SPACE", () => {
+      jumpSound.play();
       if (this.sprite.body.touching.down) {
         this.sprite.body.setVelocityY(-900);
       }
@@ -309,6 +314,7 @@ export class Player {
     if (this.tintTimer > 0) return;
     if (damage <= 0) return;
     this.currentHealth -= damage;
+    takeDamageSound.play();
     this.tintTimer = MAX_TINT_TIMER;
     this.heartDisplay.redisplay(this.currentHealth, this.maxHealth);
     if (this.currentHealth <= 0) {

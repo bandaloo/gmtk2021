@@ -2,25 +2,68 @@ import "phaser";
 import StaticGroup = Phaser.Physics.Arcade.StaticGroup;
 import { Projectile } from "./Projectile";
 import { Enemy } from "./Enemy";
-import { GAME_HEIGHT, GAME_WIDTH, SPRITE_SIZE, TILE_SIZE } from "./consts";
+import {
+  GAME_HEIGHT,
+  GAME_WIDTH,
+  PLAYER_DRAG,
+  SPRITE_SIZE,
+  TILE_SIZE,
+} from "./consts";
 import { addObjects, padRoom, randomizeRoom, splitRoom } from "./gen";
 import { rooms } from "./rooms";
 import { Player } from "./Player";
 import { Grapple } from "./Grapple";
+import StartScreenScene from "./StartScreenScene";
+import HowToScene from "./HowToScreenScene";
 import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 
-export default class Demo extends Phaser.Scene {
+export let absorbSound: Phaser.Sound.BaseSound;
+export let cannonShotSound: Phaser.Sound.BaseSound;
+export let gainHealthSound: Phaser.Sound.BaseSound;
+export let grabSound: Phaser.Sound.BaseSound;
+export let jumpSound: Phaser.Sound.BaseSound;
+export let landSound: Phaser.Sound.BaseSound;
+export let takeDamageSound: Phaser.Sound.BaseSound;
+export let slurp: Phaser.Sound.BaseSound;
+
+let addedSounds = false;
+
+export default class RandomLevel extends Phaser.Scene {
   public player: Player;
-  public enemies: Enemy[] = [];
-  public projectiles: Projectile[] = [];
+  private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
+  public enemies: Enemy[];
+  public projectiles: Projectile[];
   public platforms: StaticGroup;
   private pointerDown = false;
+  private pickups;
+  public grappleGroup;
+  public playerGroup;
+  public shouldReset;
+
+  // Incraments each restart
+  private levelNumber = 0;
 
   constructor() {
-    super("demo");
+    super("RandomLevel");
+  }
+
+  init(data: unknown): void {
+    this.levelNumber += 1;
+    this.enemies = [];
+    this.projectiles = [];
+    this.pickups = [];
   }
 
   preload(): void {
+    this.load.audio("absorb", "assets/absorb.wav");
+    this.load.audio("cannon_shot", "assets/cannon_shot.wav");
+    this.load.audio("gain_health", "assets/gain_health.wav");
+    this.load.audio("grab", "assets/grab.wav");
+    this.load.audio("jump", "assets/jump.wav");
+    this.load.audio("land", "assets/land.wav");
+    this.load.audio("take_damage", "assets/take_damage.wav");
+    this.load.audio("slurp", "assets/slurp.wav");
+
     this.load.image("rectangle", "assets/rectangle.png");
     this.load.image("tile_1", "assets/tile_1.png");
     this.load.image("tile_2", "assets/tile_2.png");
@@ -40,6 +83,10 @@ export default class Demo extends Phaser.Scene {
     this.load.spritesheet("circle", "assets/circle tileset.png", {
       frameWidth: 100,
       frameHeight: 100,
+    });
+    this.load.spritesheet("portal", "assets/portal.png", {
+      frameWidth: 320,
+      frameHeight: 320,
     });
     this.load.spritesheet("bat_flying", "assets/bat_flying.png", {
       frameWidth: SPRITE_SIZE,
@@ -111,12 +158,31 @@ export default class Demo extends Phaser.Scene {
     });
   }
 
-  create(): void {
-    this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, "background");
+  /**
+   * inits colliders for projectiles. Sets dead to true when it collides with the platform
+   */
+  projectileRenderInit(scene: RandomLevel): (projectile: Projectile) => void {
+    return (projectile: Projectile) => {
+      scene.projectiles.push(projectile);
+      scene.physics.add.collider(scene.platforms, projectile.sprite, (obj1) => {
+        if (obj1.getData("outerObject") instanceof Projectile) {
+          obj1.getData("outerObject").kill();
+        }
+      });
 
-    this.platforms = this.physics.add.staticGroup();
-    const pickups = this.physics.add.staticGroup();
+      scene.physics.add.collider(
+        projectile.sprite,
+        scene.playerGroup,
+        (obj1, obj2) => {
+          if (obj1.getData("outerObject") instanceof Projectile) {
+            obj1.getData("outerObject").onCollide(obj2);
+          }
+        }
+      );
+    };
+  }
 
+  private generateWorld() {
     addObjects(
       padRoom(
         randomizeRoom(
@@ -126,17 +192,49 @@ export default class Demo extends Phaser.Scene {
         )
       ),
       this.platforms,
-      pickups,
+      this.pickups,
       this
     );
+  }
 
-    const grappleGroup = this.physics.add.group();
-    this.player = new Player(
-      this.physics.add.sprite(200, 200, "blob_move"),
-      this.input.keyboard,
-      grappleGroup,
-      this
-    );
+  create(): void {
+    if (!addedSounds) {
+      absorbSound = this.sound.add("absorb"); // TODO
+      cannonShotSound = this.sound.add("cannon_shot"); // TODO
+      gainHealthSound = this.sound.add("gain_health");
+      grabSound = this.sound.add("grab");
+      jumpSound = this.sound.add("jump");
+      landSound = this.sound.add("land"); // unused
+      takeDamageSound = this.sound.add("take_damage");
+      slurp = this.sound.add("slurp");
+      addedSounds = true;
+    }
+
+    this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, "background");
+
+    this.platforms = this.physics.add.staticGroup();
+    //const pickups = this.physics.add.staticGroup();
+
+    this.shouldReset = false;
+    this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, "background");
+    console.warn("CREATING GAME #" + this.levelNumber);
+
+    // Create groups before level gen
+    this.platforms = this.physics.add.staticGroup();
+    this.pickups = this.physics.add.staticGroup();
+    this.grappleGroup = this.physics.add.group();
+
+    const config = {} as Phaser.Types.Physics.Arcade.PhysicsGroupConfig;
+    config.allowDrag = true;
+    config.dragX = PLAYER_DRAG;
+    config.dragY = 0;
+    config.bounceX = 0;
+    config.bounceY = 0;
+    config.collideWorldBounds = true;
+
+    this.playerGroup = this.physics.add.group(config);
+
+    this.generateWorld();
 
     const grappleCollideCallback = (
       obj1: SpriteWithDynamicBody,
@@ -153,22 +251,26 @@ export default class Demo extends Phaser.Scene {
 
     // Add grapple collision sensors
     this.physics.add.overlap(
-      grappleGroup,
+      this.grappleGroup,
       this.platforms,
       grappleCollideCallback
     );
     this.physics.add.overlap(
-      grappleGroup,
-      this.player.sprite,
+      this.grappleGroup,
+      this.playerGroup,
       grappleCollideCallback
     );
     this.enemies.forEach((e) => {
-      this.physics.add.overlap(grappleGroup, e.sprite, grappleCollideCallback);
+      this.physics.add.overlap(
+        this.grappleGroup,
+        e.sprite,
+        grappleCollideCallback
+      );
     });
 
-    this.physics.add.collider(this.player.sprite, this.platforms);
+    this.physics.add.collider(this.playerGroup, this.platforms);
 
-    this.physics.add.overlap(this.player.sprite, pickups, (obj1, obj2) => {
+    this.physics.add.overlap(this.playerGroup, this.pickups, (obj1, obj2) => {
       const player = obj1.getData("outerObject");
       if (player instanceof Player) {
         if (obj2.name === "fruit") {
@@ -179,7 +281,7 @@ export default class Demo extends Phaser.Scene {
     });
 
     this.enemies.forEach((e) => {
-      this.physics.add.overlap(e.sprite, this.player.sprite, (obj1, obj2) => {
+      this.physics.add.overlap(e.sprite, this.playerGroup, (obj1, obj2) => {
         const enemy = obj1.getData("outerObject");
         if (enemy instanceof Enemy) {
           enemy.onOverlap(obj2);
@@ -216,21 +318,21 @@ export default class Demo extends Phaser.Scene {
   update(): void {
     this.player.update();
     this.projectiles.forEach((p) => p.update());
-    // clear dead projectiles
     this.enemies.forEach((e) => e.update());
+
+    // clear dead projectiles
     this.projectiles = this.projectiles.filter((p) => !p.isDead());
     // remove dead enemies from the world
-    let died = false;
     this.enemies = this.enemies.filter((enemy) => {
       if (enemy.isDead()) {
-        console.log("Dead enemy!");
-        died = true;
         enemy.sprite.destroy(false);
         return false;
       }
       return true;
     });
-    if (died) console.log(this.enemies);
+    if (this.shouldReset) {
+      this.scene.restart({});
+    }
   }
 
   public addProjectile(projectile: Projectile): void {
@@ -269,10 +371,10 @@ export default class Demo extends Phaser.Scene {
 
 const config = {
   type: Phaser.AUTO,
-  backgroundColor: "#125555",
+  backgroundColor: "#222222",
   width: GAME_WIDTH,
   height: GAME_HEIGHT,
-  scene: Demo,
+  scene: [StartScreenScene, RandomLevel, HowToScene],
   physics: {
     default: "arcade",
     arcade: {
