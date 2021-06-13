@@ -4,6 +4,7 @@ import Demo from "./game";
 import { Player } from "./Player";
 import Vec2 = Phaser.Math.Vector2;
 import { Enemy } from "./Enemy";
+import { PROJECTILE_MAX_LEN } from "./consts";
 
 /**
  * The projectile class handles things that shoot and shouldn't be coupled to the object that creates it
@@ -14,6 +15,7 @@ export class Projectile {
   protected currentHealth: number;
   protected maxHealth: number;
   private dead: boolean;
+  public timer: 0;
 
   /**
    * create a projectile flying in the given dirction
@@ -26,7 +28,8 @@ export class Projectile {
     public sprite: SpriteWithDynamicBody,
     private velocity: Vec2,
     demo: Demo,
-    public friendly = false
+    public friendly = false,
+    collidesWalls = true
   ) {
     sprite.setData("outerObject", this);
     sprite.setSize(50, 50);
@@ -34,14 +37,18 @@ export class Projectile {
     sprite.body.setAllowGravity(false);
     sprite.body.setDrag(0, 0);
     sprite.body.setVelocity(this.velocity.x, this.velocity.y);
-    demo.addProjectile(this);
+    demo.addProjectile(this, collidesWalls);
+    this.timer = 0;
   }
 
   /**
    * Logic to execute every game step.
    */
   public update(): void {
-    // no op
+    if (this.timer > PROJECTILE_MAX_LEN) {
+      this.dead = true;
+    }
+    this.timer += 1;
   }
 
   public onCollide(other: GameObjectWithBody): void {
