@@ -31,6 +31,8 @@ export let landSound: Phaser.Sound.BaseSound;
 export let takeDamageSound: Phaser.Sound.BaseSound;
 export let slurp: Phaser.Sound.BaseSound;
 export let pickupSound: Phaser.Sound.BaseSound;
+export let crunchSound: Phaser.Sound.BaseSound;
+export let portalSound: Phaser.Sound.BaseSound;
 
 let addedSounds = false;
 
@@ -39,7 +41,6 @@ export default class RandomLevel extends Phaser.Scene {
   public enemies: Enemy[];
   public projectiles: Projectile[];
   public platforms: StaticGroup;
-  private pointerDown = false;
   public levelUp = false;
   public gameOver = false;
   private title_text: Text | null;
@@ -102,12 +103,17 @@ export default class RandomLevel extends Phaser.Scene {
     this.load.audio("take_damage", "assets/take_damage.wav");
     this.load.audio("slurp", "assets/slurp.wav");
     this.load.audio("pickup", "assets/pickup.wav");
+    this.load.audio("crunch", "assets/crunch.wav");
+    this.load.audio("portal", "assets/portal.wav");
 
     this.load.image("rectangle", "assets/rectangle.png");
     this.load.image("tile_1", "assets/tile_1.png");
     this.load.image("tile_2", "assets/tile_2.png");
     this.load.image("tile_3", "assets/tile_3.png");
     this.load.image("tile_bart", "assets/tile_bart.png");
+    this.load.image("tile_4", "assets/tile_5.png");
+    this.load.image("tile_5", "assets/tile_6.png");
+    this.load.image("tile_6", "assets/tile_7.png");
     this.load.image("background", "assets/background.png");
     this.load.image("heart_empty", "assets/heart_empty.png");
     this.load.image("heart_full", "assets/heart_full.png");
@@ -195,6 +201,42 @@ export default class RandomLevel extends Phaser.Scene {
       frameWidth: TILE_SIZE,
       frameHeight: TILE_SIZE,
     });
+    this.load.spritesheet(
+      "blob_dropping_cannon",
+      "assets/blob_dropping_cannon.png",
+      {
+        frameWidth: SPRITE_SIZE,
+        frameHeight: SPRITE_SIZE,
+      }
+    );
+    this.load.spritesheet("blob_egg_cannon", "assets/blob_egg_cannon.png", {
+      frameWidth: SPRITE_SIZE,
+      frameHeight: SPRITE_SIZE,
+    });
+    this.load.spritesheet(
+      "blob_falling_cannon",
+      "assets/blob_falling_cannon.png",
+      {
+        frameWidth: SPRITE_SIZE,
+        frameHeight: SPRITE_SIZE,
+      }
+    );
+    this.load.spritesheet("blob_move_cannon", "assets/blob_move_cannon.png", {
+      frameWidth: SPRITE_SIZE,
+      frameHeight: SPRITE_SIZE,
+    });
+    this.load.spritesheet(
+      "blob_rising_cannon",
+      "assets/blob_rising_cannon.png",
+      {
+        frameWidth: SPRITE_SIZE,
+        frameHeight: SPRITE_SIZE,
+      }
+    );
+    this.load.spritesheet("blob_still_cannon", "assets/blob_still_cannon.png", {
+      frameWidth: SPRITE_SIZE,
+      frameHeight: SPRITE_SIZE,
+    });
   }
 
   increaseScore(num: number): void {
@@ -205,30 +247,6 @@ export default class RandomLevel extends Phaser.Scene {
   resetScore(): void {
     this.score = 0;
     this.scoreText.setText("" + this.score);
-  }
-
-  /**
-   * inits colliders for projectiles. Sets dead to true when it collides with the platform
-   */
-  projectileRenderInit(scene: RandomLevel): (projectile: Projectile) => void {
-    return (projectile: Projectile) => {
-      scene.projectiles.push(projectile);
-      scene.physics.add.collider(scene.platforms, projectile.sprite, (obj1) => {
-        if (obj1.getData("outerObject") instanceof Projectile) {
-          obj1.getData("outerObject").kill();
-        }
-      });
-
-      scene.physics.add.collider(
-        projectile.sprite,
-        scene.playerGroup,
-        (obj1, obj2) => {
-          if (obj1.getData("outerObject") instanceof Projectile) {
-            obj1.getData("outerObject").onCollide(obj2);
-          }
-        }
-      );
-    };
   }
 
   private showRestart() {
@@ -272,21 +290,21 @@ export default class RandomLevel extends Phaser.Scene {
   }
 
   private generateWorld() {
-    console.log("new level");
-    const enemyChance = 1 / (1 + Math.exp((-this.levelNumber + 10) / 2)) + 0.25;
-    console.log(enemyChance);
-    console.log(0.5 - (this.levelNumber / 2) * 0.05);
+    // Sigmoid
+    // const enemyChance = 1 / (1 + Math.exp((-this.levelNumber + 10) / 2)) + 0.25;
+    // Linear
+    const enemyChance = Math.min(this.levelNumber * 0.1, 1);
+
+    // Linear
+    const itemChance = Math.max(1 - this.levelNumber * 0.2, 0);
 
     let newRoom = Math.floor(rooms.length * Math.random()); // This is terrible. Too bad!
     while (newRoom == this.lastRoom)
       newRoom = Math.floor(rooms.length * Math.random());
+    this.lastRoom = newRoom;
     addObjects(
       padRoom(
-        randomizeRoom(
-          splitRoom(rooms[newRoom]),
-          enemyChance,
-          0.5 - (this.levelNumber / 10) * 0.05
-        )
+        randomizeRoom(splitRoom(rooms[newRoom]), enemyChance, itemChance)
       ),
       this.platforms,
       this.pickups,
@@ -309,6 +327,8 @@ export default class RandomLevel extends Phaser.Scene {
       takeDamageSound = this.sound.add("take_damage");
       slurp = this.sound.add("slurp");
       pickupSound = this.sound.add("pickup");
+      crunchSound = this.sound.add("crunch");
+      portalSound = this.sound.add("portal");
 
       addedSounds = true;
     }
@@ -451,6 +471,7 @@ export default class RandomLevel extends Phaser.Scene {
 
     if (this.levelUp) {
       this.increaseScore(50);
+      portalSound.play();
       this.scene.restart({ playerHeath: this.player.currentHealth });
     }
   }

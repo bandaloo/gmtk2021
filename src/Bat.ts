@@ -117,12 +117,12 @@ export class Bat extends Enemy {
   }
 
   private playerAction(player: Player, demo: Demo): void {
-    this.sprite.body.setVelocityY(-900);
+    player.sprite.body.setVelocityY(-900);
     for (const i of [-1, 1]) {
       for (const j of [-1, 1]) {
         const projectileSprite = demo.physics.add.sprite(
-          player.sprite.body.x + player.sprite.body.width * i,
-          player.sprite.body.y + player.sprite.body.height * j,
+          player.sprite.body.x + player.sprite.body.width / 2,
+          player.sprite.body.y + player.sprite.body.height / 2,
           "gust"
         );
         projectileSprite.setRotation(Math.atan2(j, i) + Math.PI);

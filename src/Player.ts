@@ -15,7 +15,7 @@ import KeyboardPlugin = Phaser.Input.Keyboard.KeyboardPlugin;
 import { Grapple } from "./Grapple";
 import { Enemy } from "./Enemy";
 import { colorToNum } from "./utils";
-import RandomLevel from "./game";
+import RandomLevel, { crunchSound } from "./game";
 import Demo from "./game"; // TODO this should be the same TOO BAD!
 import { jumpSound, slurp, takeDamageSound } from "./game";
 
@@ -38,7 +38,7 @@ export class Player {
   private heartDisplay: HeartDisplay;
   public grapple: Grapple | undefined;
   public grapplePull: boolean;
-  private direction: "right" | "left" | "forward";
+  public direction: "right" | "left" | "forward";
   private shootAngle: integer;
   public cosmetics: {
     sprite: Phaser.GameObjects.Sprite;
@@ -252,13 +252,15 @@ export class Player {
       this.sprite.setFlipX(this.sprite.body.velocity.x > 0);
       for (const c of this.cosmetics) {
         c.sprite.anims.play(c.keys.move, true);
-        c.sprite.setFlipX(this.sprite.body.velocity.x > 0);
       }
     } else {
       this.sprite.anims.play("player_still", true);
       for (const c of this.cosmetics) {
         c.sprite.anims.play(c.keys.still, true);
       }
+    }
+    for (const c of this.cosmetics) {
+      c.sprite.setFlipX(this.direction !== "left");
     }
 
     const cursors = this.kbp.createCursorKeys();
@@ -362,5 +364,6 @@ export class Player {
     this.actionCharges = enemy.playerStuff.charges;
     this.actionCooldown = enemy.playerStuff.cooldown;
     this.actionTimer = 0; // let the player use the action immediately
+    crunchSound.play();
   }
 }
