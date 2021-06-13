@@ -35,6 +35,7 @@ export default class Demo extends Phaser.Scene {
     this.load.image("grapple_grabbing", "assets/Grapple_Grabbing.png");
     this.load.image("oldcircle", "assets/blank circle.png");
     this.load.image("bullet", "assets/Bullet.png");
+    this.load.image("gust", "assets/gust.png");
     this.load.image("fruit", "assets/fruit.png");
     this.load.spritesheet("circle", "assets/circle tileset.png", {
       frameWidth: 100,

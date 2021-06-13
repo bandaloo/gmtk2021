@@ -16,7 +16,6 @@ export class HeartDisplay {
   }
 
   public redisplay(currentHealth: number, maxHealth: number): void {
-    console.log(`${currentHealth}/${maxHealth}`);
     this.hearts.forEach((heart, i) => {
       heart.setVisible(i < maxHealth);
       if (i < maxHealth) {

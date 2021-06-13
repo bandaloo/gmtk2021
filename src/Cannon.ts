@@ -5,6 +5,7 @@ import { Enemy } from "./Enemy";
 import { Player } from "./Player";
 import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 import Demo from "./game";
+import Vec2 = Phaser.Math.Vector2;
 
 const MIN_PROXIMITY = 500;
 const MAX_SPEED = 140;
@@ -49,8 +50,6 @@ export class Cannon extends Enemy {
       frameRate: 15,
       repeat: 0,
     });
-    this.currentHealth = 1;
-    this.maxHealth = 1;
     this.sprite.body.setAcceleration(0, 0);
     this.sprite.anims.play("cannon_walk", true);
   }
@@ -111,7 +110,11 @@ export class Cannon extends Enemy {
       if (this.direction == 1) {
         projectileSprite.toggleFlipX();
       }
-      new Projectile(projectileSprite, this.direction, this.demo);
+      new Projectile(
+        projectileSprite,
+        new Vec2(350 * this.direction, 0),
+        this.demo
+      );
       this.canMove = true;
       this.sprite.anims.play("cannon_walk", true);
     });

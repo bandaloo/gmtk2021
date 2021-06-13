@@ -56,7 +56,7 @@ export class Bat extends Enemy {
   }
 
   public update(): void {
-    if (this.currentHealth <= 0) return;
+    if (this.currentHealth <= 0 || this.sprite?.body === undefined) return;
     if (Math.abs(this.sprite.body.velocity.x) >= VELOCITY_EPSILON) {
       this.sprite.setFlipX(this.sprite.body.velocity.x >= 0);
     }
@@ -106,24 +106,28 @@ export class Bat extends Enemy {
   }
 
   private flap() {
-    if (this.currentHealth <= 0) return;
+    if (this.currentHealth <= 0 || this.sprite?.body === undefined) return;
     const acc = this.sprite.body.acceleration.add(
       new Vector2(400 * this.direction, -300)
     );
     this.sprite.body.setAcceleration(acc.x, acc.y);
     this.sprite.scene.time.delayedCall(500, () => {
-      this.sprite.body.setAcceleration(0, 3);
+      this.sprite?.body?.setAcceleration(0, 3);
     });
   }
 
   private playerAction(player: Player, demo: Demo): void {
+    this.sprite.body.setVelocityY(-900);
     for (const i of [-1, 1]) {
-      const projectileSprite = player.sprite.scene.physics.add.sprite(
-        player.sprite.body.x + player.sprite.body.width * i,
-        player.sprite.body.y + player.sprite.body.height / 2,
-        "bullet"
-      );
-      new Projectile(projectileSprite, 1, demo);
+      for (const j of [-1, 1]) {
+        const projectileSprite = demo.physics.add.sprite(
+          player.sprite.body.x + player.sprite.body.width * i,
+          player.sprite.body.y + player.sprite.body.height * j,
+          "gust"
+        );
+        projectileSprite.setRotation(Math.atan2(j, i) + Math.PI);
+        new Projectile(projectileSprite, new Vector2(350 * i, 350 * j), demo);
+      }
     }
   }
 

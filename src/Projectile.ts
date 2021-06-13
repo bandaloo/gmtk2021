@@ -2,8 +2,7 @@ import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody
 import GameObjectWithBody = Phaser.Types.Physics.Arcade.GameObjectWithBody;
 import Demo from "./game";
 import { Player } from "./Player";
-
-const BULLET_SPEED = 350;
+import Vec2 = Phaser.Math.Vector2;
 
 /**
  * The projectile class handles things that shoot and shouldn't be coupled to the object that creates it
@@ -18,18 +17,20 @@ export class Projectile {
   /**
    * create a projectile flying in the given dirction
    * @param sprite the sprite to render
-   * @param renderInit the funciton that will add this sprite the required collider groups
-   * @param direction the direction for this to travel (1 to go right, -1 to go left)
+   * @param velocity the bullet's velocity
+   * @param demo a reference to the scene containing this projectile
    */
   public constructor(
     public sprite: SpriteWithDynamicBody,
-    private direction: integer,
+    private velocity: Vec2,
     demo: Demo
   ) {
     sprite.setData("outerObject", this);
     sprite.setSize(50, 50);
     sprite.body.setSize(50, 50);
     sprite.body.setAllowGravity(false);
+    sprite.body.setDrag(0, 0);
+    sprite.body.setVelocity(this.velocity.x, this.velocity.y);
     demo.addProjectile(this);
   }
 
@@ -37,9 +38,7 @@ export class Projectile {
    * Logic to execute every game step.
    */
   public update(): void {
-    if (this.sprite.body !== undefined) {
-      this.sprite.body.setVelocity(BULLET_SPEED * this.direction, 0);
-    }
+    // no op
   }
 
   public onCollide(other: GameObjectWithBody): void {
