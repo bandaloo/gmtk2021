@@ -21,20 +21,32 @@ import HowToScene from "./HowToScreenScene";
 import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 import Text = Phaser.GameObjects.Text;
 
+export let absorbSound: Phaser.Sound.BaseSound;
+export let cannonShotSound: Phaser.Sound.BaseSound;
+export let gainHealthSound: Phaser.Sound.BaseSound;
+export let grabSound: Phaser.Sound.BaseSound;
+export let jumpSound: Phaser.Sound.BaseSound;
+export let landSound: Phaser.Sound.BaseSound;
+export let takeDamageSound: Phaser.Sound.BaseSound;
+export let slurp: Phaser.Sound.BaseSound;
+
+let addedSounds = false;
+
 export default class RandomLevel extends Phaser.Scene {
   public player: Player;
-  private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   public enemies: Enemy[];
-  private projectiles: Projectile[];
-  private platforms: StaticGroup;
+  public projectiles: Projectile[];
+  public platforms: StaticGroup;
   private pointerDown = false;
-  private pickups;
-  public grappleGroup;
-  public playerGroup;
   public levelUp = false;
   public gameOver = false;
   private title_text: Text | null;
   private restart_text: Text | null;
+  private pickups: Phaser.Physics.Arcade.StaticGroup;
+  public grappleGroup: Phaser.Physics.Arcade.Group;
+  public playerGroup: Phaser.Physics.Arcade.Group;
+  public shouldReset: boolean;
+  public storePlayerHealthBetweenLevels: number;
 
   // Incraments each restart
   private levelNumber = 0;
@@ -44,15 +56,33 @@ export default class RandomLevel extends Phaser.Scene {
   }
 
   init(data: unknown): void {
-    console.log("init scene");
-    console.log(data);
+    if (data["playerHeath"]) {
+      this.storePlayerHealthBetweenLevels = data["playerHeath"];
+    } else {
+      this.storePlayerHealthBetweenLevels = 3;
+    }
     this.levelNumber += 1;
     this.enemies = [];
     this.projectiles = [];
-    this.pickups = [];
+    if (this.pickups === undefined) {
+      this.pickups = this.physics.add.staticGroup();
+    } else {
+      if (this.pickups?.children?.size > 0) {
+        this.pickups.clear(true, true);
+      }
+    }
   }
 
   preload(): void {
+    this.load.audio("absorb", "assets/absorb.wav");
+    this.load.audio("cannon_shot", "assets/cannon_shot.wav");
+    this.load.audio("gain_health", "assets/gain_health.wav");
+    this.load.audio("grab", "assets/grab.wav");
+    this.load.audio("jump", "assets/jump.wav");
+    this.load.audio("land", "assets/land.wav");
+    this.load.audio("take_damage", "assets/take_damage.wav");
+    this.load.audio("slurp", "assets/slurp.wav");
+
     this.load.image("rectangle", "assets/rectangle.png");
     this.load.image("tile_1", "assets/tile_1.png");
     this.load.image("tile_2", "assets/tile_2.png");
@@ -67,6 +97,7 @@ export default class RandomLevel extends Phaser.Scene {
     this.load.image("grapple_grabbing", "assets/Grapple_Grabbing.png");
     this.load.image("oldcircle", "assets/blank circle.png");
     this.load.image("bullet", "assets/Bullet.png");
+    this.load.image("gust", "assets/gust.png");
     this.load.image("fruit", "assets/fruit.png");
     this.load.spritesheet("circle", "assets/circle tileset.png", {
       frameWidth: 100,
@@ -105,6 +136,34 @@ export default class RandomLevel extends Phaser.Scene {
       frameHeight: SPRITE_SIZE,
     });
     this.load.spritesheet("blob_egg", "assets/blob_egg.png", {
+      frameWidth: SPRITE_SIZE,
+      frameHeight: SPRITE_SIZE,
+    });
+    this.load.spritesheet(
+      "blob_double_jump_wings",
+      "assets/blob_double_jump_wings.png",
+      {
+        frameWidth: SPRITE_SIZE,
+        frameHeight: SPRITE_SIZE,
+      }
+    );
+    this.load.spritesheet(
+      "blob_falling_wings",
+      "assets/blob_falling_wings.png",
+      {
+        frameWidth: SPRITE_SIZE,
+        frameHeight: SPRITE_SIZE,
+      }
+    );
+    this.load.spritesheet("blob_jump_wings", "assets/blob_jump_wings.png", {
+      frameWidth: SPRITE_SIZE,
+      frameHeight: SPRITE_SIZE,
+    });
+    this.load.spritesheet("blob_move_wings", "assets/blob_move_wings.png", {
+      frameWidth: SPRITE_SIZE,
+      frameHeight: SPRITE_SIZE,
+    });
+    this.load.spritesheet("blob_still_wings", "assets/blog_still_wings.png", {
       frameWidth: SPRITE_SIZE,
       frameHeight: SPRITE_SIZE,
     });
@@ -181,12 +240,17 @@ export default class RandomLevel extends Phaser.Scene {
   }
 
   private generateWorld() {
+    console.log("new level");
+    const enemyChance = 1 / (1 + Math.exp((-this.levelNumber + 10) / 2));
+    console.log(enemyChance);
+    console.log(0.5 - (this.levelNumber / 2) * 0.05);
+
     addObjects(
       padRoom(
         randomizeRoom(
           splitRoom(rooms[Math.floor(rooms.length * Math.random())]),
-          0.5,
-          0.5
+          enemyChance,
+          0.5 - (this.levelNumber / 10) * 0.05
         )
       ),
       this.platforms,
@@ -200,6 +264,22 @@ export default class RandomLevel extends Phaser.Scene {
     this.gameOver = false;
     this.title_text = null;
     this.restart_text = null;
+    if (!addedSounds) {
+      absorbSound = this.sound.add("absorb"); // TODO
+      cannonShotSound = this.sound.add("cannon_shot"); // TODO
+      gainHealthSound = this.sound.add("gain_health");
+      grabSound = this.sound.add("grab");
+      jumpSound = this.sound.add("jump");
+      landSound = this.sound.add("land"); // unused
+      takeDamageSound = this.sound.add("take_damage");
+      slurp = this.sound.add("slurp");
+      addedSounds = true;
+    }
+
+    this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, "background");
+
+    this.platforms = this.physics.add.staticGroup();
+
     this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, "background");
     console.warn("CREATING GAME #" + this.levelNumber);
 
@@ -223,7 +303,7 @@ export default class RandomLevel extends Phaser.Scene {
     const grappleCollideCallback = (
       obj1: SpriteWithDynamicBody,
       obj2: SpriteWithDynamicBody
-    ) => {
+    ): void => {
       const object = obj1.getData("outerObject");
       const object2 = obj2.getData("outerObject");
       if (object instanceof Grapple) {
@@ -323,7 +403,40 @@ export default class RandomLevel extends Phaser.Scene {
     }
 
     if (this.levelUp) {
-      this.scene.restart({});
+      this.scene.restart({ playerHeath: this.player.currentHealth });
+    }
+  }
+
+  public addProjectile(projectile: Projectile): void {
+    this.projectiles.push(projectile);
+    this.physics.add.collider(this.platforms, projectile.sprite, (obj1) => {
+      if (obj1.getData("outerObject") instanceof Projectile) {
+        obj1.getData("outerObject").kill();
+      }
+    });
+
+    if (projectile.friendly) {
+      for (const enemy of this.enemies) {
+        this.physics.add.collider(
+          projectile.sprite,
+          enemy.sprite,
+          (obj1, obj2) => {
+            if (obj1.getData("outerObject") instanceof Projectile) {
+              obj1.getData("outerObject")?.onCollide(obj2);
+            }
+          }
+        );
+      }
+    } else {
+      this.physics.add.collider(
+        projectile.sprite,
+        this.player.sprite,
+        (obj1, obj2) => {
+          if (obj1.getData("outerObject") instanceof Projectile) {
+            obj1.getData("outerObject")?.onCollide(obj2);
+          }
+        }
+      );
     }
   }
 }

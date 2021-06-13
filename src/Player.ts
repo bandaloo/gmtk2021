@@ -16,10 +16,23 @@ import { Grapple } from "./Grapple";
 import { Enemy } from "./Enemy";
 import { colorToNum } from "./utils";
 import RandomLevel from "./game";
+import Demo from "./game"; // TODO this should be the same TOO BAD!
+import { jumpSound, slurp, takeDamageSound } from "./game";
+
+export type PlayerAction = (player: Player, demo: Demo) => void;
+
+type PlayerAnimationKeys = {
+  still: string;
+  move: string;
+  dropping: string;
+  egg: string;
+  falling: string;
+  rising: string;
+};
 
 export class Player {
   private maxHealth = 3;
-  private currentHealth = this.maxHealth;
+  public currentHealth = this.maxHealth;
   /** the maximum number of hearts you can have even with upgrades */
   private maxMaxHealth = 10;
   private heartDisplay: HeartDisplay;
@@ -27,20 +40,45 @@ export class Player {
   public grapplePull: boolean;
   private direction: "right" | "left" | "forward";
   private shootAngle: integer;
+  public cosmetics: {
+    sprite: Phaser.GameObjects.Sprite;
+    keys: PlayerAnimationKeys;
+  }[] = [];
+  private grappleAction: PlayerAction = () => {
+    if (!this.grapple) {
+      slurp.play();
+      this.grapple = new Grapple(
+        this.sprite.scene.physics.add.sprite(
+          this.sprite.body.position.x + this.sprite.displayWidth / 4,
+          this.sprite.body.position.y + this.sprite.displayHeight / 4,
+          "grapple_hand"
+        ),
+        this.shootAngle,
+        this,
+        this.grappleGroup
+      );
+    }
+  };
+  private primaryAction: PlayerAction = this.grappleAction;
 
   tintTimer = 0;
 
-  private grappleAction: (player: Player) => void;
-  private primaryAction: ((player: Player) => void) | undefined;
   private actionCharges = 0;
   private isDead: boolean;
+  private actionCooldown = 30;
+  private actionTimer = this.actionCooldown;
 
   public constructor(
     public sprite: SpriteWithDynamicBody,
     public kbp: KeyboardPlugin,
     public playerGroup: Phaser.Physics.Arcade.Group,
-    public grappleGroup: Phaser.Physics.Arcade.Group
+    public grappleGroup: Phaser.Physics.Arcade.Group,
+    public demo: Demo,
+    health?: integer
   ) {
+    if (health) {
+      this.currentHealth = health;
+    }
     this.heartDisplay = new HeartDisplay(this.sprite.scene, this.maxMaxHealth);
     this.heartDisplay.redisplay(this.currentHealth, this.maxHealth);
     this.sprite.name = "player";
@@ -53,6 +91,7 @@ export class Player {
     this.direction = "forward";
     this.grapplePull = false;
     this.isDead = false;
+    this.sprite.setDepth(100);
     playerGroup.add(sprite);
 
     this.sprite.body.offset.add({ x: 0, y: 30 });
@@ -126,6 +165,14 @@ export class Player {
           this.grapple.destroy();
           this.grapplePull = false;
         }
+        jumpSound.play();
+        if (this.sprite.body.touching.down) {
+          this.sprite.body.setVelocityY(-900);
+        }
+        if (this.grapplePull) {
+          this.grapple.destroy();
+          this.grapplePull = false;
+        }
       }
     });
 
@@ -151,8 +198,37 @@ export class Player {
             grappleGroup
           );
         }
+        if (this.actionTimer <= 0) {
+          this.primaryAction(this, this.demo);
+          this.actionTimer = this.actionCooldown;
+          if (this.primaryAction !== this.grappleAction) {
+            this.actionCharges--;
+            if (this.actionCharges === 0) {
+              this.resetCosmetics();
+              this.primaryAction = this.grappleAction;
+            }
+          }
+        }
       }
     });
+    this.resetCosmetics();
+  }
+
+  private resetCosmetics(): void {
+    for (const c of this.cosmetics) {
+      c.sprite.destroy();
+    }
+    this.cosmetics = [];
+  }
+
+  /**
+   * @param zIndex note that the base sprite's z index is 100.
+   */
+  public addCosmetic(
+    sprite: Phaser.GameObjects.Sprite,
+    keys: PlayerAnimationKeys
+  ): void {
+    this.cosmetics.push({ sprite: sprite, keys: keys });
   }
 
   public update(): void {
@@ -164,18 +240,37 @@ export class Player {
       const fallingSpeed = this.sprite.body.velocity.y;
       if (fallingSpeed > 400) {
         this.sprite.anims.play("player_dropping", true);
+        for (const c of this.cosmetics) {
+          c.sprite.anims.play(c.keys.dropping, true);
+        }
       } else if (fallingSpeed > 200) {
         this.sprite.anims.play("player_egg", true);
+        for (const c of this.cosmetics) {
+          c.sprite.anims.play(c.keys.egg, true);
+        }
       } else if (fallingSpeed > -200) {
         this.sprite.anims.play("player_falling", true);
+        for (const c of this.cosmetics) {
+          c.sprite.anims.play(c.keys.falling, true);
+        }
       } else {
         this.sprite.anims.play("player_rising", true);
+        for (const c of this.cosmetics) {
+          c.sprite.anims.play(c.keys.rising, true);
+        }
       }
     } else if (Math.abs(this.sprite.body.velocity.x) > VELOCITY_EPSILON) {
       this.sprite.anims.play("player_move", true);
       this.sprite.setFlipX(this.sprite.body.velocity.x > 0);
+      for (const c of this.cosmetics) {
+        c.sprite.anims.play(c.keys.move, true);
+        c.sprite.setFlipX(this.sprite.body.velocity.x > 0);
+      }
     } else {
       this.sprite.anims.play("player_still", true);
+      for (const c of this.cosmetics) {
+        c.sprite.anims.play(c.keys.still, true);
+      }
     }
 
     const cursors = this.kbp.createCursorKeys();
@@ -236,11 +331,22 @@ export class Player {
     if (this.grapple) {
       this.grapple.update();
     }
+
+    // keep cosmetic sprites attached to this
+    for (const c of this.cosmetics) {
+      c.sprite.x = this.sprite.x;
+      c.sprite.y = this.sprite.y;
+    }
+
+    this.actionTimer--;
   }
 
-  public takeDamage(): void {
+  public takeDamage(damage = 1): void {
+    damage = Math.floor(damage);
     if (this.tintTimer > 0) return;
-    this.currentHealth--;
+    if (damage <= 0) return;
+    this.currentHealth -= damage;
+    takeDamageSound.play();
     this.tintTimer = MAX_TINT_TIMER;
     this.heartDisplay.redisplay(this.currentHealth, this.maxHealth);
     if (this.currentHealth <= 0) {
@@ -262,8 +368,10 @@ export class Player {
   }
 
   public absorb(enemy: Enemy): void {
+    enemy.playerStuff.initialize(this);
     this.primaryAction = enemy.playerStuff.action;
     this.actionCharges = enemy.playerStuff.charges;
-    // TODO apply cosmetic changes
+    this.actionCooldown = enemy.playerStuff.cooldown;
+    this.actionTimer = 0; // let the player use the action immediately
   }
 }

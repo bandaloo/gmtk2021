@@ -3,6 +3,8 @@ import { Enemy } from "./Enemy";
 import { Player } from "./Player";
 import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 import Vector2 = Phaser.Math.Vector2;
+import { Projectile } from "./Projectile";
+import Demo from "./game";
 
 export class Bat extends Enemy {
   private timeBetweenFlaps = 120;
@@ -14,11 +16,10 @@ export class Bat extends Enemy {
   private swooping = false;
 
   public playerStuff = {
-    action: (player: Player): void => {
-      // TODO flap
-      console.log(player);
-    },
+    initialize: this.playerInitialize,
+    action: this.playerAction,
     charges: 3,
+    cooldown: 200,
   };
 
   constructor(sprite: SpriteWithDynamicBody) {
@@ -55,6 +56,7 @@ export class Bat extends Enemy {
   }
 
   public update(): void {
+    if (this.currentHealth <= 0 || this.sprite?.body === undefined) return;
     if (Math.abs(this.sprite.body.velocity.x) >= VELOCITY_EPSILON) {
       this.sprite.setFlipX(this.sprite.body.velocity.x >= 0);
     }
@@ -98,21 +100,113 @@ export class Bat extends Enemy {
     this.swoopTimer--;
   }
 
-  eaten(): void {
-    console.log("eaten by player");
-  }
-
-  grappled(): void {
-    console.log("grappled by player");
+  onEaten(player: Player): void {
+    this.currentHealth = 0;
+    player.absorb(this);
   }
 
   private flap() {
+    if (this.currentHealth <= 0 || this.sprite?.body === undefined) return;
     const acc = this.sprite.body.acceleration.add(
       new Vector2(400 * this.direction, -300)
     );
     this.sprite.body.setAcceleration(acc.x, acc.y);
     this.sprite.scene.time.delayedCall(500, () => {
-      this.sprite.body.setAcceleration(0, 3);
+      this.sprite?.body?.setAcceleration(0, 3);
+    });
+  }
+
+  private playerAction(player: Player, demo: Demo): void {
+    this.sprite.body.setVelocityY(-900);
+    for (const i of [-1, 1]) {
+      for (const j of [-1, 1]) {
+        const projectileSprite = demo.physics.add.sprite(
+          player.sprite.body.x + player.sprite.body.width * i,
+          player.sprite.body.y + player.sprite.body.height * j,
+          "gust"
+        );
+        projectileSprite.setRotation(Math.atan2(j, i) + Math.PI);
+        new Projectile(
+          projectileSprite,
+          new Vector2(350 * i, 350 * j),
+          demo,
+          true
+        );
+      }
+    }
+  }
+
+  private playerInitialize(player: Player): void {
+    // set up cosmetic wings
+    const s = player.sprite.scene.add.sprite(
+      player.sprite.x,
+      player.sprite.y,
+      "blob_still_wings"
+    );
+    s.setDepth(90);
+
+    s.anims.create({
+      key: "player_still_wings",
+      frames: s.anims.generateFrameNumbers("blob_still_wings", {
+        start: 0,
+        end: 1,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+    s.anims.create({
+      key: "player_move_wings",
+      frames: s.anims.generateFrameNumbers("blob_move_wings", {
+        start: 0,
+        end: 1,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+    s.anims.create({
+      key: "player_dropping_wings",
+      frames: s.anims.generateFrameNumbers("blob_falling_wings", {
+        start: 2,
+        end: 3,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+    s.anims.create({
+      key: "player_egg_wings",
+      frames: s.anims.generateFrameNumbers("blob_falling_wings", {
+        start: 0,
+        end: 1,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+    s.anims.create({
+      key: "player_falling_wings",
+      frames: s.anims.generateFrameNumbers("blob_jump_wings", {
+        start: 0,
+        end: 1,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+    s.anims.create({
+      key: "player_rising_wings",
+      frames: s.anims.generateFrameNumbers("blob_jump_wings", {
+        start: 0,
+        end: 1,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+
+    player.addCosmetic(s, {
+      still: "player_still_wings",
+      move: "player_move_wings",
+      dropping: "player_dropping_wings",
+      egg: "player_egg_wings",
+      falling: "player_falling_wings",
+      rising: "player_rising_wings",
     });
   }
 }

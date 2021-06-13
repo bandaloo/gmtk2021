@@ -1,5 +1,10 @@
-import { GRAPPLE_OFFSET, GRAPPLE_SPEED } from "./consts";
+import {
+  DEFAULT_GRAPPLE_MAX_LENGTH,
+  GRAPPLE_OFFSET,
+  GRAPPLE_SPEED,
+} from "./consts";
 import { Enemy } from "./Enemy";
+import { grabSound } from "./game";
 import { Player } from "./Player";
 import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 
@@ -7,6 +12,7 @@ export class Grapple {
   public armSprite: Phaser.GameObjects.Sprite;
   public baseSprite: Phaser.GameObjects.Sprite;
   private trackedEnemy: Enemy;
+  public maxLength: integer;
   constructor(
     public sprite: SpriteWithDynamicBody,
     public angle: integer,
@@ -23,6 +29,8 @@ export class Grapple {
     this.sprite.body.setCollideWorldBounds(true);
     this.sprite.body.setDrag(0, 0);
     grappleGroup.add(sprite);
+
+    this.maxLength = DEFAULT_GRAPPLE_MAX_LENGTH;
 
     // arm logic
     this.armSprite = this.sprite.scene.add.sprite(
@@ -46,8 +54,6 @@ export class Grapple {
 
     this.sprite.body.setAllowGravity(false);
 
-    console.log(this.sprite.displayHeight);
-
     this.update();
   }
 
@@ -55,17 +61,18 @@ export class Grapple {
     if (entity instanceof Player) {
       if (this.player.grapplePull) {
         if (this.trackedEnemy) {
-          this.trackedEnemy.eaten();
+          this.trackedEnemy.onEaten(this.player);
           this.trackedEnemy = undefined;
         }
         this.destroy();
       }
     } else if (entity instanceof Enemy) {
       if (this.trackedEnemy == undefined) {
+        grabSound.play();
         this.sprite.setTexture("grapple_grabbing");
         this.sprite.setVelocity(0);
         this.player.grapplePull = true;
-        entity.grappled();
+        entity.onGrappled();
         this.trackedEnemy = entity;
       }
     } else {
@@ -83,7 +90,6 @@ export class Grapple {
       );
     }
 
-    console.log("a");
     const playerCenterX =
       this.player.sprite.body.position.x + this.player.sprite.displayWidth / 4;
     const playerCenterY =
@@ -108,6 +114,9 @@ export class Grapple {
       this.sprite.y - grappleBaseY
     );
 
+    if (span.length() > this.maxLength) {
+      this.destroy();
+    }
     this.baseSprite.setPosition(grappleBaseX, grappleBaseY);
 
     this.armSprite.setPosition(
