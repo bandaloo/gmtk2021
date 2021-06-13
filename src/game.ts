@@ -26,6 +26,7 @@ export let absorbSound: Phaser.Sound.BaseSound;
 export let cannonShotSound: Phaser.Sound.BaseSound;
 export let gainHealthSound: Phaser.Sound.BaseSound;
 export let grabSound: Phaser.Sound.BaseSound;
+export let whooshSound: Phaser.Sound.BaseSound;
 export let jumpSound: Phaser.Sound.BaseSound;
 export let landSound: Phaser.Sound.BaseSound;
 export let takeDamageSound: Phaser.Sound.BaseSound;
@@ -105,6 +106,7 @@ export default class RandomLevel extends Phaser.Scene {
     this.load.audio("pickup", "assets/pickup.wav");
     this.load.audio("crunch", "assets/crunch.wav");
     this.load.audio("portal", "assets/portal.wav");
+    this.load.audio("whoosh", "assets/whoosh.wav");
 
     this.load.image("rectangle", "assets/rectangle.png");
     this.load.image("tile_1", "assets/tile_1.png");
@@ -329,7 +331,7 @@ export default class RandomLevel extends Phaser.Scene {
       pickupSound = this.sound.add("pickup");
       crunchSound = this.sound.add("crunch");
       portalSound = this.sound.add("portal");
-
+      whooshSound = this.sound.add("whoosh");
       addedSounds = true;
     }
 
