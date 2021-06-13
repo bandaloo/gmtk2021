@@ -19,6 +19,7 @@ export class Bat extends Enemy {
       console.log(player);
     },
     charges: 3,
+    cooldown: 200,
   };
 
   constructor(sprite: SpriteWithDynamicBody) {

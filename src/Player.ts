@@ -14,6 +14,8 @@ import KeyboardPlugin = Phaser.Input.Keyboard.KeyboardPlugin;
 import { Grapple } from "./Grapple";
 import { Enemy } from "./Enemy";
 
+export type PlayerAction = (player: Player) => void;
+
 export class Player {
   private maxHealth = 3;
   private currentHealth = this.maxHealth;
@@ -25,9 +27,24 @@ export class Player {
   private direction: "right" | "left" | "forward";
   private shootAngle: integer;
 
-  private grappleAction: (player: Player) => void;
-  private primaryAction: ((player: Player) => void) | undefined;
+  private grappleAction: PlayerAction = (player: Player) => {
+    if (!player.grapple) {
+      player.grapple = new Grapple(
+        this.sprite.scene.physics.add.sprite(
+          this.sprite.body.position.x + this.sprite.displayWidth / 4,
+          this.sprite.body.position.y + this.sprite.displayHeight / 4,
+          "grapple_hand"
+        ),
+        player.shootAngle,
+        player,
+        player.platforms
+      );
+    }
+  };
+  private primaryAction: PlayerAction = this.grappleAction;
   private actionCharges = 0;
+  private actionCooldown = 50;
+  private actionTimer = this.actionCooldown;
 
   public constructor(
     public sprite: SpriteWithDynamicBody,
@@ -124,18 +141,17 @@ export class Player {
       }
     });
 
-    this.kbp.on("keyup-SHIFT", () => {
-      if (!this.grapple) {
-        this.grapple = new Grapple(
-          this.sprite.scene.physics.add.sprite(
-            this.sprite.body.position.x + this.sprite.displayWidth / 4,
-            this.sprite.body.position.y + this.sprite.displayHeight / 4,
-            "grapple_hand"
-          ),
-          this.shootAngle,
-          this,
-          this.platforms
-        );
+    this.kbp.on("keydown-SHIFT", () => {
+      if (this.actionTimer <= 0) {
+        this.primaryAction(this);
+        this.actionTimer = this.actionCooldown;
+        if (this.primaryAction !== this.grappleAction) {
+          this.actionCharges--;
+          if (this.actionCharges === 0) {
+            // TODO remove cosmetic powerup changes
+            this.primaryAction = this.grappleAction;
+          }
+        }
       }
     });
   }
@@ -217,6 +233,8 @@ export class Player {
     if (this.grapple) {
       this.grapple.update();
     }
+
+    this.actionTimer--;
   }
 
   public takeDamage(): void {

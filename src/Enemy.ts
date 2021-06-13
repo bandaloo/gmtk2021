@@ -1,6 +1,6 @@
 import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 import GameObjectWithBody = Phaser.Types.Physics.Arcade.GameObjectWithBody;
-import { Player } from "./Player";
+import { Player, PlayerAction } from "./Player";
 import Vec2 = Phaser.Math.Vector2;
 
 /**
@@ -14,12 +14,16 @@ export abstract class Enemy {
      * When the player absorbs a this enemy this action will replace the player's
      * primary attack action.
      */
-    action: (player: Player) => void;
+    action: PlayerAction;
     /**
      * The number of times the player can use the action before this enemy is
      * used up and falls off.
      */
     charges: number;
+    /**
+     * The number of ticks after using the action before it can be used again.
+     */
+    cooldown: number;
   };
 
   protected constructor(public sprite: SpriteWithDynamicBody) {
