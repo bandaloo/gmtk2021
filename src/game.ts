@@ -30,6 +30,7 @@ export let jumpSound: Phaser.Sound.BaseSound;
 export let landSound: Phaser.Sound.BaseSound;
 export let takeDamageSound: Phaser.Sound.BaseSound;
 export let slurp: Phaser.Sound.BaseSound;
+export let pickupSound: Phaser.Sound.BaseSound;
 
 let addedSounds = false;
 
@@ -51,7 +52,12 @@ export default class RandomLevel extends Phaser.Scene {
   public exit: Exit;
   public lastRoom: integer;
 
-  // Incraments each restart
+  public score = 0;
+
+  public scoreText: Phaser.GameObjects.Text;
+  public levelText: Phaser.GameObjects.Text;
+
+  // Increments each restart
   private levelNumber = 0;
 
   constructor() {
@@ -76,6 +82,16 @@ export default class RandomLevel extends Phaser.Scene {
     }
   }
 
+  increaseLevel(): void {
+    this.levelNumber += 1;
+    this.levelText.text = "LVL " + this.levelNumber;
+  }
+
+  resetLevel(): void {
+    this.levelNumber = 0;
+    this.levelText.text = "LVL " + this.levelNumber;
+  }
+
   preload(): void {
     this.load.audio("absorb", "assets/absorb.wav");
     this.load.audio("cannon_shot", "assets/cannon_shot.wav");
@@ -85,6 +101,7 @@ export default class RandomLevel extends Phaser.Scene {
     this.load.audio("land", "assets/land.wav");
     this.load.audio("take_damage", "assets/take_damage.wav");
     this.load.audio("slurp", "assets/slurp.wav");
+    this.load.audio("pickup", "assets/pickup.wav");
 
     this.load.image("rectangle", "assets/rectangle.png");
     this.load.image("tile_1", "assets/tile_1.png");
@@ -180,6 +197,40 @@ export default class RandomLevel extends Phaser.Scene {
     });
   }
 
+  increaseScore(num: number): void {
+    this.score += num;
+    this.scoreText.setText("" + this.score);
+  }
+
+  resetScore(): void {
+    this.score = 0;
+    this.scoreText.setText("" + this.score);
+  }
+
+  /**
+   * inits colliders for projectiles. Sets dead to true when it collides with the platform
+   */
+  projectileRenderInit(scene: RandomLevel): (projectile: Projectile) => void {
+    return (projectile: Projectile) => {
+      scene.projectiles.push(projectile);
+      scene.physics.add.collider(scene.platforms, projectile.sprite, (obj1) => {
+        if (obj1.getData("outerObject") instanceof Projectile) {
+          obj1.getData("outerObject").kill();
+        }
+      });
+
+      scene.physics.add.collider(
+        projectile.sprite,
+        scene.playerGroup,
+        (obj1, obj2) => {
+          if (obj1.getData("outerObject") instanceof Projectile) {
+            obj1.getData("outerObject").onCollide(obj2);
+          }
+        }
+      );
+    };
+  }
+
   private showRestart() {
     if (!this.title_text || !this.restart_text) {
       this.title_text = this.add.text(0, 0, "GAME OVER!!", {
@@ -201,6 +252,8 @@ export default class RandomLevel extends Phaser.Scene {
       this.restart_text.y = GAME_HEIGHT / 2 + 150;
 
       this.restart_text.setInteractive().on("pointerdown", (pointer) => {
+        this.resetLevel();
+        this.resetScore();
         if (pointer instanceof Pointer) {
           console.log("pointer:");
           console.log(pointer);
@@ -255,6 +308,8 @@ export default class RandomLevel extends Phaser.Scene {
       landSound = this.sound.add("land"); // unused
       takeDamageSound = this.sound.add("take_damage");
       slurp = this.sound.add("slurp");
+      pickupSound = this.sound.add("pickup");
+
       addedSounds = true;
     }
 
@@ -320,7 +375,12 @@ export default class RandomLevel extends Phaser.Scene {
       const player = obj1.getData("outerObject");
       if (player instanceof Player) {
         if (obj2.name === "fruit") {
+          gainHealthSound.play();
           player.eatFruit();
+          this.increaseScore(10);
+        } else if (obj2.name === "coin") {
+          pickupSound.play();
+          this.increaseScore(100);
         }
         obj2.destroy();
       }
@@ -337,6 +397,26 @@ export default class RandomLevel extends Phaser.Scene {
     this.enemies.forEach((e) => {
       this.physics.add.collider(e.sprite, this.platforms);
     });
+
+    this.scoreText = this.add.text(0, 0, "" + this.score, {
+      fontSize: 64 + "px",
+      color: "#FFFFFF",
+      fontStyle: "bold",
+    });
+
+    this.scoreText.setOrigin(0.5, 0.5);
+    this.scoreText.x = GAME_WIDTH / 2;
+    this.scoreText.y = 50;
+
+    this.levelText = this.add.text(0, 0, "LVL " + this.levelNumber, {
+      fontSize: 64 + "px",
+      color: "#FFFFFF",
+      fontStyle: "bold",
+    });
+
+    this.levelText.setOrigin(1, 0.5);
+    this.levelText.x = GAME_WIDTH - 32;
+    this.levelText.y = 50;
   }
 
   update(): void {
@@ -370,6 +450,7 @@ export default class RandomLevel extends Phaser.Scene {
     }
 
     if (this.levelUp) {
+      this.increaseScore(50);
       this.scene.restart({ playerHeath: this.player.currentHealth });
     }
   }
