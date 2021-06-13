@@ -461,6 +461,7 @@ export default class RandomLevel extends Phaser.Scene {
     this.enemies = this.enemies.filter((enemy) => {
       if (enemy.isDead()) {
         enemy.sprite.destroy(false);
+        this.increaseScore(25);
         return false;
       }
       return true;
