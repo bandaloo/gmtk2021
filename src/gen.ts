@@ -132,7 +132,7 @@ export function addObjects(
           scene.storePlayerHealthBetweenLevels // This is horrible. Too bad!
         );
       } else if (tile === "e") {
-        new Exit(
+        scene.exit = new Exit(
           scene.physics.add.staticSprite(
             (i + 0.5) * TILE_SIZE,
             (j + 0.5) * TILE_SIZE,
