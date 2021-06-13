@@ -48,6 +48,14 @@ export class Cannon extends Enemy {
     this.sprite.anims.play("cannon_walk", true);
   }
 
+  public playerStuff = {
+    action: (player: Player): void => {
+      // TODO shoot
+      console.log(player);
+    },
+    charges: 1,
+  };
+
   public update(): void {
     this.sprite.setFlipX(this.sprite.body.velocity.x >= 0);
     // movement logic goes here

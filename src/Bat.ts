@@ -1,16 +1,25 @@
 import { VELOCITY_EPSILON } from "./consts";
 import { Enemy } from "./Enemy";
+import { Player } from "./Player";
 import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 import Vector2 = Phaser.Math.Vector2;
 
 export class Bat extends Enemy {
   private timeBetweenFlaps = 120;
-  private flapTimer = this.timeBetweenFlaps;
+  private flapTimer = Phaser.Math.Between(30, this.timeBetweenFlaps);
   private timeBetweenSwoops = 500;
-  private swoopTimer = this.timeBetweenSwoops;
+  private swoopTimer = Phaser.Math.Between(30, this.timeBetweenSwoops);
   /** -1 for left, 1 for right */
   private direction: -1 | 1 = 1;
   private swooping = false;
+
+  public playerStuff = {
+    action: (player: Player): void => {
+      // TODO flap
+      console.log(player);
+    },
+    charges: 3,
+  };
 
   constructor(sprite: SpriteWithDynamicBody) {
     super(sprite);
@@ -62,7 +71,8 @@ export class Bat extends Enemy {
     if (!this.swooping && this.swoopTimer <= 0) {
       const player = this.sprite.scene.children.getFirst("name", "player");
       const dx = this.sprite.body.position.x - player.body.position.x;
-      if (Math.abs(dx) < 200) {
+      const dy = this.sprite.body.position.y - player.body.position.y;
+      if (Math.abs(dx) < 200 && dy < 0) {
         // swoop
         this.sprite.anims.play("bat_swooping", true);
         this.sprite.body.setVelocity(0, 0);

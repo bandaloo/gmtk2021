@@ -12,7 +12,7 @@ import { Cannon } from "./Cannon";
 export default class Demo extends Phaser.Scene {
   private player: Player;
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
-  private enemies: Enemy[] = [];
+  public enemies: Enemy[] = [];
   private projectiles: Projectile[] = [];
   private platforms: StaticGroup;
   private pointerDown = false;
@@ -25,11 +25,17 @@ export default class Demo extends Phaser.Scene {
     this.load.image("rectangle", "assets/rectangle.png");
     this.load.image("tile_1", "assets/tile_1.png");
     this.load.image("tile_2", "assets/tile_2.png");
+    this.load.image("tile_3", "assets/tile_3.png");
+    this.load.image("tile_bart", "assets/tile_bart.png");
     this.load.image("background", "assets/background.png");
     this.load.image("heart_empty", "assets/heart_empty.png");
     this.load.image("heart_full", "assets/heart_full.png");
+    this.load.image("grapple_arm", "assets/grapple_arm.png");
+    this.load.image("grapple_base", "assets/Grapple_Base.png");
+    this.load.image("grapple_hand", "assets/Grapple_Hand.png");
     this.load.image("oldcircle", "assets/blank circle.png");
     this.load.image("bullet", "assets/blank circle.png");
+    this.load.image("fruit", "assets/fruit.png");
     this.load.spritesheet("circle", "assets/circle tileset.png", {
       frameWidth: 100,
       frameHeight: 100,
@@ -108,6 +114,7 @@ export default class Demo extends Phaser.Scene {
     this.enemies.push(cannon);
 
     this.platforms = this.physics.add.staticGroup();
+    const pickups = this.physics.add.staticGroup();
 
     addObjects(
       padRoom(
@@ -117,19 +124,34 @@ export default class Demo extends Phaser.Scene {
           0.5
         )
       ),
-      this.platforms
+      this.platforms,
+      pickups,
+      this
     );
 
     this.player = new Player(
       this.physics.add.sprite(200, 200, "blob_move"),
-      this.input.keyboard
+      this.input.keyboard,
+      this.platforms
     );
 
     this.physics.add.collider(this.player.sprite, this.platforms);
+
+    this.physics.add.overlap(this.player.sprite, pickups, (obj1, obj2) => {
+      const player = obj1.getData("outerObject");
+      if (player instanceof Player) {
+        if (obj2.name === "fruit") {
+          player.eatFruit();
+        }
+        obj2.destroy();
+      }
+    });
+
     this.enemies.forEach((e) => {
-      this.physics.add.collider(e.sprite, this.player.sprite, (obj1, obj2) => {
-        if (obj1.getData("outerObject") instanceof Enemy) {
-          obj1.getData("outerObject").onCollide(obj2);
+      this.physics.add.overlap(e.sprite, this.player.sprite, (obj1, obj2) => {
+        const enemy = obj1.getData("outerObject");
+        if (enemy instanceof Enemy) {
+          enemy.onOverlap(obj2);
         }
       });
     });
@@ -158,15 +180,22 @@ export default class Demo extends Phaser.Scene {
       },
       this
     );
-
-    this.cursors = this.input.keyboard.createCursorKeys();
   }
 
   update(): void {
     this.player.update();
-    this.enemies.forEach((e) => e.update());
     this.projectiles.forEach((p) => p.update());
+    // clear dead projectiles
+    this.enemies.forEach((e) => e.update());
     this.projectiles = this.projectiles.filter((p) => !p.isDead());
+    // remove dead enemies from the world
+    this.enemies = this.enemies.filter((enemy) => {
+      if (enemy.isDead()) {
+        enemy.sprite.destroy(false);
+        return false;
+      }
+      return true;
+    });
   }
 }
 
