@@ -37,19 +37,21 @@ export class Player {
   public constructor(
     public sprite: SpriteWithDynamicBody,
     public kbp: KeyboardPlugin,
+    public playerGroup: Phaser.Physics.Arcade.Group,
     public grappleGroup: Phaser.Physics.Arcade.Group
   ) {
     this.heartDisplay = new HeartDisplay(this.sprite.scene, this.maxMaxHealth);
     this.heartDisplay.redisplay(this.currentHealth, this.maxHealth);
     this.sprite.name = "player";
     this.sprite.setData("outerObject", this);
-    this.sprite.body.setBounce(0, 0);
     this.sprite.body.setSize(ENTITY_SIZE, ENTITY_SIZE);
     this.sprite.setSize(ENTITY_SIZE, ENTITY_SIZE);
     this.sprite.body.setCollideWorldBounds(true);
+    this.sprite.body.setBounce(0, 0);
     this.sprite.body.setDrag(PLAYER_DRAG, 0);
     this.direction = "forward";
     this.grapplePull = false;
+    playerGroup.add(sprite);
 
     this.sprite.body.offset.add({ x: 0, y: 30 });
 

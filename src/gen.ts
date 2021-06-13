@@ -2,7 +2,9 @@ import "phaser";
 import { Bat } from "./Bat";
 import { Cannon } from "./Cannon";
 import { TILE_COLS, TILE_ROWS, TILE_SIZE } from "./consts";
-import Demo from "./game";
+import { Exit } from "./Exit";
+import RandomLevel from "./game";
+import { Player } from "./Player";
 
 const MAX_ENEMY = 2;
 
@@ -32,6 +34,9 @@ export function randomizeRoom(
         if (Math.random() < enemyChance) return tile;
         return ".";
       }
+      if (tile === "s" || tile === "e") {
+        return tile;
+      }
       throw new Error("unidentified tile! " + tile);
     })
   );
@@ -59,7 +64,7 @@ export function addObjects(
   room: string[][],
   platforms: Phaser.Physics.Arcade.StaticGroup,
   pickups: Phaser.Physics.Arcade.StaticGroup,
-  scene: Demo
+  scene: RandomLevel
 ): void {
   for (let i = 0; i < TILE_COLS; i++) {
     for (let j = 0; j < TILE_ROWS; j++) {
@@ -107,6 +112,25 @@ export function addObjects(
         } else {
           throw new Error("enemy number out of bounds");
         }
+      } else if (tile === "s") {
+        scene.player = new Player(
+          scene.physics.add.sprite(
+            (i + 0.5) * TILE_SIZE - TILE_SIZE * 0.1, // Slightly offset so you don't fall through the ground
+            (j + 0.5) * TILE_SIZE - TILE_SIZE * 0.1,
+            "blob_move"
+          ),
+          scene.input.keyboard,
+          scene.playerGroup,
+          scene.grappleGroup
+        );
+      } else if (tile === "e") {
+        new Exit(
+          scene.physics.add.staticSprite(
+            (i + 0.5) * TILE_SIZE,
+            (j + 0.5) * TILE_SIZE,
+            "portal"
+          )
+        );
       }
     }
   }
