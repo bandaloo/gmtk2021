@@ -15,7 +15,7 @@ import KeyboardPlugin = Phaser.Input.Keyboard.KeyboardPlugin;
 import { Grapple } from "./Grapple";
 import { Enemy } from "./Enemy";
 import { colorToNum } from "./utils";
-import RandomLevel from "./game";
+import RandomLevel, { crunchSound } from "./game";
 import Demo from "./game"; // TODO this should be the same TOO BAD!
 import { jumpSound, slurp, takeDamageSound } from "./game";
 
@@ -362,5 +362,6 @@ export class Player {
     this.actionCharges = enemy.playerStuff.charges;
     this.actionCooldown = enemy.playerStuff.cooldown;
     this.actionTimer = 0; // let the player use the action immediately
+    crunchSound.play();
   }
 }

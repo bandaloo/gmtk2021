@@ -31,6 +31,8 @@ export let landSound: Phaser.Sound.BaseSound;
 export let takeDamageSound: Phaser.Sound.BaseSound;
 export let slurp: Phaser.Sound.BaseSound;
 export let pickupSound: Phaser.Sound.BaseSound;
+export let crunchSound: Phaser.Sound.BaseSound;
+export let portalSound: Phaser.Sound.BaseSound;
 
 let addedSounds = false;
 
@@ -102,6 +104,8 @@ export default class RandomLevel extends Phaser.Scene {
     this.load.audio("take_damage", "assets/take_damage.wav");
     this.load.audio("slurp", "assets/slurp.wav");
     this.load.audio("pickup", "assets/pickup.wav");
+    this.load.audio("crunch", "assets/crunch.wav");
+    this.load.audio("portal", "assets/portal.wav");
 
     this.load.image("rectangle", "assets/rectangle.png");
     this.load.image("tile_1", "assets/tile_1.png");
@@ -312,6 +316,8 @@ export default class RandomLevel extends Phaser.Scene {
       takeDamageSound = this.sound.add("take_damage");
       slurp = this.sound.add("slurp");
       pickupSound = this.sound.add("pickup");
+      crunchSound = this.sound.add("crunch");
+      portalSound = this.sound.add("portal");
 
       addedSounds = true;
     }
@@ -454,6 +460,7 @@ export default class RandomLevel extends Phaser.Scene {
 
     if (this.levelUp) {
       this.increaseScore(50);
+      portalSound.play();
       this.scene.restart({ playerHeath: this.player.currentHealth });
     }
   }
