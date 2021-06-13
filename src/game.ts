@@ -35,7 +35,11 @@ export default class Demo extends Phaser.Scene {
       frameWidth: SPRITE_SIZE,
       frameHeight: SPRITE_SIZE,
     });
-    this.load.spritesheet("blob_jump", "assets/blob_jump.png", {
+    this.load.spritesheet("blob_rising", "assets/blob_rising.png", {
+      frameWidth: SPRITE_SIZE,
+      frameHeight: SPRITE_SIZE,
+    });
+    this.load.spritesheet("blob_falling", "assets/blob_falling.png", {
       frameWidth: SPRITE_SIZE,
       frameHeight: SPRITE_SIZE,
     });
@@ -44,6 +48,14 @@ export default class Demo extends Phaser.Scene {
       frameHeight: SPRITE_SIZE,
     });
     this.load.spritesheet("blob_still", "assets/blob_still.png", {
+      frameWidth: SPRITE_SIZE,
+      frameHeight: SPRITE_SIZE,
+    });
+    this.load.spritesheet("blob_dropping", "assets/blob_dropping.png", {
+      frameWidth: SPRITE_SIZE,
+      frameHeight: SPRITE_SIZE,
+    });
+    this.load.spritesheet("blob_egg", "assets/blob_egg.png", {
       frameWidth: SPRITE_SIZE,
       frameHeight: SPRITE_SIZE,
     });

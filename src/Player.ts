@@ -31,6 +31,7 @@ export class Player {
     this.sprite.body.setMaxVelocity(300, 10000);
 
     this.sprite.body.offset.add({ x: 0, y: 30 });
+
     this.sprite.anims.create({
       key: "player_move",
       frames: this.sprite.anims.generateFrameNumbers("blob_move", {
@@ -44,6 +45,46 @@ export class Player {
     this.sprite.anims.create({
       key: "player_still",
       frames: this.sprite.anims.generateFrameNumbers("blob_still", {
+        start: 0,
+        end: 1,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+
+    this.sprite.anims.create({
+      key: "player_rising",
+      frames: this.sprite.anims.generateFrameNumbers("blob_rising", {
+        start: 0,
+        end: 1,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+
+    this.sprite.anims.create({
+      key: "player_falling",
+      frames: this.sprite.anims.generateFrameNumbers("blob_falling", {
+        start: 0,
+        end: 1,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+
+    this.sprite.anims.create({
+      key: "player_egg",
+      frames: this.sprite.anims.generateFrameNumbers("blob_egg", {
+        start: 0,
+        end: 1,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+
+    this.sprite.anims.create({
+      key: "player_dropping",
+      frames: this.sprite.anims.generateFrameNumbers("blob_dropping", {
         start: 0,
         end: 1,
       }),
@@ -65,7 +106,18 @@ export class Player {
   }
 
   public update(): void {
-    if (Math.abs(this.sprite.body.velocity.x) > VELOCITY_EPSILON) {
+    if (!this.sprite.body.touching.down) {
+      const fallingSpeed = this.sprite.body.velocity.y;
+      if (fallingSpeed > 400) {
+        this.sprite.anims.play("player_dropping", true);
+      } else if (fallingSpeed > 200) {
+        this.sprite.anims.play("player_egg", true);
+      } else if (fallingSpeed > -200) {
+        this.sprite.anims.play("player_falling", true);
+      } else {
+        this.sprite.anims.play("player_rising", true);
+      }
+    } else if (Math.abs(this.sprite.body.velocity.x) > VELOCITY_EPSILON) {
       this.sprite.anims.play("player_move", true);
       this.sprite.setFlipX(this.sprite.body.velocity.x > 0);
     } else {
