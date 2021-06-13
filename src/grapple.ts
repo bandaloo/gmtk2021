@@ -1,7 +1,5 @@
-// import { VELOCITY_EPSILON } from "./consts";
 import { Player } from "./Player";
 import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
-// import Vector2 = Phaser.Math.Vector2;
 
 export class Grapple {
   public armSprite: Phaser.GameObjects.Sprite;
@@ -27,7 +25,6 @@ export class Grapple {
       this.sprite.body.position.y,
       "grapple_arm"
     );
-    // this.armSprite.setScale(0.5, 0.5);
 
     // base logic
     this.baseSprite = this.sprite.scene.add.sprite(
@@ -50,7 +47,7 @@ export class Grapple {
       this.platforms,
       (grapple: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody) => {
         grapple.setVelocity(0);
-        this.player.sprite.setData("grapplePull", true);
+        this.player.grapplePull = true;
         this.player.sprite.body.setMaxVelocity(1000, 1000);
 
         // Wait until player catches up to grapple, destroy it then
@@ -58,8 +55,7 @@ export class Grapple {
           this.sprite,
           this.player.sprite,
           () => {
-            this.player.sprite.setData("grappleOut", false);
-            this.player.sprite.setData("grapplePull", false);
+            this.player.grapplePull = false;
             // this.player.grapplePoint = undefined;
             this.destroy();
             this.player.sprite.body.setMaxVelocity(300, 10000);
