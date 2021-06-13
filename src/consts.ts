@@ -14,6 +14,8 @@ export const SPRITE_SIZE = 200;
 
 export const VELOCITY_EPSILON = 10;
 
+export const MAX_TINT_TIMER = 20;
+
 export const PLAYER_ACC_GROUND = 6000;
 export const PLAYER_ACC_AIR = 3000;
 export const PLAYER_DRAG = 3000;
