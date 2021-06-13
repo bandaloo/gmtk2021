@@ -1,6 +1,7 @@
 import { HeartDisplay } from "./HeartDisplay";
 import {
   ENTITY_SIZE,
+  MAX_TINT_TIMER,
   PLAYER_ACC_AIR,
   PLAYER_ACC_GROUND,
   PLAYER_DRAG,
@@ -13,6 +14,7 @@ import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody
 import KeyboardPlugin = Phaser.Input.Keyboard.KeyboardPlugin;
 import { Grapple } from "./Grapple";
 import { Enemy } from "./Enemy";
+import { colorToNum } from "./utils";
 
 export type PlayerAction = (player: Player) => void;
 
@@ -39,21 +41,24 @@ export class Player {
     sprite: Phaser.GameObjects.Sprite;
     keys: PlayerAnimationKeys;
   }[] = [];
-  private grappleAction: PlayerAction = (player: Player) => {
-    if (!player.grapple) {
-      player.grapple = new Grapple(
+  private grappleAction: PlayerAction = () => {
+    if (!this.grapple) {
+      this.grapple = new Grapple(
         this.sprite.scene.physics.add.sprite(
           this.sprite.body.position.x + this.sprite.displayWidth / 4,
           this.sprite.body.position.y + this.sprite.displayHeight / 4,
           "grapple_hand"
         ),
-        player.shootAngle,
-        player,
-        player.platforms
+        this.shootAngle,
+        this,
+        this.grappleGroup
       );
     }
   };
   private primaryAction: PlayerAction = this.grappleAction;
+
+  tintTimer = MAX_TINT_TIMER;
+
   private actionCharges = 0;
   private actionCooldown = 50;
   private actionTimer = this.actionCooldown;
@@ -61,7 +66,7 @@ export class Player {
   public constructor(
     public sprite: SpriteWithDynamicBody,
     public kbp: KeyboardPlugin,
-    public platforms: Phaser.Physics.Arcade.StaticGroup
+    public grappleGroup: Phaser.Physics.Arcade.Group
   ) {
     this.heartDisplay = new HeartDisplay(this.sprite.scene, this.maxMaxHealth);
     this.heartDisplay.redisplay(this.currentHealth, this.maxHealth);
@@ -188,6 +193,10 @@ export class Player {
   }
 
   public update(): void {
+    if (this.tintTimer > 0) this.tintTimer--;
+    const gb = Math.floor(255 - 255 * (this.tintTimer / MAX_TINT_TIMER));
+    const red = colorToNum(255, gb, gb);
+    this.sprite.setTint(red);
     if (!this.sprite.body.touching.down) {
       const fallingSpeed = this.sprite.body.velocity.y;
       if (fallingSpeed > 400) {
@@ -295,6 +304,7 @@ export class Player {
 
   public takeDamage(): void {
     this.currentHealth--;
+    this.tintTimer = MAX_TINT_TIMER;
     this.heartDisplay.redisplay(this.currentHealth, this.maxHealth);
     if (this.currentHealth <= 0) {
       // TODO lose the game
