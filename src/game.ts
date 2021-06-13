@@ -44,8 +44,9 @@ export default class RandomLevel extends Phaser.Scene {
   public score = 0;
 
   public scoreText: Phaser.GameObjects.Text;
+  public levelText: Phaser.GameObjects.Text;
 
-  // Incraments each restart
+  // Increments each restart
   private levelNumber = 0;
 
   constructor() {
@@ -64,6 +65,12 @@ export default class RandomLevel extends Phaser.Scene {
     this.enemies = [];
     this.projectiles = [];
     this.pickups = [];
+  }
+
+  increaseLevel(): void {
+    this.levelNumber += 1;
+    this.levelText.text = "LVL " + this.levelNumber;
+    this.increaseScore(50);
   }
 
   preload(): void {
@@ -318,6 +325,16 @@ export default class RandomLevel extends Phaser.Scene {
     this.scoreText.setOrigin(0.5, 0.5);
     this.scoreText.x = GAME_WIDTH / 2;
     this.scoreText.y = 50;
+
+    this.levelText = this.add.text(0, 0, "LVL " + this.levelNumber, {
+      fontSize: 64 + "px",
+      color: "#FFFFFF",
+      fontStyle: "bold",
+    });
+
+    this.levelText.setOrigin(1, 0.5);
+    this.levelText.x = GAME_WIDTH - 32;
+    this.levelText.y = 50;
   }
 
   update(): void {
