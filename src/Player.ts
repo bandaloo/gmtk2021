@@ -4,8 +4,9 @@ import {
   PLAYER_ACC_AIR,
   PLAYER_ACC_GROUND,
   PLAYER_DRAG,
-  PLAYER_MAX_SPEED_X,
-  PLAYER_MAX_SPEED_Y,
+  PLAYER_MAX_SPEED_GRAPPLE_X,
+  PLAYER_MAX_SPEED_NORMAL_X,
+  PLAYER_MAX_SPEED_NORMAL_Y,
   VELOCITY_EPSILON,
 } from "./consts";
 import SpriteWithDynamicBody = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
@@ -37,7 +38,6 @@ export class Player {
     this.sprite.setSize(ENTITY_SIZE, ENTITY_SIZE);
     this.sprite.body.setCollideWorldBounds(true);
     this.sprite.body.setDrag(PLAYER_DRAG, 0);
-    this.sprite.body.setMaxVelocity(PLAYER_MAX_SPEED_X, PLAYER_MAX_SPEED_Y);
     this.direction = "forward";
     this.grapplePull = false;
 
@@ -159,6 +159,7 @@ export class Player {
     const acc = this.sprite.body.touching.down
       ? PLAYER_ACC_GROUND
       : PLAYER_ACC_AIR;
+
     if (cursors.right.isDown) {
       this.sprite.body.setAccelerationX(acc);
       this.direction = "right";
@@ -167,6 +168,18 @@ export class Player {
       this.direction = "left";
     } else {
       this.sprite.body.setAccelerationX(0);
+    }
+
+    if (this.grapplePull) {
+      this.sprite.body.setMaxVelocity(
+        PLAYER_MAX_SPEED_GRAPPLE_X,
+        PLAYER_MAX_SPEED_NORMAL_Y
+      );
+    } else {
+      this.sprite.body.setMaxVelocity(
+        PLAYER_MAX_SPEED_NORMAL_X,
+        PLAYER_MAX_SPEED_NORMAL_Y
+      );
     }
 
     // Grapple Pull
